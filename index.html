@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script language="javascript">
+var lipidomics_forms_content = [{"name": "Overall study design",
+  "content": [
+    {"title": "Title of the Study",
+     "name": "study-title",
+     "type": "text",
+     "required": 1,
+     "value": "eae",
+     "description": "To whom correspondence should be addressed?"
+     },
+    {"name": "workflow-type",
+     "type": "hidden",
+     "value": ""
+     },
+    {"title": "Select your weapons",
+     "name": "whatever",
+     "type": "multiple",
+     "choice": [
+        {"name": "12345",
+         "value": "This is the first item",
+         "selected": 1
+         },
+        {"name": "321",
+         "value": "This is the second item",
+         "selected": 0
+         },
+        {"name": "32145",
+         "value": "This is the third item",
+         "selected": 1
+         }
+     ],
+     "description": "To whom correspondence should be addressed?"
+     },
+    {"title": "All multiple",
+     "name": "mlp",
+     "type": "multiple",
+     "value": "",
+     "choice": [
+        {"name": "mrait",
+         "value": "This is the first item",
+         "selected": 0
+         },
+        {"name": "atl34",
+         "value": "This is the second item",
+         "selected": 1
+         },
+        {"name": "upga",
+         "value": "This is the third item",
+         "selected": 0
+         }
+     ],
+     "description": "To whom correspondence should be addressed?"
+     }
+     
+  ]
+}
+];
+
+
+
+
+
+function update_form(form){
+    if (form.type == "text"){
+        form.content["value"] = form.value;
+    }
+    console.log(lipidomics_forms_content);
+}
+
+</script>
+<style>
+.lipidomics-forms-page {
+}
+
+.lipidomics-forms-field {
+    margin: 0 0 20px 0;
+    width: 100%;
+}
+
+.lipidomics-forms-field-title {
+    margin: 1px 0 1px 0;
+}
+
+.lipidomics-forms-field-content {
+}
+
+.lipidomics-forms-input {
+    padding: 6px 10px;
+    max-width: 60%;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 100%;
+}
+
+.lipidomics-forms-select {
+    padding: 6px 10px;
+    max-width: 60%;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 100%;
+    text-transform: none;
+    white-space: nowrap;
+    background-color: #fff;
+}
+
+.lipidomics-forms-multiple {
+    outline: none;
+    text-decoration: none;
+    text-indent: 0px;
+}
+
+.lipidomics-forms-field-description {
+    font-size: 12px;
+    margin: 1px 0 1px 0;
+}
+</style>
+</head>
+
+
+<body>
+
+<div id="form-viewer">
+</div>
+
+
+<!--
+<div class="lipidomics-forms-page">
+    <div class="lipidomics-forms-field">
+        <div class="lipidomics-forms-field-title">
+        <b>Title of the Study</b> <font color="red">*</font><br/>
+        </div>
+        
+        <div class="lipidomics-forms-field-content">
+        <input type="text" onchange="update_form(this);" class="lipidomics-forms-input"></input>
+        </div>
+        
+        <div class="lipidomics-forms-field-description">
+        To whom correspondence should be addressed?
+        </div>
+    </div>
+    
+    <div class="lipidomics-forms-field">
+        <div class="lipidomics-forms-field-title">
+        <b>Title of the Study</b> <font color="red">*</font><br/>
+        </div>
+        
+        <div class="lipidomics-forms-field-content">
+        <input type="text" onchange="" class="lipidomics-forms-input"></input>
+        </div>
+        
+        <div class="lipidomics-forms-field-description">
+        To whom correspondence should be addressed?
+        </div>
+    </div>
+    
+    <div class="lipidomics-forms-field">
+        <div class="lipidomics-forms-field-title">
+        <b>Title of the Study</b> <font color="red">*</font><br/>
+        </div>
+        
+        <div class="lipidomics-forms-field-content">
+        <select onchange="" class="lipidomics-forms-select">
+            <option>Yes</option>
+            <option>No</option>
+        </select>
+        </div>
+        
+        <div class="lipidomics-forms-field-description">
+        To whom correspondence should be addressed?
+        </div>
+    </div>
+    
+    
+    
+    <div class="lipidomics-forms-field">
+        <div class="lipidomics-forms-field-title">
+        <b>Title of the Study</b> <font color="red">*</font><br/>
+        </div>
+        
+        <div class="lipidomics-forms-field-content">
+        <ul class="lipidomics-forms-multiple">
+            <li><input type="checkbox" />UV-PD</li>
+            <li><input type="checkbox" />Other</li>
+        </ul>
+        </div>
+        
+        <div class="lipidomics-forms-field-description">
+        To whom correspondence should be addressed?
+        </div>
+    </div>
+<div>
+-->
+</body>
+<script language="javascript">
+var form_viewer = document.getElementById("form-viewer");
+for (page of lipidomics_forms_content){
+    for (field of page["content"]){
+        if (!("type" in field) || !("name" in field)) continue;
+
+        var obj = document.createElement("div");
+        obj.className = "lipidomics-forms-field";
+        
+        if (field["type"] == "text"){
+            if (!("title" in field)) continue;
+            if (!("value" in field)) field["value"] = "";
+            if (!("description" in field)) field["description"] = "";
+            
+            // Adding the title of the field
+            var obj_title = document.createElement("div");
+            obj_title.className = "lipidomics-forms-field-title";
+            obj_title.innerHTML = "<b>" + field["title"] + "</b>";
+            if (("required" in field) && field["required"] == 1){
+                obj_title.innerHTML += " <font color='red'>*</font>";
+            }
+            obj.append(obj_title);
+            
+            // Adding the text field of the field
+            var obj_content = document.createElement("div");
+            obj_content.className = "lipidomics-forms-field-content";
+            var obj_input = document.createElement("input");
+            obj_input.className = "lipidomics-forms-input";
+            obj_input.type = "text";
+            obj_input.value = field["value"];
+            obj_input.content = field;
+            obj_input.setAttribute('onchange','update_form(this);');
+            obj_content.append(obj_input);
+            obj.append(obj_content);
+            
+            // Adding description of the field if present
+            if (field["description"].length > 0){
+                var obj_description = document.createElement("div");
+                obj_description.className = "lipidomics-forms-field-description";
+                obj_description.innerHTML = field["description"];
+                obj.append(obj_description);
+            }
+            
+        /*
+            <div class="lipidomics-forms-field-title">
+            <b>Title of the Study</b> <font color="red">*</font><br/>
+            </div>
+            
+            <div class="lipidomics-forms-field-content">
+            <input type="text" onchange="update_form(this);" class="lipidomics-forms-input"></input>
+            </div>
+            
+            <div class="lipidomics-forms-field-description">
+            To whom correspondence should be addressed?
+            </div>
+            */
+        }
+        form_viewer.append(obj);
+    }
+}
+
+</script>
+</html>
