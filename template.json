@@ -2,12 +2,12 @@ types are:
 - text
 - hidden
 - multiple
-- combo
+- select
 - number
 
 
 [{"name": "Overall study design",
-  "content: [
+  "content": [
     {"title": "Title of the Study",
      "name": "study-title",
      "type": "text",
@@ -39,7 +39,7 @@ types are:
      "description": "To whom correspondence should be addressed?"
      },
     {"title": "workflow-type",
-     "name": "whatever"
+     "name": "whatever",
      "type": "multiple",
      "value": "",
      "choice": [
