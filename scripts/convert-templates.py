@@ -24,7 +24,12 @@ def convert_condition(conditionals, field_types):
     return "|".join(converted)
 
 
-input_string = open("wpforms240.json", "rt").read()
+input_file, output_file = "wpforms245.json", "../workflow-templates/checklist.json"
+#input_file, output_file = "wpforms240.json", "../workflow-templates/sample.json"
+#input_file, output_file = "wpforms199.json", "../workflow-templates/lipid-class.json"
+
+
+input_string = open(input_file, "rt").read()
 input_data = json.loads(input_string)
 output_data = []
 current_page = None
@@ -91,6 +96,7 @@ for field_name, field in input_data["fields"].items():
             
         new_field = {"label": field["label"],
                      "name": field["id"],
+                     "type": "number",
                      "required": 1 if field["required"] == "1" else 0,
                      "value": 0,
                      "description": field["description"]}
@@ -115,6 +121,7 @@ for field_name, field in input_data["fields"].items():
         current_page.append(new_field)
         
     
-print(output_data)
+with open(output_file, "wt") as out:
+    out.write(json.dumps(output_data))
 
 
