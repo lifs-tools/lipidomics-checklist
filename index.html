@@ -13,7 +13,7 @@ var lipidomics_forms_content = [{"name": "Overall study design",
      },
     {"name": "workflow-type",
      "type": "hidden",
-     "value": ""
+     "value": "di"
      },
     {"title": "Select your weapons",
      "name": "whatever",
@@ -29,6 +29,54 @@ var lipidomics_forms_content = [{"name": "Overall study design",
          "value": 0
          },
         {"name": "32145",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321458",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321457",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321456",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321455",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321454",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321453",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321452",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "321451",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "3214521",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "3214512",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "3214522",
+         "title": "This is the third item",
+         "value": 1
+         },
+        {"name": "3214511",
          "title": "This is the third item",
          "value": 1
          }
@@ -72,8 +120,18 @@ var lipidomics_forms_content = [{"name": "Overall study design",
      "required": 1,
      "value": "What are you talking about",
      "description": "To whom correspondence should be addressed?"
+     },
+    {"title": "Temparature",
+     "name": "temp",
+     "type": "number",
+     "min": 1,
+     "max": 20,
+     "value": 5,
+     "step": 1,
+     "description": "What is your favorite temparature?",
+     "condition": "workflow-type='di'"
      }
-     ]
+  ]
 }
 ];
 var field_map = {};
@@ -85,6 +143,7 @@ var dom_form_pages = [];
 var current_page = 0;
 var required_messages = {};
 var dom_text_fields = {};
+var form_enabled = true;
 
 
 function load_data(){
@@ -97,16 +156,28 @@ function load_data(){
     current_page = 0;
     required_messages = {};
     dom_text_fields = {};
+    form_enabled = true;
     
-    
+    check_fields = {};
     for (page of lipidomics_forms_content){
         for (field of page["content"]){
             // add field info into field map
             if (!("type" in field) || !("name" in field)) continue;
-            field_map[field["name"]] = field;
+            var field_name = field["name"];
+            
+            if (field_name in field_map){
+                alert("Field with name \"" + field_name + "\" appears to be twice.");
+                form_enabled = false;
+            }
+            field_map[field_name] = field;
             if ((field["type"] == "select" || field["type"] == "multiple") && ("choice" in field)){
                 for (choice of field["choice"]){
                     if ("name" in choice){
+                        var choice_name = choice["name"];
+                        if (choice_name in field_map){
+                            alert("Choice with name \"" + choice_name + "\" appears to be twice.");
+                            form_enabled = false;
+                        }
                         field_map[choice["name"]] = choice;
                     }
                 }
@@ -114,23 +185,54 @@ function load_data(){
             
             // check for any logical conditions
             if (!("condition" in field) || field["condition"].length == 0) continue;
+            
+            check_fields[field_name] = [];
             var condition = [];
             for (condition_and of field["condition"].split("|")){
                 var conjunction = [];
                 for (con of condition_and.split("&")){
                     var single_condition = con.split("=");
-                    if (single_condition.length != 2) continue;
+                    if (single_condition.length != 2){
+                        alert("Corrupted condition \"" + field["condition"] + "\" in field \"" + field_name + "\".");
+                        form_enabled = false;
+                        continue;
+                    }
                     
                     var l = single_condition[1].length;
-                    if (single_condition[1][0] === "'" && single_condition[1][l - 1] === "'") single_condition[1] = single_condition[1].substring(1, l - 1);
-                    else single_condition[1] = parseFloat(single_condition[1]);
+                    
+                    if (single_condition[1][0] === "'" && single_condition[1][l - 1] === "'"){
+                        single_condition[1] = single_condition[1].substring(1, l - 1);
+                    }
+                    else {
+                        // check if value is a number
+                        single_condition[1] = parseFloat(single_condition[1]);
+                        if (isNaN(single_condition[1])){
+                            alert("Corrupted condition \"" + field["condition"] + "\" in field \"" + field_name + "\".");
+                            form_enabled = false;
+                            continue;
+                        }
+                    }
+                    check_fields[field_name].push(single_condition[0]);
                     conjunction.push(single_condition);
                 }
-                if (conjunction.length > 0) condition.push(conjunction);
+                condition.push(conjunction);
             }
-            if (condition.length > 0) field_conditions[field["name"]] = condition;
+            field_conditions[field["name"]] = condition;
         }
     }
+    // check if all required fields are actually present
+    for (field_name in check_fields){
+        if (!form_enabled) break;
+        for (required_field of check_fields[field_name]){
+            if (!(required_field in field_map)){
+                alert("Error: required field \"" + required_field + "\" by field \"" + field_name + "\" is not in form.");
+                form_enabled = false;
+                break;
+            }
+        }
+    }
+    
+
     for (field_name in field_map){
         field_visible[field_name] = true;
     }
@@ -144,6 +246,30 @@ function load_data(){
         
         var forms_in_page = [];
         form_pages.push(forms_in_page);
+        
+        
+        // Status decorator
+        if (lipidomics_forms_content.length > 1){
+            var obj_status = document.createElement("div");
+            obj_status.className = "lipidomics-forms-status";
+            obj_page.append(obj_status);
+            
+            var obj_status_text = document.createElement("div");
+            obj_status_text.className = "lipidomics-forms-status-text";
+            obj_status_text.innerHTML = "<font size='+1'>" + (("name" in page) ? page["name"] : "X") + " - Page " + (page_cnt + 1) + " of " + lipidomics_forms_content.length + "</font>";
+            obj_status.append(obj_status_text);
+            
+            var obj_status_bar = document.createElement("div");
+            obj_status_bar.className = "lipidomics-forms-status-bar";
+            obj_status.append(obj_status_bar);
+            
+            var obj_status_bar_progress = document.createElement("div");
+            obj_status_bar_progress.className = "lipidomics-forms-status-bar-progress";
+            obj_status_bar_progress.style.width = ((page_cnt + 1) / lipidomics_forms_content.length * 100) + "%";
+            obj_status_bar.append(obj_status_bar_progress);
+        }
+        
+        
         for (field of page["content"]){
             if (!("type" in field) || !("name" in field)) continue;
             var field_name = field["name"];
@@ -175,6 +301,53 @@ function load_data(){
                 obj_input.className = "lipidomics-forms-input";
                 obj_input.type = "text";
                 obj_input.value = field["value"];
+                obj_input.content = field;
+                obj_input.field_name = field_name;
+                obj_input.setAttribute('onchange','update_text(this);');
+                obj_content.append(obj_input);
+                obj.append(obj_content);
+                dom_text_fields[field_name] = obj_input;
+                
+                // Adding description of the field if present
+                if (field["description"].length > 0){
+                    var obj_description = document.createElement("div");
+                    obj_description.className = "lipidomics-forms-field-description";
+                    obj_description.innerHTML = field["description"];
+                    obj.append(obj_description);
+                }
+                
+                var obj_required = document.createElement("div");
+                obj_required.className = "lipidomics-forms-required-message";
+                obj_required.innerHTML = "This field is required.";
+                obj_required.style.display = "none";
+                obj.append(obj_required);
+                required_messages[field_name] = obj_required;
+            }
+            
+            if (field["type"] == "number"){
+                if (!("title" in field)) continue;
+                if (!("value" in field)) field["value"] = "";
+                if (!("description" in field)) field["description"] = "";
+                
+                // Adding the title of the field
+                var obj_title = document.createElement("div");
+                obj_title.className = "lipidomics-forms-field-title";
+                obj_title.innerHTML = "<b>" + field["title"] + "</b>";
+                if (("required" in field) && field["required"] == 1){
+                    obj_title.innerHTML += " <font color='red'>*</font>";
+                }
+                obj.append(obj_title);
+                
+                // Adding the text field of the field
+                var obj_content = document.createElement("div");
+                obj_content.className = "lipidomics-forms-field-content";
+                var obj_input = document.createElement("input");
+                obj_input.className = "lipidomics-forms-number";
+                obj_input.type = "number";
+                obj_input.value = field["value"];
+                if ("min" in field) obj_input.min = field["min"];
+                if ("max" in field) obj_input.min = field["max"];
+                if ("step" in field) obj_input.min = field["step"];
                 obj_input.content = field;
                 obj_input.field_name = field_name;
                 obj_input.setAttribute('onchange','update_text(this);');
@@ -316,10 +489,12 @@ function load_data(){
                 required_messages[field_name] = obj_required;
             }
         }
+        obj_page.style.display = (page_cnt == 0) ? "block" : "none";
             
         if (page_cnt > 0){ 
             var obj_prev = document.createElement("button");
             obj_prev.className = "submit-button";
+            obj_prev.disabled = !form_enabled;
             obj_prev.innerHTML = "Previous & Save";
             obj_prev.setAttribute('onclick','change_page(-1);');
             obj_page.append(obj_prev);
@@ -327,6 +502,7 @@ function load_data(){
             
         var obj_next = document.createElement("button");
         obj_next.className = "submit-button";
+        obj_next.disabled = !form_enabled;
         if (page_cnt < lipidomics_forms_content.length - 1){
             obj_next.innerHTML = "Next & Save";
             obj_next.setAttribute('onclick','change_page(1);');
@@ -350,6 +526,8 @@ function load_data(){
 
 
 function update_text(form){
+    if (!form_enabled) return;
+    
     var field_name = form.content["name"];
     form.content["value"] = form.value;
     required_messages[field_name].style.display = "none";
@@ -360,6 +538,8 @@ function update_text(form){
 
 
 function update_choice(form){
+    if (!form_enabled) return;
+    
     var field_name = form.field_name;
     form.content["value"] = form.checked ? 1 : 0;
     required_messages[field_name].style.display = "none";
@@ -369,6 +549,8 @@ function update_choice(form){
 
 
 function update_select(form){
+    if (!form_enabled) return;
+    
     var field_name = form.content["name"];
     var l = form.content["choice"].length;
     for (var i = 0; i < l; ++i){
@@ -380,6 +562,8 @@ function update_select(form){
 
 
 function check_conditions(){
+    if (!form_enabled) return;
+
     for (field_name in field_conditions){
         field_visible[field_name] = false;
         for (condition_and of field_conditions[field_name]){
@@ -397,6 +581,8 @@ function check_conditions(){
 
 
 function check_requirements(){
+    if (!form_enabled) return false;
+    
     var first_required = null;
     for (form_name of form_pages[current_page]){
         if (!("required" in field_map[form_name]) || field_map[form_name]["required"] == 0) continue;
@@ -420,6 +606,9 @@ function check_requirements(){
     }
     
     // move to first required
+    if (first_required != null){
+        dom_field_map[first_required].scrollIntoView();
+    }
 
     return first_required == null;
 }
@@ -436,7 +625,8 @@ function change_page(offset){
 }
 
 function submit_form(){
-    if (!check_requerements()) return;
+    if (!form_enabled) return;
+    if (!check_requirements()) return;
 }
 
 
@@ -463,6 +653,14 @@ function submit_form(){
 }
 
 .lipidomics-forms-input {
+    padding: 6px 10px;
+    max-width: 60%;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 100%;
+}
+
+.lipidomics-forms-number {
     padding: 6px 10px;
     max-width: 60%;
     border: 1px solid #ccc;
@@ -516,6 +714,30 @@ function submit_form(){
 
 .submit-button:active {
     background-color: #ccc;
+}
+
+.lipidomics-forms-status {
+    margin: 0 0 30px 0;
+}
+
+.lipidomics-forms-status-bar {
+    background-color: #ddd;
+    height: 18px;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    margin: 5px 0 0;
+    padding: 0 0 0 0;
+}
+
+.lipidomics-forms-status-bar-progress {
+    background-color: #009900;
+    height: 18px;
+    border-radius-left: 10px;
+    overflow: hidden;
+    position: relative;
+    left: 0;
+    top: 0;
 }
 
 </style>
