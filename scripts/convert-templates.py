@@ -24,9 +24,9 @@ def convert_condition(conditionals, field_types):
     return "|".join(converted)
 
 
-#input_file, output_file = "wpforms245.json", "../workflow-templates/checklist.json"
+input_file, output_file = "wpforms245.json", "../workflow-templates/checklist.json"
 #input_file, output_file = "wpforms240.json", "../workflow-templates/sample.json"
-input_file, output_file = "wpforms199.json", "../workflow-templates/lipid-class.json"
+#input_file, output_file = "wpforms199.json", "../workflow-templates/lipid-class.json"
 
 
 input_string = open(input_file, "rt").read()
@@ -62,6 +62,9 @@ for field_name, field in input_data["fields"].items():
         current_page.append(new_field)
         
     
+    elif field_type == "html":
+        current_page.append({"name": field["id"], "type": "html", "code": field["code"]})
+        
     
     
     elif field_type in {"select", "checkbox"}:
