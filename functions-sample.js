@@ -83,6 +83,15 @@ function select_sample_selector(){
             sample_entry_ids.push(dom.id);
         }
     }
+    if (sample_entry_ids.length == 0) return;
+    
+    var xmlhttp_request = new XMLHttpRequest();
+    var request_url = connector_path + "/connector.php";
+    xmlhttp_request.open("POST", request_url, false);
+    xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp_request.send("command=import_sample_forms&entry_id=" + encodeURIComponent(entry_id) + "&sample_entry_ids=" + encodeURIComponent(sample_entry_ids.join("|"));
+    
+    /*
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
@@ -98,9 +107,10 @@ function select_sample_selector(){
             }
         }
     }
-    var request_url = connector_path + "/connector.php?command=import_sample_forms&entry_id=" + encodeURIComponent(entry_id) + "&sample_entry_ids=" + sample_entry_ids.join("|");
+    var request_url = connector_path + "/connector.php?command=import_sample_forms&entry_id=" + encodeURIComponent(entry_id) + "&sample_entry_ids=" + encodeURIComponent(sample_entry_ids.join("|"));
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
+    */
 }
 
 
@@ -155,7 +165,7 @@ function update_sample_forms() {
                             innerHTML += "<td><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\">Continue</button></td>";
                         }
                         else {
-                            innerHTML += "<td alt='Copy sample type form'><button onclick='copy_sample_form(" + update_interval_sample + ", " + '"' + row["enc_entry"] + '"' + ");' />Copy form</button></td>";
+                            innerHTML += "<td alt='Copy sample type form'><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" />Update</button>&nbsp;<button onclick='copy_sample_form(" + update_interval_sample + ", " + '"' + row["enc_entry"] + '"' + ");' />Copy form</button></td>";
                         }
                         innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick='refresh_sample_view(); delete_sample_form(" + update_interval_sample + ", " + '"' + row["title"] + '"' + ", " + '"' + row["enc_entry"] + '"' + ");' /></td>";
                         innerHTML += "</tr>";
@@ -239,6 +249,7 @@ function copy_sample_form(update_interval_sample, entry_id){
         }
     }
     var request_url = connector_path + "/connector.php?command=copy_sample_form&entry_id=" + encodeURIComponent(entry_id);
+    console.log(request_url);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }

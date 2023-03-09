@@ -28,13 +28,16 @@ function load_data(content){
     form_enabled = true;
     
     if (workflow_type == "sample"){
-        document.getElementById("back_button").innerHTML = "Save & Back to Sample Overview";
+        //document.getElementById("back_button").innerHTML = "Save & Back to Sample Overview";
+        document.getElementById("back_button").innerHTML = "Back to Sample Overview";
     }
     else if (workflow_type == "lipid-class"){
-        document.getElementById("back_button").innerHTML = "Save & Back to Lipid Class Overview";
+        //document.getElementById("back_button").innerHTML = "Save & Back to Lipid Class Overview";
+        document.getElementById("back_button").innerHTML = "Back to Lipid Class Overview";
     }
     else {
-        document.getElementById("back_button").innerHTML = "Save & Back to Report Overview";
+        //document.getElementById("back_button").innerHTML = "Save & Back to Report Overview";
+        document.getElementById("back_button").innerHTML = "Back to Report Overview";
     }
     
     check_fields = {};
@@ -429,7 +432,7 @@ function load_data(content){
 
 
 function go_back(){
-    store_form();
+    //store_form();
     if (workflow_type == "sample"){
         parent.hide_samplelist();
     }
