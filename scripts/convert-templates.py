@@ -24,9 +24,9 @@ def convert_condition(conditionals, field_types):
     return "|".join(converted)
 
 
-input_file, output_file = "wpforms245.json", "../workflow-templates/checklist.json"
+#input_file, output_file = "wpforms245.json", "../workflow-templates/checklist.json"
 #input_file, output_file = "wpforms240.json", "../workflow-templates/sample.json"
-#input_file, output_file = "wpforms199.json", "../workflow-templates/lipid-class.json"
+input_file, output_file = "wpforms199.json", "../workflow-templates/lipid-class.json"
 
 
 input_string = open(input_file, "rt").read()
@@ -63,7 +63,7 @@ for field_name, field in input_data["fields"].items():
         
     
     elif field_type == "html":
-        current_page.append({"name": field["id"], "type": "html", "code": field["code"]})
+        current_page.append({"name": field["id"], "type": "html", "value": 0, "required": 1, "code": field["code"]})
         
     
     
@@ -80,12 +80,17 @@ for field_name, field in input_data["fields"].items():
                      "choice": choice,
                      "description": field["description"]}
         
+        something_selected = False
         for choice_key, single_choice in field["choices"].items():
             choice_map = {"name": "%s-%s" % (field["id"], choice_key),
                           "label": single_choice["label"],
                           "value": 1 if ("default" in single_choice and single_choice["default"] == "1") or ("value" in single_choice and single_choice["value"] == "1") else 0
                           }
+            something_selected |= choice_map["value"]
             choice.append(choice_map)
+            
+        if len(choice) > 0 and not something_selected:
+            choice[0]["value"] = 1
     
         if "conditionals" in field: new_field["condition"] = convert_condition(field["conditionals"], field_types)
         current_page.append(new_field)
