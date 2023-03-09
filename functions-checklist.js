@@ -216,6 +216,18 @@ function load_data(content){
                 var obj_html = document.createElement("div");
                 obj.append(obj_html);
                 obj_html.innerHTML = field["code"];
+                
+                var obj_required = document.createElement("div");
+                obj_required.className = "lipidomics-forms-required-message";
+                obj_required.innerHTML = "No partial entries allowed.";
+                obj_required.style.display = "none";
+                obj.append(obj_required);
+                required_messages[field_name] = obj_required;
+                
+                // TODO: change to better
+                if (field["name"] == "148") sample_field_object = field;
+                
+                
             }
             
             if (field["type"] == "number"){
@@ -479,6 +491,12 @@ function update_select(form){
 }
 
 
+function update_table(field){
+    var field_name = field["name"];
+    required_messages[field_name].style.display = "none";
+}
+
+
 function check_conditions(){
     if (!form_enabled) return;
 
@@ -505,6 +523,7 @@ function check_requirements(){
     var first_required = null;
     for (form_name of form_pages[current_page]){
         var field = field_map[form_name];
+        
         if (!("required" in field) || field["required"] == 0) continue;
         if (!field_visible[form_name]) continue;
         
@@ -513,6 +532,10 @@ function check_requirements(){
             
             dom_text_fields[form_name].style.border = "1px solid #cc0000";
         }
+        else if (field["type"] == "html"){
+            if (sample_field_object == 0 || sample_field_object["value"] == 1) continue;
+        }
+        
         else if (field["type"] == "multiple"){
             var something_selected = false;
             for (choice of field["choice"]){
@@ -520,6 +543,7 @@ function check_requirements(){
             }
             if (something_selected) continue;
         }
+        
         else if (field["type"] == "number"){
             var value = field["value"];
             if (typeof(value) != 'number'){

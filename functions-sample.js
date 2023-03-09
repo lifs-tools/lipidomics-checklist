@@ -1,5 +1,7 @@
 
 
+var sample_field_object = null;
+var has_partial_samples = false;
 
 window.addEventListener('resize', function(event) {
     document.getElementById("sample_forms_table").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
@@ -18,6 +20,7 @@ function show_sample_selector(update_interval_sample){
 function update_load_sample_forms(update_interval_sample){
     var xmlhttp_request = new XMLHttpRequest();
     document.getElementById("sample_forms_table").innerHTML = "";
+    refresh_sample_view();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
@@ -68,6 +71,7 @@ function update_load_sample_forms(update_interval_sample){
 
 function select_sample_selector(){
     close_sample_selector();
+    refresh_sample_view();
     
     if (entry_id == undefined || entry_id.length == 0) return;
     
@@ -110,6 +114,7 @@ function update_sample_forms() {
     
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
+    has_partial_samples = false;
     
     
     xmlhttp_request.onreadystatechange = function() {
@@ -146,16 +151,23 @@ function update_sample_forms() {
                         innerHTML += "<tr><td>" + String(post++) + ") </td>";
                         innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
                         if (row["status"] == "partial"){
-                            innerHTML += "<td><button onclick=\"parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\">Continue</button></td>";
+                            has_partial_samples = true;
+                            innerHTML += "<td><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\">Continue</button></td>";
                         }
                         else {
                             innerHTML += "<td alt='Copy sample type form'><button onclick='copy_sample_form(" + update_interval_sample + ", " + '"' + row["enc_entry"] + '"' + ");' />Copy form</button></td>";
                         }
-                        innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick='delete_sample_form(" + update_interval_sample + ", " + '"' + row["title"] + '"' + ", " + '"' + row["enc_entry"] + '"' + ");' /></td>";
+                        innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick='refresh_sample_view(); delete_sample_form(" + update_interval_sample + ", " + '"' + row["title"] + '"' + ", " + '"' + row["enc_entry"] + '"' + ");' /></td>";
                         innerHTML += "</tr>";
                     }
 
                     innerHTML += "</table>";
+                
+                    if (sample_field_object != null){
+                        if (!("value" in sample_field_object)) sample_field_object["value"] = 0;
+                        
+                        sample_field_object["value"] = !has_partial_samples;
+                    }
                 }
             }
             try {
@@ -166,15 +178,24 @@ function update_sample_forms() {
         }
     }
     var request_url = connector_path + "/connector.php?command=get_sample_forms&main_entry_id=" + encodeURIComponent(entry_id);
-    console.log(request_url);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
 
 
+
+function refresh_sample_view(){
+    if (sample_field_object != null) update_table(sample_field_object);
+}
+
+
+
+
 function delete_sample_form(update_interval_sample, sample_type, entry_id){
     if (!confirm("Do you really want to delete '" + sample_type + "' type?")) return;
     
+    refresh_sample_view();
+    if (sample_field_object != null) update_table(sample_field_object);
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     
@@ -205,6 +226,7 @@ async function start_interval_sample(update_interval_sample){
 
 
 function copy_sample_form(update_interval_sample, entry_id){
+    refresh_sample_view();
     
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
@@ -225,6 +247,7 @@ function copy_sample_form(update_interval_sample, entry_id){
 
 
 function register_new_sample_form(update_interval_sample){
+    refresh_sample_view();
     
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
