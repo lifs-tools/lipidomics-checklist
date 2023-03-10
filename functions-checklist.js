@@ -219,6 +219,15 @@ function load_data(content){
                 var obj_html = document.createElement("div");
                 obj.append(obj_html);
                 obj_html.innerHTML = field["code"];
+            }
+            
+            
+            if (field["type"] == "table"){
+                if (!("view" in field) || !(field["view"] in registered_tables)) continue;
+                
+                var obj_html = document.createElement("div");
+                obj.append(obj_html);
+                obj_html.innerHTML = registered_tables[field["view"]];
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
@@ -228,9 +237,8 @@ function load_data(content){
                 required_messages[field_name] = obj_required;
                 
                 // TODO: change to better
-                if (field["name"] == "148") sample_field_object = field;
-                
-                
+                if (field["view"] == "sample") sample_field_object = field;
+                else if (field["view"] == "lipid-class") lipid_class_field_object = field;
             }
             
             if (field["type"] == "number"){
@@ -523,6 +531,7 @@ function check_conditions(){
 function check_requirements(){
     if (!form_enabled) return false;
     
+    
     var first_required = null;
     for (form_name of form_pages[current_page]){
         var field = field_map[form_name];
@@ -535,8 +544,8 @@ function check_requirements(){
             
             dom_text_fields[form_name].style.border = "1px solid #cc0000";
         }
-        else if (field["type"] == "html"){
-            if (sample_field_object == 0 || sample_field_object["value"] == 1) continue;
+        else if (field["type"] == "table"){
+            if (field["value"] == 1) continue;
         }
         
         else if (field["type"] == "multiple"){
