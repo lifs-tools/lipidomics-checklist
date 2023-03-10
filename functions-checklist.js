@@ -12,7 +12,7 @@ var dom_text_fields = {};
 var form_enabled = true;
 var entry_id = null;
 var workflow_type = null;
-
+var choice_to_field = {};
 
 function load_data(content){
     lipidomics_forms_content = content;
@@ -25,6 +25,8 @@ function load_data(content){
     current_page = lipidomics_forms_content["current_page"];
     required_messages = {};
     dom_text_fields = {};
+    choice_to_field = {};
+    
     form_enabled = true;
     
     if (workflow_type == "sample"){
@@ -61,8 +63,12 @@ function load_data(content){
                             form_enabled = false;
                         }
                         field_map[choice["name"]] = choice;
+                        choice_to_field[choice["name"]] = field_name;
                     }
                 }
+            }
+            else {
+                choice_to_field[field_name] = field_name;
             }
             
             // check for any logical conditions
@@ -73,7 +79,15 @@ function load_data(content){
             for (condition_and of field["condition"].split("|")){
                 var conjunction = [];
                 for (con of condition_and.split("&")){
-                    var single_condition = (con.search("!=") != -1) ? con.split("!=") : con.split("=");
+                    var single_condition = null;
+                    var operator = "=";
+                    if (con.search("~") != -1){
+                        single_condition = con.split("~");
+                        operator = "~";
+                    }
+                    else{
+                        single_condition = con.split("=");
+                    }
                     
                     if (single_condition.length != 2){
                         alert("Corrupted condition \"" + field["condition"] + "\" in field \"" + field_name + "\".");
@@ -82,7 +96,6 @@ function load_data(content){
                     }
                         
                     var key = single_condition[0];
-                    var operator = "=";
                     var value = single_condition[1];
                         
                     var l = value.length;
@@ -523,7 +536,8 @@ function check_conditions(){
                 var key = single_condition[0];
                 var operator = single_condition[1];
                 var value = single_condition[2];
-                condition_met &= (operator == "=" && field_map[key]["value"] == value) || (operator == "!=" && field_map[key]["value"] != value);
+                var conditional_field = choice_to_field[key];
+                condition_met &= (conditional_field in field_visible && field_visible[conditional_field]) && (operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value);
             }
             field_visible[field_name] |= condition_met;
         }

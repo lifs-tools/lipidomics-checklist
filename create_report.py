@@ -10,6 +10,73 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
     mycursor.execute(sql, (uid, entry_id))
     result = json.loads(mycursor.fetchone()["fields"])
     
+    visible = {}
+    conditions = {}
+    choice_to_field = {}
+    field_map = {}
+    
+    
+    for page in result["pages"]:
+        for field in page["content"]:
+            field_name = field["name"]
+            
+            field_map[field_name] = field
+            if field["type"] in {"select", "multiple"} and "choice" in field:
+                for choice in field["choice"]:
+                    if "name" in choice:
+                        field_map[choice["name"]] = choice
+                        choice_to_field[choice["name"]] = field_name
+            else:
+                choice_to_field[field_name] = field_name
+            
+            
+            # check for any logical conditions
+            if "condition" not in field or len(field["condition"]) == 0: continue
+            
+            condition = []
+            for condition_and in field["condition"].split("|"):
+                conjunction = []
+                for con in condition_and.split("&"):
+                    single_condition = None
+                    operator = "="
+                    if con.find("~") != -1:
+                        single_condition = con.split("~")
+                        operator = "~"
+                    
+                    else:
+                        single_condition = con.split("=")
+                    
+                    if len(single_condition) != 2: continue;
+                        
+                    key, value = single_condition
+                    l = len(value)
+                    
+                    if value[0] == "'" and value[-1] == "'":
+                        value = value[1 : -1]
+                    
+                    else :
+                        # check if value is a number
+                        try:
+                            value = float(value)
+                        except:
+                            continue;
+                    conjunction.append([key, operator, value])
+                    
+                condition.append(conjunction)
+            conditions[field_name] = condition
+    
+    
+    for field_name in conditions:
+        visible[field_name] = False
+        for condition_and in conditions[field_name]:
+            condition_met = True
+            for single_condition in condition_and:
+                key, operator, value = single_condition
+                conditional_field = choice_to_field[key]
+                condition_met &= (conditional_field in visible and visible[conditional_field]) and (operator == "=" and field_map[key]["value"] == value) or (operator == "~" and field_map[key]["value"] != value)
+            visible[field_name] |= condition_met
+    
+    
     for page in result["pages"]:
         titles.append(page["title"])
         report_fields.append([])
@@ -18,17 +85,18 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
         
         for field in page["content"]:
             if "type" not in field or "name" not in field or "label" not in field: continue
+            if field["name"] in visible and not visible[field["name"]]: continue
         
             if field["type"] == "text":
                 if field["label"][:5].lower() == "other":
-                    if field["label"][6:] in values:
-                        values[field["label"][6:]] = field["value"]
+                    if field["label"][6:].lower() in values:
+                        values[field["label"][6:].lower()] = field["value"]
                 else:
-                    values[field["label"]] = field["value"]
+                    values[field["label"].lower()] = field["value"]
                     report_fields[-1].append([field["label"], ""])
                 
             elif field["type"] == "number":
-                values[field["label"]] = str(field["value"])
+                values[field["label"].lower()] = str(field["value"])
                 report_fields[-1].append([field["label"], ""])
                 
             elif field["type"] in {"select", "multiple"}:
@@ -36,14 +104,16 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 for choice in field["choice"]:
                     if choice["value"] == 1:
                         choice_values.append(choice["label"])
-                
-                values[field["label"]] = "\n".join(choice_values)
+                values[field["label"].lower()] = "\n".join(choice_values)
                 report_fields[-1].append([field["label"], ""])
     
+    
+        
         for i in range(len(report_fields[-1])):
-            key = report_fields[-1][i][0]
-            if key in values: report_fields[-1][i][1] = values[key]
-                    
+            key = report_fields[-1][i][0].lower()
+            if key in values:
+                report_fields[-1][i][1] = values[key]
+    
     return
     
     sql = "SELECT p.post_content AS form FROM %sposts AS p INNER JOIN %swpforms_entries AS e ON p.id = e.form_id WHERE e.user_id = %i and e.entry_id = %i;" % (table_prefix, table_prefix, uid, entry_id)
