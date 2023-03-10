@@ -7,15 +7,15 @@ window.addEventListener('resize', function(event) {
 }, true);
 
 
-function show_sample_selector(update_interval_sample){
-    update_load_sample_forms(update_interval_sample);
+function show_sample_selector(){
+    update_load_sample_forms();
     document.getElementById("grey_background").style.display = "block";
     document.getElementById("sample_selector_wrapper").style.display = "block";
     document.getElementById("sample_forms_table").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
 }
 
 
-function update_load_sample_forms(update_interval_sample){
+function update_load_sample_forms(){
     refresh_sample_view();
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
@@ -27,11 +27,7 @@ function update_load_sample_forms(update_interval_sample){
             var innerHTML = "";
             var post = 1;
             if (response_text.length > 0){
-                if (response_text.startsWith("ErrorCodes")){
-                    console.log("Error");
-                    clearInterval(update_interval_sample);
-                }
-                else {
+                if (!response_text.startsWith("ErrorCodes")){
                     var response = JSON.parse(response_text);
                     innerHTML += "<table cellspacing='0' cellpadding='10' style='width: 100%'>";
                     innerHTML += "<tr><th style='width: 3%; border-bottom: 3px solid black;'>&nbsp;</th>";
@@ -112,10 +108,7 @@ function update_sample_forms() {
             
             if (response_text.length > 0){
                 
-                if (response_text.startsWith("ErrorCodes")){
-                    clearInterval(update_interval_sample);
-                }
-                else {
+                if (!response_text.startsWith("ErrorCodes")){
                     has_partial_samples = false;
                     var response = JSON.parse(response_text);
                     innerHTML += "<table cellspacing='0' cellpadding='10' style='width: 100%'>";
@@ -143,9 +136,9 @@ function update_sample_forms() {
                         }
                         else {
                             innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td alt='Copy sample type form'><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" />Update</button>&nbsp;<button onclick='copy_sample_form(" + update_interval_sample + ", " + '"' + row["enc_entry"] + '"' + ");' />Copy form</button></td>";
+                            innerHTML += "<td alt='Copy sample type form'><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" />Update</button>&nbsp;<button onclick=\"copy_sample_form('" + row["enc_entry"] + "');\" />Copy form</button></td>";
                         }
-                        innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick='refresh_sample_view(); delete_sample_form(" + update_interval_sample + ", " + '"' + row["title"] + '"' + ", " + '"' + row["enc_entry"] + '"' + ");' /></td>";
+                        innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["enc_entry"] + "');\" /></td>";
                         innerHTML += "</tr>";
                     }
 
@@ -179,7 +172,7 @@ function refresh_sample_view(){
 
 
 
-function delete_sample_form(update_interval_sample, sample_type, entry_id){
+function delete_sample_form(sample_type, entry_id){
     refresh_sample_view();
     if (!confirm("Do you really want to delete '" + sample_type + "' type?")) return;
     
@@ -192,7 +185,7 @@ function delete_sample_form(update_interval_sample, sample_type, entry_id){
             response_text = xmlhttp_request.responseText;
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
-                    update_sample_forms(update_interval_sample);
+                    update_sample_forms();
                 }
             }
             
@@ -203,17 +196,8 @@ function delete_sample_form(update_interval_sample, sample_type, entry_id){
     xmlhttp_request.send();
 }
 
-var update_interval_sample = 0;
-async function start_interval_sample(update_interval_sample){
-    await new Promise(resolve => setTimeout(resolve, 100));
-    update_interval_sample = setInterval(update_sample_forms, 3000);
-    update_sample_forms(update_interval_sample);
-}
 
-
-
-
-function copy_sample_form(update_interval_sample, entry_id){
+function copy_sample_form( entry_id){
     refresh_sample_view();
     
     var xmlhttp_request = new XMLHttpRequest();
@@ -221,7 +205,7 @@ function copy_sample_form(update_interval_sample, entry_id){
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
             if (response_text.length > 0 && !response_text.startsWith("ErrorCodes")){
-                update_sample_forms(update_interval_sample);
+                update_sample_forms();
             }
             
         }
@@ -234,7 +218,7 @@ function copy_sample_form(update_interval_sample, entry_id){
 
 
 
-function register_new_sample_form(update_interval_sample){
+function register_new_sample_form(){
     refresh_sample_view();
     
     if (entry_id == undefined || entry_id.length == 0) return;
@@ -245,7 +229,7 @@ function register_new_sample_form(update_interval_sample){
             response_text = xmlhttp_request.responseText;
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
-                    update_sample_forms(update_interval_sample);
+                    update_sample_forms();
                 }
             }
             
