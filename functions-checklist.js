@@ -236,10 +236,9 @@ function load_data(content){
                 obj.append(obj_required);
                 required_messages[field_name] = obj_required;
                 
-                // TODO: change to better
                 if (field["view"] == "sample"){
                     sample_field_object = field;
-                    //update_sample_forms();
+                    update_sample_forms();
                 }
                 else if (field["view"] == "lipid-class"){
                     lipid_class_field_object = field;
