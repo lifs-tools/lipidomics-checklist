@@ -1,5 +1,4 @@
 
-
 var sample_field_object = null;
 var has_partial_samples = false;
 
@@ -16,11 +15,11 @@ function show_sample_selector(update_interval_sample){
 }
 
 
-
 function update_load_sample_forms(update_interval_sample){
+    refresh_sample_view();
+    if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     document.getElementById("sample_forms_table").innerHTML = "";
-    refresh_sample_view();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
@@ -89,28 +88,7 @@ function select_sample_selector(){
     var request_url = connector_path + "/connector.php";
     xmlhttp_request.open("POST", request_url, false);
     xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xmlhttp_request.send("command=import_sample_forms&entry_id=" + encodeURIComponent(entry_id) + "&sample_entry_ids=" + encodeURIComponent(sample_entry_ids.join("|"));
-    
-    /*
-    var xmlhttp_request = new XMLHttpRequest();
-    xmlhttp_request.onreadystatechange = function() {
-        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0){
-                if (response_text.startsWith("ErrorCodes")){
-                    console.log("Error");
-                    clearInterval(update_interval_sample);
-                }
-                else {
-                    update_sample_forms(update_interval_sample);
-                }
-            }
-        }
-    }
-    var request_url = connector_path + "/connector.php?command=import_sample_forms&entry_id=" + encodeURIComponent(entry_id) + "&sample_entry_ids=" + encodeURIComponent(sample_entry_ids.join("|"));
-    xmlhttp_request.open("GET", request_url);
-    xmlhttp_request.send();
-    */
+    xmlhttp_request.send("command=import_sample_forms&entry_id=" + encodeURIComponent(entry_id) + "&sample_entry_ids=" + encodeURIComponent(sample_entry_ids.join("|")));
 }
 
 
@@ -124,7 +102,6 @@ function update_sample_forms() {
     
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    has_partial_samples = false;
     
     
     xmlhttp_request.onreadystatechange = function() {
@@ -139,6 +116,7 @@ function update_sample_forms() {
                     clearInterval(update_interval_sample);
                 }
                 else {
+                    has_partial_samples = false;
                     var response = JSON.parse(response_text);
                     innerHTML += "<table cellspacing='0' cellpadding='10' style='width: 100%'>";
                     innerHTML += "<tr><th style='width: 3%;'>&nbsp;</th>";
@@ -157,14 +135,14 @@ function update_sample_forms() {
                             return;
                         }
                         
-                        var date_mod = new Date(row["date_modified"] * 1000);
                         innerHTML += "<tr><td>" + String(post++) + ") </td>";
-                        innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
                         if (row["status"] == "partial"){
                             has_partial_samples = true;
+                            innerHTML += "<td>" + row["title"] + "<font color='red'>*</font></td><td>" + row["status"] + "</td>";
                             innerHTML += "<td><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\">Continue</button></td>";
                         }
                         else {
+                            innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
                             innerHTML += "<td alt='Copy sample type form'><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" />Update</button>&nbsp;<button onclick='copy_sample_form(" + update_interval_sample + ", " + '"' + row["enc_entry"] + '"' + ");' />Copy form</button></td>";
                         }
                         innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick='refresh_sample_view(); delete_sample_form(" + update_interval_sample + ", " + '"' + row["title"] + '"' + ", " + '"' + row["enc_entry"] + '"' + ");' /></td>";
@@ -202,9 +180,9 @@ function refresh_sample_view(){
 
 
 function delete_sample_form(update_interval_sample, sample_type, entry_id){
+    refresh_sample_view();
     if (!confirm("Do you really want to delete '" + sample_type + "' type?")) return;
     
-    refresh_sample_view();
     if (sample_field_object != null) update_table(sample_field_object);
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
@@ -249,7 +227,6 @@ function copy_sample_form(update_interval_sample, entry_id){
         }
     }
     var request_url = connector_path + "/connector.php?command=copy_sample_form&entry_id=" + encodeURIComponent(entry_id);
-    console.log(request_url);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
