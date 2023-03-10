@@ -237,8 +237,14 @@ function load_data(content){
                 required_messages[field_name] = obj_required;
                 
                 // TODO: change to better
-                if (field["view"] == "sample") sample_field_object = field;
-                else if (field["view"] == "lipid-class") lipid_class_field_object = field;
+                if (field["view"] == "sample"){
+                    sample_field_object = field;
+                    //update_sample_forms();
+                }
+                else if (field["view"] == "lipid-class"){
+                    lipid_class_field_object = field;
+                    update_class_forms();
+                }
             }
             
             if (field["type"] == "number"){
@@ -440,7 +446,6 @@ function load_data(content){
 
 
 function go_back(){
-    //store_form();
     if (workflow_type == "sample"){
         parent.hide_samplelist();
     }
@@ -667,23 +672,3 @@ function parseURLParams(url) {
 }
 
 
-
-var request = window.location.href;
-if (request.length > 0){
-    request = new URL(request).searchParams;
-    entry_id = request.get("entry_id");
-    workflow_type = request.get("workflow_type");
-    if (entry_id != null){
-        var xmlhttp_request = new XMLHttpRequest();
-        xmlhttp_request.onreadystatechange = function() {
-            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-                if (xmlhttp_request.responseText.length > 0 && xmlhttp_request.responseText.substring(0, 5) != "ERROR"){
-                    load_data(JSON.parse(xmlhttp_request.responseText));
-                }
-            }
-        }
-        var request_url = connector_path + "/connector.php?command=get_form_content&entry_id=" + encodeURIComponent(entry_id);
-        xmlhttp_request.open("GET", request_url);
-        xmlhttp_request.send();
-    }
-}
