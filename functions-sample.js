@@ -115,8 +115,7 @@ function update_sample_forms() {
                     innerHTML += "<tr><th style='width: 3%;'>&nbsp;</th>";
                     innerHTML += "<th style='width: 70%;'>Sample set name / Sample type </th>";
                     innerHTML += "<th style='width: 11%;'>Status</th>";
-                    innerHTML += "<th style='width: 11%;'>Action</th>";
-                    innerHTML += "<th style='width: 5%;'>&nbsp;</th></tr>";
+                    innerHTML += "<th style='width: 11%;'>Actions</th></tr>";
                     
                     response.sort(function(a, b){
                         return b["date_modified"] - a["date_modified"];
@@ -132,13 +131,14 @@ function update_sample_forms() {
                         if (row["status"] == "partial"){
                             has_partial_samples = true;
                             innerHTML += "<td>" + row["title"] + "<font color='red'>*</font></td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\">Continue</button></td>";
+                            innerHTML += "<td><img src='" + connector_path + "/gear.png' style='cursor: pointer; height: 18px;'  onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Continue' />&nbsp;";
                         }
                         else {
                             innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td alt='Copy sample type form'><button onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" />Update</button>&nbsp;<button onclick=\"copy_sample_form('" + row["enc_entry"] + "');\" />Copy form</button></td>";
+                            innerHTML += "<td><img src='" + connector_path + "/gear.png' style='cursor: pointer; height: 18px;' onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Update sample type' />&nbsp;";
+                            innerHTML += "<img src='" + connector_path + "/recycle.png' style='cursor: pointer; height: 18px;' onclick=\"copy_sample_form('" + row["enc_entry"] + "');\" title='Copy sample type' />&nbsp;";
                         }
-                        innerHTML += "<td align='center' alt='Delete sample type'><img src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["enc_entry"] + "');\" /></td>";
+                        innerHTML += "<img title='Delete sample type' src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["enc_entry"] + "');\" /></td>";
                         innerHTML += "</tr>";
                     }
 

@@ -5,7 +5,7 @@ def convert_condition(conditionals, field_types):
     converted = []
     if type(conditionals) == dict:
         conditionals = [conditionals[i] for i in sorted(conditionals.keys())]
-        
+    
     for conditional_and in conditionals:
         converted_and = []
         for conditional in conditional_and:
@@ -17,7 +17,7 @@ def convert_condition(conditionals, field_types):
                 key = conditional["field"]
                 value = "'%s'" % conditional["value"]
                 
-            operator = "=" if conditional["operator"] == "==" else "!="
+            operator = "=" if conditional["operator"] == "==" else "~"
             converted_and.append("%s%s%s" % (key, operator, value))
         converted.append("&".join(converted_and))
         
@@ -63,7 +63,7 @@ for field_name, field in input_data["fields"].items():
         
     
     elif field_type == "html":
-        current_page.append({"name": field["id"], "type": "html", "value": 0, "required": 1, "code": field["code"]})
+        current_page.append({"name": field["id"], "type": "table", "value": 0, "required": 1, "view": "sample" if field["id"] == "148" else "lipid-class"})
         
     
     
@@ -89,7 +89,7 @@ for field_name, field in input_data["fields"].items():
             something_selected |= choice_map["value"]
             choice.append(choice_map)
             
-        if len(choice) > 0 and not something_selected:
+        if field_type == "select" and len(choice) > 0 and not something_selected:
             choice[0]["value"] = 1
     
         if "conditionals" in field: new_field["condition"] = convert_condition(field["conditionals"], field_types)
