@@ -145,10 +145,14 @@ function delete_main_form(update_interval, workflow_title, entry_id){
 function download_pdf(update_interval, entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
+    document.getElementById("grey_background_index").style.display = "block";
+    document.getElementById("waiting_field").style.display = "block";
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
+            document.getElementById("grey_background_index").style.display = "none";
+            document.getElementById("waiting_field").style.display = "none";
             if (response_text.length > 0){
                 if (response_text.substring(response_text.length - 4) === ".pdf"){
                     const tempLink = document.createElement('a');
@@ -296,7 +300,8 @@ window.addEventListener('resize', function(event) {
         </div><p />
         <div id="main_forms_table"></div>
     
-    <div id="grey_background_index" style="top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;"></div>
+    <div id="grey_background_index" style="top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;">
+    <div id="waiting_field" style="top: 45%; left: 45%; width: 10%; height: 10%; position: relative; background-color: white; border: 1px solid black; display: none;"><table width="100%" height="100%"><tr><td width="100%" align="center"><img src="loader.gif" /></td></tr></table></div></div>
     <div id="workflow_selector" style="top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;">
         <div id="workflow_selector_wrapper" style="left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;">
             <div id="workflow_control_buttons" style="width: 100%; height: 100%; position: relative;">
