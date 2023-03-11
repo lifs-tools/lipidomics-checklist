@@ -24,9 +24,11 @@ def convert_condition(conditionals, field_types):
     return "|".join(converted)
 
 
-#input_file, output_file = "wpforms245.json", "../workflow-templates/checklist.json"
-#input_file, output_file = "wpforms240.json", "../workflow-templates/sample.json"
-input_file, output_file = "wpforms199.json", "../workflow-templates/lipid-class.json"
+#input_file, output_file, output_name_file = "wpforms245.json", "../workflow-templates/checklist.json", "../workflow-templates/checklist-field-names.csv"
+input_file, output_file, output_name_file = "wpforms240.json", "../workflow-templates/sample.json", "../workflow-templates/sample-field-names.csv"
+#input_file, output_file, output_name_file = "wpforms199.json", "../workflow-templates/lipid-class.json", "../workflow-templates/lipid-class-field-names.csv"
+
+from checklist_field_names import checklist_field_names as cfn
 
 
 input_string = open(input_file, "rt").read()
@@ -34,9 +36,15 @@ input_data = json.loads(input_string)
 output_data = []
 current_page = None
 field_types = {field_name: field["type"] for field_name, field in input_data["fields"].items()}
+
+field_names = []
+
 for field_name, field in input_data["fields"].items():
     
     field_type = field["type"]
+    
+    field_label = field["label"] if "label" in field else "-"
+    field_names.append("%s,%s,%s,%s" % ("_".join(field_label.lower().split(" ")), field["id"], field_label, field["type"]))
     
     if field_type == "pagebreak" and "title" in field:
         page_name = field["title"]
@@ -82,6 +90,10 @@ for field_name, field in input_data["fields"].items():
         
         something_selected = False
         for choice_key, single_choice in field["choices"].items():
+            key = "%s-%s" % (field["id"], choice_key)
+            common_name = "%s|%s" % ("_".join(field["label"].lower().split(" ")), "_".join(single_choice["label"].lower().split(" ")))
+            field_names.append("%s,%s,%s,%s" % (common_name, key, single_choice["label"], field["type"]))
+            
             choice_map = {"name": "%s-%s" % (field["id"], choice_key),
                           "label": single_choice["label"],
                           "value": 1 if ("default" in single_choice and single_choice["default"] == "1") or ("value" in single_choice and single_choice["value"] == "1") else 0
@@ -134,4 +146,8 @@ output_data = {"pages": output_data, "current_page": 0, "creation_date": "", "ve
 with open(output_file, "wt") as out:
     out.write(json.dumps(output_data))
 
+#exit()
 
+with open(output_name_file, "wt") as out:
+    for field_name in field_names:
+        out.write("%s\n" % field_name)
