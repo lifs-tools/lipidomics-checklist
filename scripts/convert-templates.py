@@ -25,8 +25,8 @@ def convert_condition(conditionals, field_types):
 
 
 #input_file, output_file, output_name_file = "wpforms245.json", "../workflow-templates/checklist.json", "../workflow-templates/checklist-field-names.csv"
-input_file, output_file, output_name_file = "wpforms240.json", "../workflow-templates/sample.json", "../workflow-templates/sample-field-names.csv"
-#input_file, output_file, output_name_file = "wpforms199.json", "../workflow-templates/lipid-class.json", "../workflow-templates/lipid-class-field-names.csv"
+#input_file, output_file, output_name_file = "wpforms240.json", "../workflow-templates/sample.json", "../workflow-templates/sample-field-names.csv"
+input_file, output_file, output_name_file = "wpforms199.json", "../workflow-templates/lipid-class.json", "../workflow-templates/lipid-class-field-names.csv"
 
 from checklist_field_names import checklist_field_names as cfn
 
