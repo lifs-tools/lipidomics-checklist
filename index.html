@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<script language="javascript">
+function show_checklist(url){
+    document.getElementById("workflow-list").style.display = "none";
+    document.getElementById("checklist-form").style.display = "block";
+    document.getElementById("checklist-form").src = url;
+    document.getElementById("sample-form").style.display = "none";
+    document.getElementById("lipid-class-form").style.display = "none";
+}
+
+
+function hide_checklist(){
+    document.getElementById("workflow-list").style.display = "block";
+    document.getElementById("workflow-list").contentWindow.update_main_forms();
+    document.getElementById("checklist-form").style.display = "none";
+    document.getElementById("checklist-form").src = "";
+    document.getElementById("sample-form").style.display = "none";
+    document.getElementById("sample-form").src = "";
+    document.getElementById("lipid-class-form").style.display = "none";
+    document.getElementById("lipid-class-form").src = "";
+}
+
+
+function show_samplelist(url){
+    document.getElementById("workflow-list").style.display = "none";
+    document.getElementById("checklist-form").style.display = "none";
+    document.getElementById("sample-form").style.display = "block";
+    document.getElementById("sample-form").src = url;
+    document.getElementById("lipid-class-form").style.display = "none";
+}
+
+
+function hide_samplelist(){
+    document.getElementById("workflow-list").style.display = "none";
+    document.getElementById("checklist-form").style.display = "block";
+    document.getElementById("checklist-form").contentWindow.update_sample_forms();
+    document.getElementById("sample-form").style.display = "none";
+    document.getElementById("sample-form").src = "";
+    document.getElementById("lipid-class-form").style.display = "none";
+    document.getElementById("lipid-class-form").src = "";
+}
+
+
+function show_lipid_classlist(url){
+    document.getElementById("workflow-list").style.display = "none";
+    document.getElementById("checklist-form").style.display = "none";
+    document.getElementById("sample-form").style.display = "none";
+    document.getElementById("lipid-class-form").style.display = "block";
+    document.getElementById("lipid-class-form").src = url;
+}
+
+
+function hide_lipid_classlist(){
+    document.getElementById("workflow-list").style.display = "none";
+    document.getElementById("checklist-form").style.display = "block";
+    document.getElementById("checklist-form").contentWindow.update_class_forms();
+    document.getElementById("sample-form").style.display = "none";
+    document.getElementById("sample-form").src = "";
+    document.getElementById("lipid-class-form").style.display = "none";
+    document.getElementById("lipid-class-form").src = "";
+}
+</script>
+<style>
+.checklist-frame {
+    border: 0;
+    width: 100%;
+    min-height: 1000px;
+}
+</style>
+</head>
+<body>
+<iframe class="checklist-frame" id="workflow-list" src="workflow-list.html"></iframe>
+<iframe class="checklist-frame" id="checklist-form" style="display: none;"></iframe>
+<iframe class="checklist-frame" id="sample-form" style="display: none;"></iframe>
+<iframe class="checklist-frame" id="lipid-class-form" style="display: none;"></iframe>
+</body>
+</html>
