@@ -1401,6 +1401,8 @@ elif content["command"] == "delete_main_form":
         mycursor.execute(sql, (main_entry_id, main_form_id, uid))
         conn.commit()
         
+        #TODO: check if entry in reports exist and delete entry and pdf file
+        
         print(0)
         
 
@@ -1599,17 +1601,15 @@ elif content["command"] == "get_pdf":
     try:
         # connect with the database
         conn, mycursor = dbconnect()
-        """
+        
         if not check_entry_id(entry_id, uid, mycursor, "main"):
             print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
             exit()
             
         sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
         mycursor.execute(sql, (entry_id, uid))
-        hash_value mycursor.fetchone()["hash"]
+        hash_value = mycursor.fetchone()["hash"]
         
-        
-        hash_value = "report" + hashlib.md5(("ENTRYID%i" % entry_id).encode()).hexdigest()
         pdf_file = "completed_documents/%s.pdf" % hash_value
         
         if not os.path.exists(pdf_file):
@@ -1617,7 +1617,7 @@ elif content["command"] == "get_pdf":
             # creating the tex and pdf file
             report_file = "completed_documents/%s.tex" % hash_value
             
-            create_report.create_report(mycursor, table_prefix, uid, entry_id, report_file)
+            create_report.create_report(mycursor, table_prefix, uid, entry_id, report_file, version)
             p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents completed_documents/%s.tex" % hash_value, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
             
             output = p.stdout.read() # execution
@@ -1628,13 +1628,13 @@ elif content["command"] == "get_pdf":
             else:
                 print(str(output))
             
-
         else:
             print("/%s/%s" % (main_form_link_name, pdf_file))
-            
-        """
 
     except Error as e:
+        print(ErrorCodes.ERROR_ON_CREATING_PDF, e)
+        
+    except Exception as e:
         print(ErrorCodes.ERROR_ON_CREATING_PDF, e)
 
     finally:
