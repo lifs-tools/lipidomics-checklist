@@ -59,7 +59,7 @@ def dict_factory(cursor, row):
 all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
                 "add_main_form", "add_class_form", "add_sample_form",
                 "copy_main_form", "copy_class_form", "copy_sample_form",
-                "delete_class_form", "delete_main_form", "delete_sample_form",
+                "delete_main_form", "delete_class_form", "delete_sample_form",
                 "get_all_class_forms", "get_all_sample_forms",
                 "import_class_forms", "import_sample_forms",
                 "complete_partial_form",
@@ -1354,9 +1354,12 @@ elif content["command"] == "delete_main_form":
             exit()
 
         # check status of entry
-        sql = "SELECT status FROM %sentries WHERE id = ?;" % table_prefix
+        sql = "SELECT e.status, r.hash FROM %sentries AS e LEFT JOIN %sreports AS r ON e.id = r.entry_id WHERE e.id = ?;" % (table_prefix, table_prefix)
         mycursor.execute(sql, (main_entry_id,))
-        if mycursor.fetchone()["status"] == "permanent":
+        results = mycursor.fetchone()
+        main_status = results["status"]
+        hash_value = results["hash"]
+        if main_status == "permanent":
             print(0)
             exit()
             
@@ -1401,9 +1404,13 @@ elif content["command"] == "delete_main_form":
         mycursor.execute(sql, (main_entry_id, main_form_id, uid))
         conn.commit()
         
-        #TODO: check if entry in reports exist and delete entry and pdf file
+        # check if entry in reports exist and delete entry and pdf file
+        if hash_value != None:
+            for extension in {"aux", "log", "out", "pdf", "tex"}:
+                file_to_del = "completed_documents/%s.%s" % (hash_value, extension)
+                if os.path.exists(file_to_del):
+                    os.remove(file_to_del)
         
-        print(0)
         
 
     except Error as e:
@@ -1415,6 +1422,7 @@ elif content["command"] == "delete_main_form":
     finally:
         if conn is not None: conn.close()
         
+    print(0)
         
         
         

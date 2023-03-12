@@ -131,6 +131,7 @@ function delete_main_form(update_interval, workflow_title, entry_id){
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
                     update_main_forms(update_interval);
+                    console.log(response_text);
                 }
             }
             
