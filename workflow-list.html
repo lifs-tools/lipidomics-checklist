@@ -114,14 +114,14 @@ var update_interval = 0;
 function start_interval(update_interval){
     update_interval = setInterval(function(){
         update_main_forms(update_interval);
-    }, 5000);
+    }, 2000);
     update_main_forms(update_interval);
 }
 start_interval(update_interval);
 
 
 function delete_main_form(update_interval, workflow_title, entry_id){
-    if (!confirm("Do you really want to delete '" + workflow_title + "' report?")) return;
+    if (!confirm("Do you want to delete the report '" + workflow_title + "'? After deletion, it cannot be restored.")) return;
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     
@@ -131,7 +131,6 @@ function delete_main_form(update_interval, workflow_title, entry_id){
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
                     update_main_forms(update_interval);
-                    console.log(response_text);
                 }
             }
             
@@ -181,7 +180,7 @@ function download_pdf(update_interval, entry_id){
 
 
 function make_permanent(update_interval, workflow_title, entry_id){
-    if (!confirm("Do you really want to make the report '" + workflow_title + "' permanent? Permanent reports cannot be deleted any more.")) return;
+    if (!confirm("Do you want to make the report '" + workflow_title + "' permanent? Permanent reports cannot be deleted any more.")) return;
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     

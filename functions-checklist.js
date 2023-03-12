@@ -642,12 +642,15 @@ function submit_form(){
     xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp_request.send("command=complete_partial_form&entry_id=" + encodeURIComponent(entry_id));
     if (workflow_type == "sample"){
+        alert("Sample form successfully completed.");
         parent.hide_samplelist();
     }
     else if (workflow_type == "lipid-class"){
+        alert("Lipid class form successfully completed.");
         parent.hide_lipid_classlist();
     }
     else {
+        alert("Lipidomics report successfully completed.");
         parent.hide_checklist();
     }
 }
