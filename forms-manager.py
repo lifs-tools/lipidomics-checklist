@@ -854,13 +854,14 @@ elif content["command"] == "complete_partial_form":
         mycursor.execute(sql, (entry_id, uid))
         request = mycursor.fetchone()
         
+        
         # add report hash number if necessary
         if request["form"] == main_form_id:
-            sql = "SELECT COUNT(*) as cnt FROM %sentries WHERE id = ? AND user_id = ?;" % table_prefix
-            mycursor.execute(sql, (entry_id, uid))
+            sql = "SELECT COUNT(*) as cnt FROM %sreports WHERE entry_id = ?;" % table_prefix
+            mycursor.execute(sql, (entry_id,))
             request = mycursor.fetchone()["cnt"]
             
-            if request > 0:
+            if request == 0:
                 hash_value = "%i-%i-%s" % (entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                 hash_value = hashlib.md5(hash_value.encode()).hexdigest()
                 
@@ -1586,6 +1587,7 @@ elif content["command"] == "import_sample_forms":
 
 
 elif content["command"] == "get_pdf":
+    
     if "user_uuid" not in content or "uid" not in content:
         print(ErrorCodes.NO_USER_UUID)
         exit()
