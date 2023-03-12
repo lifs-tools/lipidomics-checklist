@@ -255,7 +255,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
                 
                 
                 if i == 0 and main_section:
-                    tex.write("%s & \\multicolumn{4}{l}{%s} \\\\\n" % (report_fields[0][0][0], report_fields[0][0][1]))
+                    tex.write("%s & \\multicolumn{4}{@{}P{0.64\\textwidth}}{%s} \\\\\n" % (report_fields[0][0][0], report_fields[0][0][1]))
                     tex.write("\\hline\n")
                     
                     # create time stamp of now
