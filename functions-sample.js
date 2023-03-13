@@ -47,7 +47,7 @@ function update_load_sample_forms(){
                         
                         innerHTML += "<tr><td>" + String(post++) + ") </td>";
                         innerHTML += "<td>" + row["title"] + "</td>";
-                        innerHTML += "<td><input type='checkbox' id='" + row["enc_entry"] + "' class='check_sample'></input></td>";
+                        innerHTML += "<td><input type='checkbox' id='" + row["entry_id"] + "' class='check_sample'></input></td>";
                         innerHTML += "</tr>";
                     }
                     
@@ -81,6 +81,11 @@ function select_sample_selector(){
     if (sample_entry_ids.length == 0) return;
     
     var xmlhttp_request = new XMLHttpRequest();
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            update_sample_forms();
+        }
+    }
     var request_url = connector_path + "/connector.php";
     xmlhttp_request.open("POST", request_url, false);
     xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -122,7 +127,7 @@ function update_sample_forms() {
                     });
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
-                        if (!("link" in row) || !("title" in row) || !("status" in row)){
+                        if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
                             echo("Error");
                             return;
                         }
@@ -131,14 +136,14 @@ function update_sample_forms() {
                         if (row["status"] == "partial"){
                             has_partial_samples = true;
                             innerHTML += "<td>" + row["title"] + "<font color='red'>*</font></td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;'  onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Continue' />&nbsp;";
+                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;'  onclick=\"refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');\" title='Continue' />&nbsp;";
                         }
                         else {
                             innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Update sample type' />&nbsp;";
-                            innerHTML += "<img src='" + connector_path + "/recycle.png' style='cursor: pointer; height: 20px;' onclick=\"copy_sample_form('" + row["enc_entry"] + "');\" title='Copy sample type' />&nbsp;";
+                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');\" title='Update sample type' />&nbsp;";
+                            innerHTML += "<img src='" + connector_path + "/recycle.png' style='cursor: pointer; height: 20px;' onclick=\"copy_sample_form('" + row["entry_id"] + "');\" title='Copy sample type' />&nbsp;";
                         }
-                        innerHTML += "<img title='Delete sample type' src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["enc_entry"] + "');\" /></td>";
+                        innerHTML += "<img title='Delete sample type' src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["entry_id"] + "');\" /></td>";
                         innerHTML += "</tr>";
                     }
 

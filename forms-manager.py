@@ -228,10 +228,9 @@ if content["command"] == "get_main_forms":
         type_to_name = {"di": "direct infusion", "sep": "separation", "img": "imaging"}
         title = ""
         for entry in request:
-            entry["enc_entry"] = get_encrypted_entry(entry["id"])
+            entry["entry_id"] = get_encrypted_entry(entry["id"])
             
             forms_link_prefix = "/%s/checklist-form.html?entry_id=" % main_form_link_name
-            entry["link"] = "%s%s" % (forms_link_prefix, get_encrypted_entry(entry["id"]))
             entry["type"] = ""
             if len(entry["fields"]) > 0:
                 field_data = json.loads(entry["fields"])
@@ -300,10 +299,7 @@ elif content["command"] == "get_class_forms":
         mycursor.execute(sql, (main_entry_id, class_form_id, uid))
         request = mycursor.fetchall()
         for entry in request:
-            entry["enc_entry"] = get_encrypted_entry(entry["id"])
-                
-            forms_link_prefix = "/%s/checklist-form.html?entry_id=" % class_form_link_name
-            entry["link"] = "%s%s" % (forms_link_prefix, get_encrypted_entry(entry["id"]))
+            entry["entry_id"] = get_encrypted_entry(entry["id"])
             
             if len(entry["fields"]) > 0:
                 field_data = json.loads(entry["fields"].replace("'", '"'))
@@ -376,9 +372,7 @@ elif content["command"] == "get_sample_forms":
         mycursor.execute(sql, (main_entry_id, sample_form_id, uid))
         request = mycursor.fetchall()
         for entry in request:
-            entry["enc_entry"] = get_encrypted_entry(entry["id"])
-            forms_link_prefix = "/%s/checklist-form.html?entry_id=" % sample_form_link_name
-            entry["link"] = "%s%s" % (forms_link_prefix, get_encrypted_entry(entry["id"]))
+            entry["entry_id"] = get_encrypted_entry(entry["id"])
                 
             entry["title"] = "Unspecified sample"
             sample_type, sample_set = "", ""
@@ -446,9 +440,7 @@ elif content["command"] == "get_all_class_forms":
         mycursor.execute(sql, (class_form_id, uid))
         request = mycursor.fetchall()
         for entry in request:
-            entry["enc_entry"] = get_encrypted_entry(entry["id"])
-            forms_link_prefix = "/%s/checklist-form.html?entry_id=" % main_form_link_name
-            entry["link"] = "%s%s" % (forms_link_prefix, get_encrypted_entry(entry["id"]))
+            entry["entry_id"] = get_encrypted_entry(entry["id"])
             
             entry["main_title"] = "Untitled report"
             if "main_fields" in entry and len(entry["main_fields"]) > 0:
@@ -517,9 +509,7 @@ elif content["command"] == "get_all_sample_forms":
         mycursor.execute(sql, (sample_form_id, uid))
         request = mycursor.fetchall()
         for entry in request:
-            entry["enc_entry"] = get_encrypted_entry(entry["id"])
-            forms_link_prefix = "/%s/checklist-form.html?entry_id=" % main_form_link_name
-            entry["link"] = "%s%s" % (forms_link_prefix, get_encrypted_entry(entry["id"]))
+            entry["entry_id"] = get_encrypted_entry(entry["id"])
             
             entry["main_title"], entry["title"] = "Untitled report", "Unspecified sample"
             if "main_fields" in entry and len(entry["main_fields"]) > 0:
@@ -1408,9 +1398,16 @@ elif content["command"] == "delete_main_form":
             
             
         # delete main entry
+        sql = "DELETE FROM %sreports WHERE entry_id = ?;" % table_prefix
+        mycursor.execute(sql, (main_entry_id, ))
+        conn.commit()
+            
+            
+        # delete main entry
         sql = "DELETE FROM %sentries WHERE id = ? AND form = ? AND user_id = ?;" % table_prefix
         mycursor.execute(sql, (main_entry_id, main_form_id, uid))
         conn.commit()
+        
         
         # check if entry in reports exist and delete entry and pdf file
         if hash_value != None:
