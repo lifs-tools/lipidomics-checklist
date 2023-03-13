@@ -52,6 +52,7 @@ cursor_mysql.execute("%s;" % sql_prep)
 len_entry_ids = len([row["entry_id"] for row in cursor_mysql.fetchall()])
 
 min_limit, num = 1, 1
+total = 0
 while min_limit < len_entry_ids:
     sql = "select entry_id, user_id, form_id, fields, date, status, user_uuid from TCrpQ_wpforms_entries where entry_id in (%s) limit %i, 100;" % (sql_prep, min_limit)
     cursor_mysql.execute(sql)
