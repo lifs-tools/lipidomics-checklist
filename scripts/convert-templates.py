@@ -23,9 +23,9 @@ def convert_condition(conditionals, field_types, trans):
         
     return "|".join(converted)
 
-form_type = "sample" 
+form_type = "checklist" 
 
-if form_type == "lipid-class":
+if form_type == "checklist":
     from checklist_field_names import checklist_field_names as trans
     input_file = "wpforms245.json"
     output_file = "../workflow-templates/checklist.json"
@@ -44,9 +44,14 @@ elif form_type == "lipid-class":
     output_name_file = "../workflow-templates/lipid-class-field-names.csv"
 
 else:
+    print("no fitting form type")
     exit()
+    
+    
+print("Do uncomment this line in the code to continue when you exactly know what you are doing ;-)")
+exit()
 
-
+print("chose %s form" % form_type)
 
 input_string = open(input_file, "rt").read()
 input_data = json.loads(input_string)
@@ -160,6 +165,7 @@ for field_name, field in input_data["fields"].items():
     
 output_data = {"pages": output_data, "current_page": 0, "creation_date": "", "version": ""}
     
+print("writing in '%s' file" % output_file)
 with open(output_file, "wt") as out:
     out.write(json.dumps(output_data))
 
