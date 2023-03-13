@@ -71,9 +71,7 @@ conn = None
 table_prefix = "TCrpQ_"
 version = "v2.0.0"
 
-main_form_link_name = "lipidomics-checklist"
-class_form_link_name = "lipidomics-checklist"
-sample_form_link_name = "lipidomics-checklist"
+path_name = "lipidomics-checklist"
 
 main_form_id = "checklist"
 class_form_id = "lipid-class"
@@ -229,8 +227,6 @@ if content["command"] == "get_main_forms":
         title = ""
         for entry in request:
             entry["entry_id"] = get_encrypted_entry(entry["id"])
-            
-            forms_link_prefix = "/%s/checklist-form.html?entry_id=" % main_form_link_name
             entry["type"] = ""
             if len(entry["fields"]) > 0:
                 field_data = json.loads(entry["fields"])
@@ -698,9 +694,6 @@ elif content["command"] == "add_class_form":
         sql = "INSERT INTO %sconnect_lipid_class (main_form_entry_id, class_form_entry_id) VALUES (?, ?);" % table_prefix
         mycursor.execute(sql, (main_entry_id, new_class_entry_id))
         conn.commit()
-            
-        forms_link_prefix = "/%s/?wpforms_resume_entry=" % class_form_link_name
-        print("%s%s" % (forms_link_prefix, get_encrypted_entry(new_class_entry_id)))
         
 
     except Error as e:
@@ -712,6 +705,7 @@ elif content["command"] == "add_class_form":
     finally:
         if conn is not None: conn.close()
         
+    print(0)
         
     
     
@@ -778,8 +772,6 @@ elif content["command"] == "add_sample_form":
         conn.commit()
             
             
-        forms_link_prefix = "/%s/?wpforms_resume_entry=" % sample_form_link_name
-        print("%s%s" % (forms_link_prefix, get_encrypted_entry(new_sample_entry_id)))
         
 
     except Error as e:
@@ -791,6 +783,7 @@ elif content["command"] == "add_sample_form":
     finally:
         if conn is not None: conn.close()
         
+    print(0)
         
         
         
@@ -1637,13 +1630,13 @@ elif content["command"] == "get_pdf":
             output = p.stdout.read() # execution
             
             if os.path.exists(pdf_file):
-                print("/%s/%s" % (main_form_link_name, pdf_file))
+                print("/%s/%s" % (path_name, pdf_file))
             
             else:
                 print(str(output))
             
         else:
-            print("/%s/%s" % (main_form_link_name, pdf_file))
+            print("/%s/%s" % (path_name, pdf_file))
 
     except Error as e:
         print(ErrorCodes.ERROR_ON_CREATING_PDF, e)

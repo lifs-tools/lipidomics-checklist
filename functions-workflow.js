@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-
-<script language="javascript">
 var hashcode = 0;
 var connector_path = "/lipidomics-checklist"
 
@@ -51,7 +45,7 @@ function update_main_forms(update_interval){
                     
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
-                        if (!("link" in row) || !("title" in row) || !("status" in row)){
+                        if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
                             echo("Error");
                             return;
                         }
@@ -68,26 +62,26 @@ function update_main_forms(update_interval){
                         innerHTML += "<td align=\"center\" valign=\"middle\">";
                         
                         if (row["status"] == "partial"){
-                            innerHTML += "<img onclick=\"parent.show_checklist('" + row["link"] + "&workflow_type=checklist')\" src=\"" + connector_path + "/pencil.png\" title=\"Continue report\" style=\"cursor: pointer; height: 20px;\" />";
+                            innerHTML += "<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Continue report\" style=\"cursor: pointer; height: 20px;\" />";
                             
-                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer;  height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer;  height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
                             for_hashcode += row["title"];
                         }
                         else if (row["status"] == "permanent") {
-                            innerHTML += "<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                         }
                         else {
-                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Make report permanent\" style=\"cursor: pointer; height: 20px;\" onclick=\"make_permanent(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Make report permanent\" style=\"cursor: pointer; height: 20px;\" onclick=\"make_permanent(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img onclick=\"parent.show_checklist('" + row["link"] + "&workflow_type=checklist')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
+                            innerHTML += "&nbsp;<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer; height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer; height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer; height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer; height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
                         }
                         innerHTML += "</td></tr>";
                     }
@@ -292,42 +286,38 @@ window.addEventListener('resize', function(event) {
     document.getElementById("workflow_selector_wrapper").style.top = String((window_height - workflow_selector) / 2) + "px";
 }, true);
 
-</script>
-</head>
-<body>
-        <div style="display: inline-block;">
-        <div id="new_main_form" style="padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;" onclick="workflow_show_selector();">New workflow</div>
-        </div><p />
-        <div id="main_forms_table"></div>
-    
-    <div id="grey_background_index" style="top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;">
-    <div id="waiting_field" style="top: 45%; left: 45%; width: 10%; height: 10%; position: relative; background-color: white; border: 1px solid black; display: none;"><table width="100%" height="100%"><tr><td width="100%" align="center"><img src="loader.gif" /></td></tr></table></div></div>
-    <div id="workflow_selector" style="top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;">
-        <div id="workflow_selector_wrapper" style="left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;">
-            <div id="workflow_control_buttons" style="width: 100%; height: 100%; position: relative;">
-                <table style="width: 100%; height: 100%; border: 1px solid black; " cellspacing="10px"  id="workflow_table_wrapper">
-                    <tr></tr>
-                    <tr><td style="width: 100%; height: 80%;" valign="top" align="left">
-                        <table cellpadding="10px">
-                          <tr><td colspan="2"><b style="font-size: 20px;">Select your new workflow type</b></td></tr>
-                          <tr><td><input type="radio" id="radio_direct_infusion" name="workflow_type_field" value="workflow_direct_infusion" checked></td>
-                          <td><label for="radio_direct_infusion" style="font-size: 20px;">Direct Infusion</label></td></tr>
-                          <tr><td><input type="radio" id="radio_separation" name="workflow_type_field" value="workflow_separation"></td>
-                          <td><label for="radio_separation" style="font-size: 20px;">Separation</label></td></tr>
-                          <tr><td><input type="radio" id="radio_imaging" name="workflow_type_field" value="workflow_imaging"></td>
-                          <td><label for="radio_imaging" style="font-size: 20px;">Imaging</label></td></tr>
-                        </table>
-                    </td></tr>
-                    <tr><td align="right" valign="bottom" style="padding: 10px;">
-                        <div style="padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;" onmouseover="this.style.backgroundColor = '#ddd';" onmouseleave="this.style.backgroundColor = '#eee';" onclick="workflow_select_selector();">Select</div>&nbsp;&nbsp;
-                        <div style="padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;" onmouseover="this.style.backgroundColor = '#ddd';" onmouseleave="this.style.backgroundColor = '#eee';" onclick="workflow_close_selector();">Cancel</div>
-                    </td></tr>
-                </table>
-            </div>
-        </div>
-    </div>
-    </p>
-    <p>&nbsp;<br />&nbsp;<br />&nbsp;<br />
-    </p>
-</body>
-</html>
+
+var workflow_content = "<div style=\"display: inline-block;\"> \
+        <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New workflow</div> \
+        </div><p /> \
+        <div id=\"main_forms_table\"></div> \
+     \
+    <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
+    <div id=\"waiting_field\" style=\"top: 45%; left: 45%; width: 10%; height: 10%; position: relative; background-color: white; border: 1px solid black; display: none;\"><table width=\"100%\" height=\"100%\"><tr><td width=\"100%\" align=\"center\"><img src=\"loader.gif\" /></td></tr></table></div></div> \
+    <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
+        <div id=\"workflow_selector_wrapper\" style=\"left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;\"> \
+            <div id=\"workflow_control_buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
+                <table style=\"width: 100%; height: 100%; border: 1px solid black; \" cellspacing=\"10px\"  id=\"workflow_table_wrapper\"> \
+                    <tr></tr> \
+                    <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"left\"> \
+                        <table cellpadding=\"10px\"> \
+                          <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your new workflow type</b></td></tr> \
+                          <tr><td><input type=\"radio\" id=\"radio_direct_infusion\" name=\"workflow_type_field\" value=\"workflow_direct_infusion\" checked></td> \
+                          <td><label for=\"radio_direct_infusion\" style=\"font-size: 20px;\">Direct Infusion</label></td></tr> \
+                          <tr><td><input type=\"radio\" id=\"radio_separation\" name=\"workflow_type_field\" value=\"workflow_separation\"></td> \
+                          <td><label for=\"radio_separation\" style=\"font-size: 20px;\">Separation</label></td></tr> \
+                          <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\"></td> \
+                          <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
+                        </table> \
+                    </td></tr> \
+                    <tr><td align=\"right\" valign=\"bottom\" style=\"padding: 10px;\"> \
+                        <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_select_selector();\">Select</div>&nbsp;&nbsp; \
+                        <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_close_selector();\">Cancel</div> \
+                    </td></tr> \
+                </table> \
+            </div> \
+        </div> \
+    </div> \
+    </p> \
+    <p>&nbsp;<br />&nbsp;<br />&nbsp;<br /> \
+    </p>";
