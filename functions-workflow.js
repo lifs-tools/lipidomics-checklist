@@ -293,7 +293,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
         <div id=\"main_forms_table\"></div> \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
-    <div id=\"waiting_field\" style=\"top: 45%; left: 45%; width: 10%; height: 10%; position: relative; background-color: white; border: 1px solid black; display: none;\"><table width=\"100%\" height=\"100%\"><tr><td width=\"100%\" align=\"center\"><img src=\"loader.gif\" /></td></tr></table></div></div> \
+    <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
     <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"workflow_selector_wrapper\" style=\"left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"workflow_control_buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
@@ -306,7 +306,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
                           <td><label for=\"radio_direct_infusion\" style=\"font-size: 20px;\">Direct Infusion</label></td></tr> \
                           <tr><td><input type=\"radio\" id=\"radio_separation\" name=\"workflow_type_field\" value=\"workflow_separation\"></td> \
                           <td><label for=\"radio_separation\" style=\"font-size: 20px;\">Separation</label></td></tr> \
-                          <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\"></td> \
+                          <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\" disabled></td> \
                           <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
                         </table> \
                     </td></tr> \
