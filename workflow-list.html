@@ -68,26 +68,26 @@ function update_main_forms(update_interval){
                         innerHTML += "<td align=\"center\" valign=\"middle\">";
                         
                         if (row["status"] == "partial"){
-                            innerHTML += "<img onclick=\"parent.show_checklist('" + row["link"] + "&workflow_type=checklist')\" src=\"" + connector_path + "/gear.png\" title=\"Continue report\" style=\"cursor: pointer; width: 18px;\" />";
+                            innerHTML += "<img onclick=\"parent.show_checklist('" + row["link"] + "&workflow_type=checklist')\" src=\"" + connector_path + "/pencil.png\" title=\"Continue report\" style=\"cursor: pointer; height: 20px;\" />";
                             
-                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer; width: 18px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer;  height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
                             for_hashcode += row["title"];
                         }
                         else if (row["status"] == "permanent") {
-                            innerHTML += "<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer; width: 18px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; width: 18px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
                         }
                         else {
-                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Make report permanent\" style=\"cursor: pointer; width: 18px;\" onclick=\"make_permanent(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Make report permanent\" style=\"cursor: pointer; height: 20px;\" onclick=\"make_permanent(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img onclick=\"parent.show_checklist('" + row["link"] + "&workflow_type=checklist')\" src=\"" + connector_path + "/gear.png\" title=\"Update report\" style=\"cursor: pointer; width: 18px;\" />";
+                            innerHTML += "&nbsp;<img onclick=\"parent.show_checklist('" + row["link"] + "&workflow_type=checklist')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer; width: 18px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer; height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; width: 18px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["enc_entry"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer; width: 18px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
+                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer; height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["enc_entry"] + "');\" />";
                         }
                         innerHTML += "</td></tr>";
                     }
