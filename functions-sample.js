@@ -131,14 +131,14 @@ function update_sample_forms() {
                         if (row["status"] == "partial"){
                             has_partial_samples = true;
                             innerHTML += "<td>" + row["title"] + "<font color='red'>*</font></td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/gear.png' style='cursor: pointer; height: 18px;'  onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Continue' />&nbsp;";
+                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;'  onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Continue' />&nbsp;";
                         }
                         else {
                             innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/gear.png' style='cursor: pointer; height: 18px;' onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Update sample type' />&nbsp;";
-                            innerHTML += "<img src='" + connector_path + "/recycle.png' style='cursor: pointer; height: 18px;' onclick=\"copy_sample_form('" + row["enc_entry"] + "');\" title='Copy sample type' />&nbsp;";
+                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); parent.show_samplelist('" + row["link"] + "&workflow_type=sample');\" title='Update sample type' />&nbsp;";
+                            innerHTML += "<img src='" + connector_path + "/recycle.png' style='cursor: pointer; height: 20px;' onclick=\"copy_sample_form('" + row["enc_entry"] + "');\" title='Copy sample type' />&nbsp;";
                         }
-                        innerHTML += "<img title='Delete sample type' src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 18px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["enc_entry"] + "');\" /></td>";
+                        innerHTML += "<img title='Delete sample type' src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["enc_entry"] + "');\" /></td>";
                         innerHTML += "</tr>";
                     }
 
