@@ -47,7 +47,7 @@ lipid_class_template_file = "../workflow-templates/lipid-class.json"
 entry_id_map = {}
 
 
-sql = "select entry_id from TCrpQ_wpforms_entries where form_id in (245, 199, 240);"
+sql = "select DISTINCT entry_id  from TCrpQ_wpforms_entry_fields where form_id IN (199, 240, 245);"
 cursor_mysql.execute(sql)
 len_entry_ids = len([row["entry_id"] for row in cursor_mysql.fetchall()])
 
@@ -56,7 +56,7 @@ while min_limit < len_entry_ids:
 
 
     
-    sql = "select entry_id, user_id, form_id, fields, date, status, user_uuid from TCrpQ_wpforms_entries where form_id in (245, 199, 240) limit %i, 100;" % min_limit
+    sql = "select entry_id, user_id, form_id, fields, date, status, user_uuid from TCrpQ_wpforms_entries where entry_id in (select DISTINCT entry_id  from TCrpQ_wpforms_entry_fields where form_id IN (199, 240, 245)) limit %i, 100;" % min_limit
     cursor_mysql.execute(sql)
     results = cursor_mysql.fetchall()
     
@@ -65,7 +65,7 @@ while min_limit < len_entry_ids:
         form_type = {245: "checklist", 240: "sample", 199: "lipid-class"}[result["form_id"]]
         uid = result["user_id"]
         entry_id = result["entry_id"]
-        print("entry: %i, %s, %i of %i / %i" % (entry_id, form_type, num, len_entry_ids, min_limit))
+        #print("entry: %i, %s, %i of %i / %i" % (entry_id, form_type, num, len_entry_ids, min_limit))
         num += 1
         
         if result["fields"] == None or len(result["fields"]) == 0: continue
@@ -90,20 +90,16 @@ while min_limit < len_entry_ids:
         template_data["current_page"] = 0
         template_data["creation_date"] = str(result["date"])
         status = result["status"]
+        
+        if entry_id == 3190: print(entry_id, status, form_type)
+        
         if status == "": status = "completed"
         elif status == "abandoned": status = "completed"
         elif status not in {"partial", "permanent"}:
             print("status error for entry_id %i" % entry_id)
             continue
 
-        workflow_type = ""
-        if form_type in {"checklist"}:
-            workflow_type = instance_data["156"]["value"]
-            
-            if workflow_type not in {"di", "sep", "img"}:
-                print("workflow type error for entry_id %i" % entry_id)
-                continue
-
+        
         for name, field in instance_data.items():
             if "value" not in field: continue
             
@@ -122,9 +118,10 @@ while min_limit < len_entry_ids:
                     template_field["value"] = values
                     
 
-        sql = "insert into %sentries (form, user_id, status, type, fields, date, user_uuid) VALUES (?, ?, ?, ?, ?, ?, ?);" % table_prefix
-        cursor_sqlite.execute(sql, (form_id, uid, status, workflow_type, json.dumps(template_data), result["date"], result["user_uuid"]))
+        sql = "insert into %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, ?, ?, ?);" % table_prefix
+        cursor_sqlite.execute(sql, (form_id, uid, status, json.dumps(template_data), result["date"], result["user_uuid"]))
         conn_sqlite.commit()
+        if entry_id == 3190: print(sql)
         
         sql = "select max(id) as new_id from %sentries where user_id = ? and form = ?" % table_prefix
         cursor_sqlite.execute(sql, (uid, form_id))
@@ -149,7 +146,7 @@ results = cursor_mysql.fetchall()
 for result in results:
     main_id, class_id = result["main_form_entry_id"], result["class_form_entry_id"]
     if main_id not in entry_id_map or class_id not in entry_id_map:
-        print("error class: %i %i" % (main_id, class_id))
+        #print("error class: %i %i" % (main_id, class_id))
         continue
         
     sql = "INSERT INTO %sconnect_lipid_class (main_form_entry_id, class_form_entry_id) VALUES (?, ?);" % table_prefix
@@ -168,7 +165,7 @@ results = cursor_mysql.fetchall()
 for result in results:
     main_id, sample_id = result["main_form_entry_id"], result["sample_form_entry_id"]
     if main_id not in entry_id_map or sample_id not in entry_id_map:
-        print("error sample: %i %i" % (main_id, sample_id))
+        #print("error sample: %i %i" % (main_id, sample_id))
         continue
         
     sql = "INSERT INTO %sconnect_sample (main_form_entry_id, sample_form_entry_id) VALUES (?, ?);" % table_prefix
@@ -180,3 +177,4 @@ for result in results:
     
     
 #TODO: lösche Karteileichen
+# SELECT * FROM TCrpQ_entries WHERE form = 'lipid-class' and id NOT IN (SELECT class_form_entry_id from TCrpQ_connect_lipid_class);

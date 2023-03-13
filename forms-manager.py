@@ -222,18 +222,17 @@ if content["command"] == "get_main_forms":
         conn, mycursor = dbconnect()
         
         # getting all main forms
-        sql = "SELECT status, type, id, date, fields FROM %sentries WHERE form = ? AND user_id = ?;" % table_prefix
+        sql = "SELECT status, id, date, fields FROM %sentries WHERE form = ? AND user_id = ?;" % table_prefix
         mycursor.execute(sql, (main_form_id, uid))
         request = mycursor.fetchall()
         type_to_name = {"di": "direct infusion", "sep": "separation", "img": "imaging"}
+        title = ""
         for entry in request:
             entry["enc_entry"] = get_encrypted_entry(entry["id"])
             
             forms_link_prefix = "/%s/checklist-form.html?entry_id=" % main_form_link_name
             entry["link"] = "%s%s" % (forms_link_prefix, get_encrypted_entry(entry["id"]))
-            
-            entry["title"] = "Untitled %s report" % (type_to_name[entry["type"]] if entry["type"] in type_to_name else "")
-            entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
+            entry["type"] = ""
             if len(entry["fields"]) > 0:
                 field_data = json.loads(entry["fields"])
                 del entry["fields"]
@@ -241,7 +240,15 @@ if content["command"] == "get_main_forms":
                 if len(field_data) > 0:
                     for field in field_data["pages"][0]["content"]:
                         if "label" in field and field["label"] == "Title of the study" and len(field["value"]) > 0:
-                            entry["title"] = field["value"]
+                            title = field["value"]
+                            
+                        elif "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
+                            entry["type"] = field["value"]
+                            
+            
+            if len(title) == 0: entry["title"] = "Untitled %s report" % (type_to_name[entry["type"]] if entry["type"] in type_to_name else "")
+            else: entry["title"] = title
+            entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
         print(json.dumps(request))
         
 
@@ -607,20 +614,14 @@ elif content["command"] == "add_main_form":
             field_template["version"] = version
         field_template = json.dumps(field_template)
         
+        
         # add main form entry
-        sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, ?, DATETIME('now'), ?);" % table_prefix
-        values = (main_form_id, uid, workflow_type, field_template, user_uuid)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, DATETIME('now'), ?);" % table_prefix
+        values = (main_form_id, uid, field_template, user_uuid)
         mycursor.execute(sql, values)
         conn.commit()
         
-        
-        sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ? and status = 'partial';" % table_prefix
-        mycursor.execute(sql, (uid, main_form_id))
-        request = mycursor.fetchone()
-        
-        
-        forms_link_prefix = "/%s/?wpforms_resume_entry=" % main_form_link_name
-        print("%s%s" % (forms_link_prefix, get_encrypted_entry(request["eid"])))
+        print(0)
         
 
     except Error as e:
@@ -628,6 +629,9 @@ elif content["command"] == "add_main_form":
         
     except Exception as e:
         print(ErrorCodes.ERROR_ON_ADDING_MAIN_FORMS, e)
+        
+    except:
+        print(ErrorCodes.ERROR_ON_ADDING_MAIN_FORMS)
 
     finally:
         if conn is not None: conn.close()
@@ -664,15 +668,19 @@ elif content["command"] == "add_class_form":
             exit()
         
         
-        # checking if main form is still partial
-        sql = "SELECT type, status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        # checking if main form is permanent
+        sql = "SELECT fields, status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
         mycursor.execute(sql, (uid, main_entry_id))
         request = mycursor.fetchone()
-        if request["status"] != "partial":
+        if request["status"] == "permanent":
             print(ErrorCodes.MAIN_FORM_COMPLETED)
             exit()
-        
-        workflow_type = request["type"]
+            
+        field_data = json.loads(request["fields"])
+        workflow_type = ""
+        for field in field_data["pages"][0]["content"]:
+            if "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
+                workflow_type = field["value"]
         
         field_template = json.loads(open("workflow-templates/lipid-class.json").read())
         if "pages" in field_template and len(field_template["pages"]) > 0:
@@ -685,8 +693,8 @@ elif content["command"] == "add_class_form":
         field_template = json.dumps(field_template)
         
         # add main form entry
-        sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, ?, DATETIME('now'), ?);" % table_prefix
-        values = (class_form_id, uid, workflow_type, field_template, user_uuid)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, DATETIME('now'), ?);" % table_prefix
+        values = (class_form_id, uid, field_template, user_uuid)
         mycursor.execute(sql, values)
         conn.commit()
         
@@ -748,14 +756,13 @@ elif content["command"] == "add_sample_form":
             print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
             exit()
         
-        # checking if main form is still partial
-        sql = "SELECT status, type FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        # checking if main form is permanent
+        sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
         mycursor.execute(sql, (uid, main_entry_id))
         request = mycursor.fetchone()
-        if request["status"] != "partial":
+        if request["status"] == "permanent":
             print(ErrorCodes.MAIN_FORM_COMPLETED)
             exit()
-        workflow_type = request["type"]
             
             
             
@@ -765,8 +772,8 @@ elif content["command"] == "add_sample_form":
         field_template = json.dumps(field_template)
         
         # add main form entry
-        sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, ?, DATETIME('now'), ?);" % table_prefix
-        values = (sample_form_id, uid, workflow_type, field_template, user_uuid)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, DATETIME('now'), ?);" % table_prefix
+        values = (sample_form_id, uid, field_template, user_uuid)
         mycursor.execute(sql, values)
         conn.commit()
         
@@ -939,7 +946,7 @@ elif content["command"] == "copy_main_form":
         fields = json.dumps(fields)
         
         # copy content assigned to entry id
-        sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, 'partial', type, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, 'partial', ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
         mycursor.execute(sql, (fields, uid, main_entry_id))
         conn.commit()
         
@@ -970,7 +977,7 @@ elif content["command"] == "copy_main_form":
                 
                 
             # copy content assigned to entry id
-            sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, status, type, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
             mycursor.execute(sql, (fields, uid, sample_entry_id))
             conn.commit()
                 
@@ -1006,7 +1013,7 @@ elif content["command"] == "copy_main_form":
                 
                 
             # copy content assigned to entry id
-            sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, status, type, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
             mycursor.execute(sql, (fields, uid, class_entry_id))
             conn.commit()
                 
@@ -1084,7 +1091,7 @@ elif content["command"] == "copy_class_form":
             
         
         # copy content assigned to entry id
-        sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, 'partial', type, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, 'partial', ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
         mycursor.execute(sql, (fields, uid, class_entry_id))
         conn.commit()
             
@@ -1164,7 +1171,7 @@ elif content["command"] == "copy_sample_form":
             
             
         # copy content assigned to entry id
-        sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, 'partial', type, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, 'partial', ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
         mycursor.execute(sql, (fields, uid, sample_entry_id))
         conn.commit()
             
@@ -1479,7 +1486,7 @@ elif content["command"] == "import_class_forms":
                 
             # import new entry based on old entry
             
-            sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, status, type, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
             mycursor.execute(sql, (uid, class_entry_id))
             conn.commit()
             
@@ -1552,7 +1559,7 @@ elif content["command"] == "import_sample_forms":
                 exit()
             
             # import new entry based on old entry    
-            sql = "INSERT INTO %sentries (form, user_id, status, type, fields, date, user_uuid) SELECT form, user_id, status, type, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
             mycursor.execute(sql, (uid, sample_entry_id))
             conn.commit()
             
