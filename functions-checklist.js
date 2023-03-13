@@ -459,13 +459,13 @@ function load_data(content){
 
 function go_back(){
     if (workflow_type == "sample"){
-        parent.hide_samplelist();
+        hide_samplelist();
     }
     else if (workflow_type == "lipid-class"){
-        parent.hide_lipid_classlist();
+        hide_lipid_classlist();
     }
     else {
-        parent.hide_checklist();
+        hide_checklist();
     }
 }
 
@@ -643,15 +643,15 @@ function submit_form(){
     xmlhttp_request.send("command=complete_partial_form&entry_id=" + encodeURIComponent(entry_id));
     if (workflow_type == "sample"){
         alert("Sample form successfully completed.");
-        parent.hide_samplelist();
+        hide_samplelist();
     }
     else if (workflow_type == "lipid-class"){
         alert("Lipid class form successfully completed.");
-        parent.hide_lipid_classlist();
+        hide_lipid_classlist();
     }
     else {
         alert("Lipidomics report successfully completed.");
-        parent.hide_checklist();
+        hide_checklist();
     }
 }
 
@@ -663,8 +663,6 @@ function store_form(){
     xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp_request.send("command=update_form_content&entry_id=" + encodeURIComponent(entry_id) + "&content=" + btoa(encodeURIComponent(JSON.stringify(lipidomics_forms_content))));
 }
-
-
 
 
 function parseURLParams(url) {
@@ -688,3 +686,21 @@ function parseURLParams(url) {
 }
 
 
+function request_form_content(){
+    if (entry_id != null){
+        var xmlhttp_request = new XMLHttpRequest();
+        xmlhttp_request.onreadystatechange = function() {
+            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+                if (xmlhttp_request.responseText.length > 0 && xmlhttp_request.responseText.substring(0, 5) != "ERROR"){
+                    load_data(JSON.parse(xmlhttp_request.responseText));
+                }
+            }
+        }
+        var request_url = connector_path + "/connector.php?command=get_form_content&entry_id=" + encodeURIComponent(entry_id);
+        xmlhttp_request.open("GET", request_url);
+        xmlhttp_request.send();
+    }
+}
+
+var checklist_content = "<button class=\"submit-button\" id=\"back_button\" onclick=\"go_back();\">Back to Report Overview</button><p /> \
+<div id=\"form-viewer\"></div>";
