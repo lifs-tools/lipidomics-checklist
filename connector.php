@@ -28,15 +28,16 @@ foreach($_POST as $key => $val) {
 
 array_push($request, "ip=" . urlencode($_SERVER['REMOTE_ADDR']));
 array_push($request, "user_agent=" . urlencode($_SERVER['HTTP_USER_AGENT']));
+
 #$user_uuid = !empty( $_COOKIE['_wpfuuid'] ) ? $_COOKIE['_wpfuuid'] : "";
-array_push($request, "user_uuid=3e599f6d-476d-4d52-8e19-3ffe6ef7555d");
-#array_push($request, "uid=" . get_current_user_id());
+#array_push($request, "user_uuid=" . urlencode(get_current_user_id()));
+#array_push($request, "uid=" . urlencode(get_current_user_id()));
+
+array_push($request, "user_uuid=" . urlencode("3e599f6d-476d-4d52-8e19-3ffe6ef7555d"));
 array_push($request, "uid=0");
 
 
 exec("/usr/bin/python3 forms-manager.py \"" . join("&", $request) . "\" 2>&1", $out, $result);
 echo($out[0]);
-#echo(join("&", $request));
-#echo($_POST["command"])
 
 ?>

@@ -224,9 +224,9 @@ if content["command"] == "get_main_forms":
         mycursor.execute(sql, (main_form_id, uid))
         request = mycursor.fetchall()
         type_to_name = {"di": "direct infusion", "sep": "separation", "img": "imaging"}
-        title = ""
         for entry in request:
             entry["entry_id"] = get_encrypted_entry(entry["id"])
+            title = ""
             entry["type"] = ""
             if len(entry["fields"]) > 0:
                 field_data = json.loads(entry["fields"])
