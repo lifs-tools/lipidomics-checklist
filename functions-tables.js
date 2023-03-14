@@ -17,8 +17,8 @@ var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</labe
     </div> \
 </div> \
 <div style=\"display: inline-block;\"> \
-    <div id=\"new_sample_form\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <div id=\"new_sample_form\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Load registered sample</div> \
+    <div id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <div id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</div> \
 </div> \
 <div id=\"result_box_samples\"></div>";
 
@@ -42,8 +42,8 @@ var lipid_class_table_view = "<label class=\"wpforms-field-label\">Lipid Classes
         </div> \
     </div> \
 <div style=\"display: inline-block;\"> \
-    <div id=\"new_class_form\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <div id=\"new_class_form\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Load registered lipid classes</div> \
+    <div id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <div id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</div> \
 </div> \
 <div id=\"result_box\"></div>";
 
