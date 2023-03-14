@@ -4,6 +4,7 @@ class InputTable extends HTMLElement {
         this.data = [];
         this.column_labels = [];
         this.input_fields = [];
+        //this.onchange = "";
         this.table = document.createElement("table");
         this.table.style = "border: 1px solid #ccc; border-radius: 5px; width: 100%; max-width: 60%;";
     }
@@ -14,7 +15,7 @@ class InputTable extends HTMLElement {
             val.push(row.join("|"));
         }
         this.value = val.join("|");
-        this.onchange();
+        if (this.hasAttribute("onchange")) this.onchange();
     }
     
     connectedCallback() {
