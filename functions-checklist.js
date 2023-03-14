@@ -236,6 +236,52 @@ function load_data(content){
             
             
             if (field["type"] == "table"){
+                if (!("label" in field)) continue;
+                if (!("columns" in field)) continue;
+                if (!("value" in field)) field["value"] = "";
+                if (!("description" in field)) field["description"] = "";
+                
+                // Adding the title of the field
+                var obj_title = document.createElement("div");
+                obj_title.className = "lipidomics-forms-field-title";
+                obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                if (("required" in field) && field["required"] == 1){
+                    obj_title.innerHTML += " <font color='red'>*</font>";
+                }
+                obj.append(obj_title);
+                
+                // Adding the text field of the field
+                var obj_content = document.createElement("div");
+                obj_content.className = "lipidomics-forms-field-content";
+                var obj_input_table = document.createElement("input-table");
+                obj_input_table.className = "lipidomics-forms-input-table";
+                obj_input_table.content = field;
+                obj_input_table.field_name = field_name;
+                obj_input_table.setAttribute('value', field["value"]);
+                obj_input_table.setAttribute('columns', field["columns"]);
+                obj_input_table.setAttribute('onchange', "this.content['value'] = this.value;");
+                obj_content.append(obj_input_table);
+                obj.append(obj_content);
+                dom_text_fields[field_name] = obj_input_table;
+                
+                // Adding description of the field if present
+                if (field["description"].length > 0){
+                    var obj_description = document.createElement("div");
+                    obj_description.className = "lipidomics-forms-field-description";
+                    obj_description.innerHTML = field["description"];
+                    obj.append(obj_description);
+                }
+                
+                var obj_required = document.createElement("div");
+                obj_required.className = "lipidomics-forms-required-message";
+                obj_required.innerHTML = "No partial entries allowed.";
+                obj_required.style.display = "none";
+                obj.append(obj_required);
+                required_messages[field_name] = obj_required;
+            }
+            
+            
+            if (field["type"] == "tableview"){
                 if (!("view" in field) || !(field["view"] in registered_tables)) continue;
                 
                 var obj_html = document.createElement("div");
@@ -562,7 +608,7 @@ function check_requirements(){
             
             dom_text_fields[form_name].style.border = "1px solid #cc0000";
         }
-        else if (field["type"] == "table"){
+        else if (field["type"] == "tableview"){
             if (field["value"] == 1) continue;
         }
         
