@@ -1,16 +1,12 @@
 class InputTable extends HTMLElement {
-
-
     constructor() {
         super();
         this.data = [];
         this.column_labels = [];
         this.input_fields = [];
         this.table = document.createElement("table");
-        this.table.style = "border: 1px solid #ccc; border-radius: 5px;";
+        this.table.style = "border: 1px solid #ccc; border-radius: 5px; width: 100%; max-width: 60%;";
     }
-    
-    
     
     updateTable(){
         var val = [];
@@ -20,7 +16,6 @@ class InputTable extends HTMLElement {
         this.value = val.join("|");
         this.onchange();
     }
-    
     
     connectedCallback() {
         if (!this.hasAttribute("columns")) return;
@@ -95,6 +90,7 @@ class InputTable extends HTMLElement {
                 input_obj.row_num = row_num;
                 input_obj.cell_num = cell_num;
                 input_obj.onchange = this.updateText;
+                input_obj.style = "width: 98%;";
                 cell_num++;
             }
             var td_obj_del = document.createElement("td");
