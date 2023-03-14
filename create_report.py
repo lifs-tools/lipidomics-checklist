@@ -92,8 +92,6 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
             if field["name"] in visible and not visible[field["name"]]: continue
         
             if field["type"] == "text":
-                #print(field["label"], field["value"])
-            
                 if field["label"][:5].lower() == "other":
                     if field["label"][6:].lower() in values:
                         values[field["label"][6:].lower()][-1] = field["value"]
@@ -112,6 +110,11 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                         choice_values.append(choice["label"])
                 values[field["label"].lower()] = choice_values
                 report_fields[-1].append([field["label"], ""])
+                
+            elif field["type"] == "table":
+                values[field["label"].lower()] = ["!!!TABLE!!!%s!!!CONTENT!!!%s" % (field["columns"], field["value"])]
+                #values[field["label"].lower()] = [field["value"]]
+                report_fields[-1].append([field["label"], ""])
     
     
         
@@ -128,14 +131,51 @@ def unicoding(t):
     return encoded.replace("\\", "\\backslash").replace("&", "\&")
     
     
+    
+def make_table(title, text):
+    
+    
+    
+    #\begin{tabular}{P{0.22\textwidth}P{0.21\textwidth}}\rowcolor{ILSgreen} \textbf{\color{white}First hobby} & \textbf{\color{white}Second hobby} \\\hline \rowcolor{white} fun & fun \\ \rowcolor{ILSgreen!30} more fun & even more fun  \\\hline  \end{tabular} \vskip-7px}
+    
+    result_text = "\\multicolumn{2}{P{0.46\\textwidth}}{\\hskip-0.75em %s\\newline \\vskip-7px \n" % title
+                    
+    column_labels, content = text[11:].split("!!!CONTENT!!!")
+    column_labels = column_labels.split("|")
+    content = content.split("|")
+    num_cols = len(column_labels)
+
+    result_text += "\\begin{tabular}{%s}\\rowcolor{ILSgreen}" % (("P{%0.3f\\textwidth}" % (0.43 / num_cols)) * num_cols)
+    
+    result_text += " & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \n"
+    
+    
+    row_cnt = 0
+    for i, cell in enumerate(content):
+        if i % num_cols == 0:
+            result_text += "\\rowcolor{%s}" % ("ILSgreen!20" if row_cnt % 2 == 1 else "white")
+        else:
+            result_text += " & " 
+            
+        result_text += cell
+        
+        if i % num_cols == num_cols - 1:
+            result_text += "\\\\"
+            row_cnt += 1
+            
+    if i % num_cols < num_cols - 1:
+        result_text += "\\\\"
+    result_text += "\\hline  \\end{tabular} \\vskip-7px}"
+    return result_text
+
+
+
 
 def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
-
     ## fill general data
     titles = []
     report_fields = []
     fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields)
-
 
 
     ## fill sample specific data
@@ -266,10 +306,27 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
                 n = len(report_fields[i])
                 h = (n + 1) // 2
                 for ci in range(h):
+                    
                     if ci + h < n:
-                        tex.write("%s & %s & & %s & %s \\\\\n" % (report_fields[i][ci][0], report_fields[i][ci][1], report_fields[i][ci + h][0], report_fields[i][ci + h][1]))
+                        
+                        if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
+                            first_col = make_table(report_fields[i][ci][0], report_fields[i][ci][1])
+                        else:
+                            first_col = "%s & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
+                            
+                        if report_fields[i][ci + h][1][:11] == "!!!TABLE!!!":
+                            second_col = make_table(report_fields[i][ci + h][0], report_fields[i][ci + h][1])
+                        else:
+                            second_col = "%s & %s" % (report_fields[i][ci + h][0], report_fields[i][ci + h][1])
+                        
+                        tex.write("%s & & %s \\\\\n" % (first_col, second_col))
                     else:
-                        tex.write("%s & %s \\\\\n" % (report_fields[i][ci][0], report_fields[i][ci][1]))
+                        if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
+                            first_col = make_table(report_fields[i][ci][0], report_fields[i][ci][1])
+                        else:
+                            first_col = "%s & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
+                            
+                        tex.write("%s \\\\\n" % (first_col))
                         
                     if ci < h - 1:
                         tex.write("\\cline{1-2}\\cline{4-5}\n")

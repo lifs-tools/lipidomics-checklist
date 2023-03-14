@@ -95,6 +95,7 @@ class InputTable extends HTMLElement {
             }
             var td_obj_del = document.createElement("td");
             tr_obj.append(td_obj_del);
+            td_obj_del.width = "0px";
             var img_obj = document.createElement("img");
             td_obj_del.append(img_obj);
             img_obj.src = "/lipidomics-checklist/trashbin.png";

@@ -2,13 +2,14 @@
 var sample_field_object = null;
 var has_partial_samples = false;
 
-window.addEventListener('resize', function(event) {
-    document.getElementById("sample_forms_table").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
-}, true);
-
 
 function show_sample_selector(){
     update_load_sample_forms();
+    
+    window.addEventListener('resize', function(event) {
+        document.getElementById("sample_forms_table").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
+    }, true);
+    
     document.getElementById("grey_background").style.display = "block";
     document.getElementById("sample_selector_wrapper").style.display = "block";
     document.getElementById("sample_forms_table").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
