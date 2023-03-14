@@ -259,7 +259,7 @@ function load_data(content){
                 obj_input_table.field_name = field_name;
                 obj_input_table.setAttribute('value', field["value"]);
                 obj_input_table.setAttribute('columns', field["columns"]);
-                obj_input_table.setAttribute('onchange', "this.content['value'] = this.value;");
+                obj_input_table.setAttribute('onchange', "this.content['value'] = this.value; update_table(this);");
                 obj_content.append(obj_input_table);
                 obj.append(obj_content);
                 dom_text_fields[field_name] = obj_input_table;
@@ -274,7 +274,7 @@ function load_data(content){
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
-                obj_required.innerHTML = "No partial entries allowed.";
+                obj_required.innerHTML = "At least one row must be added.";
                 obj_required.style.display = "none";
                 obj.append(obj_required);
                 required_messages[field_name] = obj_required;
@@ -527,6 +527,16 @@ function update_text(form){
 }
 
 
+function update_table(form){
+    if (!form_enabled) return;
+    
+    var field_name = form.content["name"];
+    form.content["value"] = form.value;
+    required_messages[field_name].style.display = "none";
+    check_conditions();
+}
+
+
 function update_number(form){
     if (!form_enabled) return;
     
@@ -565,7 +575,7 @@ function update_select(form){
 }
 
 
-function update_table(field){
+function update_tableview(field){
     var field_name = field["name"];
     required_messages[field_name].style.display = "none";
 }
@@ -610,6 +620,9 @@ function check_requirements(){
         }
         else if (field["type"] == "tableview"){
             if (field["value"] == 1) continue;
+        }
+        else if (field["type"] == "table"){
+            if (field["value"].length > 0) continue;
         }
         
         else if (field["type"] == "multiple"){

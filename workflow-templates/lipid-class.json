@@ -18,17 +18,7 @@
 
 {"label": "Other type of negative (precursor)ion", "name": "other_neg_ion", "type": "text", "required": 1, "value": "", "description": "Which other type of (precursor)ion?", "condition": "type_neg_ion#other=1"},
 
-{"label": "How many fragments used for ID", "name": "frag_used", "type": "select", "required": 0, "choice": [{"name": "frag_used#1_fragment", "label": "1 fragment", "value": 1}, {"name": "frag_used#2_fragments", "label": "2 fragments", "value": 0}, {"name": "frag_used#3_fragments", "label": "3 fragments", "value": 0}, {"name": "frag_used#4_fragments", "label": "4 fragments", "value": 0}, {"name": "frag_used#5_fragments", "label": "5 fragments", "value": 0}], "description": "Number of fragment ions used for identification", "condition": "ms_level#ms2=1|ms_level#msn=1"},
-
-{"label": "Fragment ion 1 for ID", "name": "fragment_ion_1", "type": "text", "required": 1, "value": "", "description": "Please specify identification principle", "condition": "ms_level#ms2=1|ms_level#msn=1"},
-
-{"label": "Fragment ion 2 for ID", "name": "fragment_ion_2", "type": "text", "required": 1, "value": "", "description": "Please specify identification principle", "condition": "ms_level#ms2=1&frag_used#1_fragment~1|ms_level#msn=1&frag_used#1_fragment~1"},
-
-{"label": "Fragment ion 3 for ID", "name": "fragment_ion_3", "type": "text", "required": 1, "value": "", "description": "Please specify identification principle", "condition": "ms_level#ms2=1&frag_used#3_fragments=1|ms_level#msn=1&frag_used#3_fragments=1|ms_level#ms2=1&frag_used#4_fragments=1|ms_level#msn=1&frag_used#4_fragments=1|ms_level#ms2=1&frag_used#5_fragments=1|ms_level#msn=1&frag_used#5_fragments=1"},
-
-{"label": "Fragment ion 4 for ID", "name": "fragment_ion_4", "type": "text", "required": 1, "value": "", "description": "Please specify identification principle", "condition": "ms_level#ms2=1&frag_used#4_fragments=1|ms_level#msn=1&frag_used#4_fragments=1|ms_level#ms2=1&frag_used#5_fragments=1|ms_level#msn=1&frag_used#5_fragments=1"},
-
-{"label": "Fragment ion 5 for ID", "name": "fragment_ion_5", "type": "text", "required": 1, "value": "", "description": "Please specify identification principle", "condition": "ms_level#ms2=1&frag_used#5_fragments=1|ms_level#msn=1&frag_used#5_fragments=1"},
+{"label": "Fragments for identification", "name": "frag_used", "type": "table", "columns": "Fragment name", "required": 1, "value": "", "description": "Please specify your hobbies.", "condition": "ms_level#ms2=1|ms_level#msn=1"},
 
 {"label": "Isotope correction at MS1", "name": "isotope_corr_ms1", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms1#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms1#no", "label": "No", "value": 1}], "description": "Was Type II overlap corrected?", "condition": "ms_level#ms1=1"},
 

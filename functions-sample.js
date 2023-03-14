@@ -171,7 +171,7 @@ function update_sample_forms() {
 
 
 function refresh_sample_view(){
-    if (sample_field_object != null) update_table(sample_field_object);
+    if (sample_field_object != null) update_tableview(sample_field_object);
 }
 
 
@@ -181,7 +181,7 @@ function delete_sample_form(sample_type, entry_id){
     refresh_sample_view();
     if (!confirm("Do you really want to delete '" + sample_type + "' type?")) return;
     
-    if (sample_field_object != null) update_table(sample_field_object);
+    if (sample_field_object != null) update_tableview(sample_field_object);
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     

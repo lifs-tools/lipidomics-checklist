@@ -15,6 +15,11 @@
     margin: 1px 0 1px 0;
 }
 
+.lipidomics-forms-input-table {
+    width: 100%;
+    max-width: 60%;
+}
+
 .lipidomics-forms-field-content {
 }
 
