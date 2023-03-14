@@ -578,6 +578,7 @@ function update_select(form){
 function update_tableview(field){
     var field_name = field["name"];
     required_messages[field_name].style.display = "none";
+    store_form();
 }
 
 

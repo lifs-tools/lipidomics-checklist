@@ -4,8 +4,6 @@
 
 {"label": "Institution", "name": "institution", "type": "text", "required": 1, "value": "", "description": "Please specify the institution where the data was acquired."},
 
-{"label": "Hobbies", "name": "my_hobbies", "type": "table", "columns": "First hobby|Second hobby", "required": 1, "value": "", "description": "Please specify your hobbies."},
-
 {"label": "Corresponding Email", "name": "corresponding_email", "type": "text", "required": 1, "value": "", "description": "To whom correspondence should be addressed?"},
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
