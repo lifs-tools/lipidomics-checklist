@@ -16,8 +16,14 @@
 }
 
 .lipidomics-forms-input-table {
-    width: 100%;
-    max-width: 60%;
+    border-radius: 5px;
+}
+
+.lipidomics-forms-input-table-field {
+    padding: 0 0 0 0;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 98%;
 }
 
 .lipidomics-forms-field-content {

@@ -4,23 +4,13 @@ class InputTable extends HTMLElement {
         this.data = [];
         this.column_labels = [];
         this.input_fields = [];
-        //this.onchange = "";
         this.table = document.createElement("table");
-        this.table.style = "border: 1px solid #ccc; border-radius: 5px; width: 100%; max-width: 60%;";
-    }
-    
-    updateTable(){
-        var val = [];
-        for (var row of this.data){
-            val.push(row.join("|"));
-        }
-        this.value = val.join("|");
-        if (this.hasAttribute("onchange")) this.onchange();
+        this.table.style = "margin: 0px; border-radius: 5px;";
     }
     
     connectedCallback() {
         if (!this.hasAttribute("columns")) return;
-        if (!this.hasAttribute("value")) return;
+        if (!this.hasAttribute("value")) this.setAttribute("value", "");
         this.append(this.table);
         
         this.column_labels = this.getAttribute("columns").split("|");
@@ -40,6 +30,15 @@ class InputTable extends HTMLElement {
             }
         }
         this.renderTable();
+    }
+    
+    updateTable(){
+        var val = [];
+        for (var row of this.data){
+            val.push(row.join("|"));
+        }
+        this.value = val.join("|");
+        if (this.hasAttribute("onchange")) this.onchange();
     }
     
     addRow(){
@@ -85,13 +84,14 @@ class InputTable extends HTMLElement {
                 tr_obj.append(td_obj);
                 var input_obj = document.createElement("input");
                 td_obj.append(input_obj);
+                td_obj.style = "padding: 0px;";
                 input_obj.type = "text";
                 input_obj.value = cell;
                 input_obj.obj = this;
                 input_obj.row_num = row_num;
                 input_obj.cell_num = cell_num;
                 input_obj.onchange = this.updateText;
-                input_obj.style = "width: 98%;";
+                input_obj.style = "padding: 2px 0 2px 0; border: 1px solid #ccc; border-radius: 2px; width: 98%";
                 cell_num++;
             }
             var td_obj_del = document.createElement("td");
@@ -99,9 +99,9 @@ class InputTable extends HTMLElement {
             td_obj_del.width = "0px";
             var img_obj = document.createElement("img");
             td_obj_del.append(img_obj);
+            td_obj_del.style = "padding: 0px;";
             img_obj.src = "/lipidomics-checklist/trashbin.png";
-            img_obj.height = "20";
-            img_obj.style = "cursor: pointer;";
+            img_obj.style = "cursor: pointer; height: 20px";
             img_obj.obj = this;
             img_obj.row_num = row_num;
             img_obj.onclick = this.removeRow;
@@ -111,15 +111,15 @@ class InputTable extends HTMLElement {
         var tr_add = document.createElement("tr");
         this.table.append(tr_add);
         var td_add = document.createElement("td");
+        td_add.style = "padding: 2px 2px 0 0;";
         tr_add.append(td_add);
-        td_add.colspan = this.column_labels.length + 1;
+        td_add.setAttribute("colspan", "" + (this.column_labels.length + 1));
         
         
         var img_add = document.createElement("img");
         td_add.append(img_add);
         img_add.src = "/lipidomics-checklist/plus.png";
-        img_add.height = "20";
-        img_add.style = "cursor: pointer;";
+        img_add.style = "cursor: pointer; height: 20px";
         img_add.obj = this;
         img_add.onclick = this.addRow;
     }
