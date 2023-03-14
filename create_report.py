@@ -133,40 +133,35 @@ def unicoding(t):
     
     
 def make_table(title, text):
-    
-    
-    
-    #\begin{tabular}{P{0.22\textwidth}P{0.21\textwidth}}\rowcolor{ILSgreen} \textbf{\color{white}First hobby} & \textbf{\color{white}Second hobby} \\\hline \rowcolor{white} fun & fun \\ \rowcolor{ILSgreen!30} more fun & even more fun  \\\hline  \end{tabular} \vskip-7px}
-    
-    result_text = "\\multicolumn{2}{P{0.46\\textwidth}}{\\hskip-0.75em %s\\newline \\vskip-7px \n" % title
+    result_text = ["\\multicolumn{3}{P{0.49\\textwidth}}{%s\\newline \\vskip-7px \n" % title]
                     
     column_labels, content = text[11:].split("!!!CONTENT!!!")
     column_labels = column_labels.split("|")
     content = content.split("|")
     num_cols = len(column_labels)
 
-    result_text += "\\begin{tabular}{%s}\\rowcolor{ILSgreen}" % (("P{%0.3f\\textwidth}" % (0.43 / num_cols)) * num_cols)
+    result_text.append("\\centering \\begin{tabular}{%s}\\rowcolor{ILSgreen!60}" % (("P{%0.3f\\hsize}" % (0.93 / num_cols)) * num_cols))
     
-    result_text += " & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \n"
+    result_text.append(" & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \n")
     
     
     row_cnt = 0
     for i, cell in enumerate(content):
         if i % num_cols == 0:
-            result_text += "\\rowcolor{%s}" % ("ILSgreen!20" if row_cnt % 2 == 1 else "white")
+            result_text.append("\\rowcolor{%s}" % ("ILSgreen!20" if row_cnt % 2 == 1 else "white"))
         else:
-            result_text += " & " 
+            result_text.append(" & ")
             
-        result_text += cell
+        result_text.append(cell)
         
         if i % num_cols == num_cols - 1:
-            result_text += "\\\\"
+            result_text.append("\\\\")
             row_cnt += 1
             
-    if i % num_cols < num_cols - 1:
-        result_text += "\\\\"
-    result_text += "\\hline  \\end{tabular} \\vskip-7px}"
-    return result_text
+    if i % num_cols < num_cols - 1: result_text.append("\\\\")
+    result_text.append("\\hline  \\end{tabular} \\vskip-7px}")
+    
+    return "".join(result_text)
 
 
 
@@ -240,6 +235,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
 \\renewcommand*{\\cftsubsecindent}{4.5em}
 \\definecolor{ILSgreen}{HTML}{7EBA28}
 \\newcolumntype{P}[1]{>{\\raggedright\\arraybackslash}p{#1}}
+\\newcolumntype{C}[1]{>{\\raggedleft\\arraybackslash}p{#1}}
 \\newcommand{\\mainbox}[1]{\\colorbox{ILSgreen}{\\textsf{\\textbf{\\color{white}\\LARGE \\adjustbox{margin=3px}{#1}}}}
 \\vskip-2.6pt
 \\par\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\\vskip+1em}
@@ -290,12 +286,12 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
                 if i == 0: tex.write("\\mainbox{%s}~\\\\\n" % mainbox)
                 tex.write("\\textbf{\\large %s}\n" % mc)
                 tex.write("\\newline\\vskip-1.6em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
-                tex.write("\\newline{\\vskip-1.2em\\noindent\\textcolor{gray!20}{\\rule{\\textwidth}{10pt}}}\n")
-                tex.write("\\begin{tabular}{@{}P{0.31\\textwidth}P{0.15\\textwidth}P{0.002\\textwidth}@{}P{0.31\\textwidth}P{0.142\\textwidth}}\n")
+                tex.write("\\newline{\\vskip-10px\\noindent\\textcolor{gray!20}{\\rule{\\textwidth}{10pt}}}\n")
+                tex.write("\\setlength\\tabcolsep{0pt}\\begin{tabular}{@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}P{0.01\\textwidth}@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}}\n")
                 
                 
                 if i == 0 and main_section:
-                    tex.write("%s & \\multicolumn{4}{@{}P{0.64\\textwidth}}{%s} \\\\\n" % (report_fields[0][0][0], report_fields[0][0][1]))
+                    tex.write("%s & \\multicolumn{6}{@{}P{0.70\\textwidth}}{%s} \\\\\n" % (report_fields[0][0][0], report_fields[0][0][1]))
                     tex.write("\\hline\n")
                     
                     # create time stamp of now
@@ -312,24 +308,24 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
                         if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
                             first_col = make_table(report_fields[i][ci][0], report_fields[i][ci][1])
                         else:
-                            first_col = "%s & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
+                            first_col = "%s & & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
                             
                         if report_fields[i][ci + h][1][:11] == "!!!TABLE!!!":
                             second_col = make_table(report_fields[i][ci + h][0], report_fields[i][ci + h][1])
                         else:
-                            second_col = "%s & %s" % (report_fields[i][ci + h][0], report_fields[i][ci + h][1])
+                            second_col = "%s & & %s" % (report_fields[i][ci + h][0], report_fields[i][ci + h][1])
                         
                         tex.write("%s & & %s \\\\\n" % (first_col, second_col))
                     else:
                         if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
                             first_col = make_table(report_fields[i][ci][0], report_fields[i][ci][1])
                         else:
-                            first_col = "%s & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
+                            first_col = "%s & & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
                             
                         tex.write("%s \\\\\n" % (first_col))
                         
                     if ci < h - 1:
-                        tex.write("\\cline{1-2}\\cline{4-5}\n")
+                        tex.write("\\cline{1-3}\\cline{5-7}\n")
                         
                     
                 
