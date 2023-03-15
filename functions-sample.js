@@ -236,6 +236,7 @@ function register_new_sample_form(){
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
                     update_sample_forms();
+                    show_samplelist(response_text);
                 }
             }
             

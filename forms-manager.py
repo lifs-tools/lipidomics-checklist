@@ -613,7 +613,10 @@ elif content["command"] == "add_main_form":
         mycursor.execute(sql, values)
         conn.commit()
         
-        print(0)
+        sql = "SELECT max(id) AS max_id FROM %sentries WHERE user_id = ? AND form = ?;" % table_prefix
+        mycursor.execute(sql, (uid, main_form_id))
+        
+        print(get_encrypted_entry(mycursor.fetchone()["max_id"]))
         
 
     except Error as e:
@@ -702,6 +705,8 @@ elif content["command"] == "add_class_form":
         mycursor.execute(sql, (main_entry_id, new_class_entry_id))
         conn.commit()
         
+        print(get_encrypted_entry(new_class_entry_id))
+        
 
     except Error as e:
         print(ErrorCodes.ERROR_ON_ADDING_CLASS_FORMS, e)
@@ -712,7 +717,6 @@ elif content["command"] == "add_class_form":
     finally:
         if conn is not None: conn.close()
         
-    print(0)
         
     
     
@@ -778,6 +782,8 @@ elif content["command"] == "add_sample_form":
         mycursor.execute(sql, (main_entry_id, new_sample_entry_id))
         conn.commit()
             
+        
+        print(get_encrypted_entry(new_sample_entry_id))
             
         
 
@@ -790,7 +796,6 @@ elif content["command"] == "add_sample_form":
     finally:
         if conn is not None: conn.close()
         
-    print(0)
         
         
         
@@ -867,8 +872,13 @@ elif content["command"] == "complete_partial_form":
             request = mycursor.fetchone()["cnt"]
             
             if request == 0:
-                hash_value = "%i-%i-%s" % (entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                while True:
+                    hash_value = "%i-%i-%s" % (entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                    
+                    sql = "SELECT COUNT(*) AS cnt FROM %sreports WHERE hash = ?;" % table_prefix
+                    mycursor.execute(sql, (hash_value,))
+                    if mycursor.fetchone()["cnt"] == 0: break
                 
                 sql = "INSERT INTO %sreports (entry_id, hash) VALUES (?, ?);" % table_prefix
                 mycursor.execute(sql, (entry_id, hash_value))
