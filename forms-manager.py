@@ -47,6 +47,9 @@ class ErrorCodes(Enum):
     INCORRECT_WORKFLOW_TYPE = -29
     NO_DATABASE_CONNECTION = -30
     ERROR_ON_DECODING_FORM = -31
+    PUBLISHED_ERROR = -32
+    ERROR_ON_PUBLISHING = -33
+    REPORT_NOT_CREATED = -34
     
     
 def dict_factory(cursor, row):
@@ -436,8 +439,8 @@ elif content["command"] == "get_all_class_forms":
         conn, mycursor = dbconnect()
         
         # getting all main forms
-        sql = "SELECT wpe2.fields as main_fields, wpe.status, wpe.id, wpe.date, wpe.fields FROM %sconnect_lipid_class AS c INNER JOIN %sentries AS wpe ON c.class_form_entry_id = wpe.id INNER JOIN %sentries as wpe2 ON c.main_form_entry_id = wpe2.id WHERE wpe.form = ? AND wpe.user_id = ? AND wpe.status <> 'partial' AND wpe2.status <> 'partial';" % (table_prefix, table_prefix, table_prefix)
-        mycursor.execute(sql, (class_form_id, uid))
+        sql = "SELECT wpe2.fields as main_fields, wpe.status, wpe.id, wpe.date, wpe.fields FROM %sconnect_lipid_class AS c INNER JOIN %sentries AS wpe ON c.class_form_entry_id = wpe.id INNER JOIN %sentries as wpe2 ON c.main_form_entry_id = wpe2.id WHERE wpe.form = ? AND wpe.user_id = ? AND wpe.status <> ? AND wpe2.status <> ?;" % (table_prefix, table_prefix, table_prefix)
+        mycursor.execute(sql, (class_form_id, uid, partial_label, partial_label))
         request = mycursor.fetchall()
         for entry in request:
             entry["entry_id"] = get_encrypted_entry(entry["id"])
@@ -472,7 +475,7 @@ elif content["command"] == "get_all_class_forms":
                             other_lipid_class = field["value"]
                                 
                 if lipid_class[:5] == "other": lipid_class = other_lipid_class
-                ion = pos_ion if ion_type == "positive" else neg_ion
+                ion = pos_ion if ion_type.lower() == "positive" else neg_ion
                 del entry["fields"]
             entry["title"] = "%s%s" % (lipid_class, ion)
         
@@ -505,8 +508,8 @@ elif content["command"] == "get_all_sample_forms":
         conn, mycursor = dbconnect()
         
         # getting all main forms
-        sql = "SELECT wpe2.fields as main_fields, wpe.status, wpe.id, wpe.date, wpe.fields FROM %sconnect_sample AS c INNER JOIN %sentries AS wpe ON c.sample_form_entry_id = wpe.id INNER JOIN %sentries as wpe2 ON c.main_form_entry_id = wpe2.id WHERE wpe.form = ? AND wpe.user_id = ? AND wpe.status <> 'partial' AND wpe2.status <> 'partial';" % (table_prefix, table_prefix, table_prefix)
-        mycursor.execute(sql, (sample_form_id, uid))
+        sql = "SELECT wpe2.fields as main_fields, wpe.status, wpe.id, wpe.date, wpe.fields FROM %sconnect_sample AS c INNER JOIN %sentries AS wpe ON c.sample_form_entry_id = wpe.id INNER JOIN %sentries as wpe2 ON c.main_form_entry_id = wpe2.id WHERE wpe.form = ? AND wpe.user_id = ? AND wpe.status <> ? AND wpe2.status <> ?;" % (table_prefix, table_prefix, table_prefix)
+        mycursor.execute(sql, (sample_form_id, uid, partial_label, partial_label))
         request = mycursor.fetchall()
         for entry in request:
             entry["entry_id"] = get_encrypted_entry(entry["id"])
@@ -662,9 +665,10 @@ elif content["command"] == "add_class_form":
         sql = "SELECT fields, status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
         mycursor.execute(sql, (uid, main_entry_id))
         request = mycursor.fetchone()
-        if request["status"] != {partial_label, completed_label}:
-            print(ErrorCodes.MAIN_FORM_COMPLETED)
+        if request["status"] not in {partial_label, completed_label}:
+            print(ErrorCodes.PUBLISHED_ERROR)
             exit()
+            
             
         field_data = json.loads(request["fields"])
         workflow_type = ""
@@ -749,7 +753,7 @@ elif content["command"] == "add_sample_form":
         mycursor.execute(sql, (uid, main_entry_id))
         request = mycursor.fetchone()
         if request["status"] not in {partial_label, completed_label}:
-            print(ErrorCodes.MAIN_FORM_COMPLETED)
+            print(ErrorCodes.PUBLISHED_ERROR)
             exit()
             
             
@@ -836,7 +840,15 @@ elif content["command"] == "complete_partial_form":
     
     try:
         # connect with the database
-        conn, mycursor = dbconnect()
+        conn, mycursor = dbconnect()        
+        
+        # checking if main form is partial or completed
+        sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        mycursor.execute(sql, (uid, entry_id))
+        request = mycursor.fetchone()
+        if request["status"] not in {partial_label, completed_label}:
+            print(ErrorCodes.PUBLISHED_ERROR)
+            exit()
         
         # delete old partial entry
         sql = "UPDATE %sentries SET status = ? WHERE id = ? AND user_id = ?;" % table_prefix
@@ -964,8 +976,8 @@ elif content["command"] == "copy_main_form":
                 
                 
             # copy content assigned to entry id
-            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-            mycursor.execute(sql, (fields, uid, sample_entry_id))
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            mycursor.execute(sql, (partial_label, fields, uid, sample_entry_id))
             conn.commit()
                 
             
@@ -1000,8 +1012,8 @@ elif content["command"] == "copy_main_form":
                 
                 
             # copy content assigned to entry id
-            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-            mycursor.execute(sql, (fields, uid, class_entry_id))
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            mycursor.execute(sql, (partial_label, fields, uid, class_entry_id))
             conn.commit()
                 
             
@@ -1237,6 +1249,14 @@ elif content["command"] == "delete_class_form":
         if not check_entry_id(class_entry_id, uid, mycursor, "class"):
             print(ErrorCodes.INVALID_CLASS_ENTRY_ID)
             exit()
+        
+        # checking if main form is partial or completed
+        sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        mycursor.execute(sql, (uid, class_entry_id))
+        request = mycursor.fetchone()
+        if request["status"] not in {partial_label, completed_label}:
+            print(ErrorCodes.PUBLISHED_ERROR)
+            exit()
             
         
         # delete class entry from connection table
@@ -1290,8 +1310,14 @@ elif content["command"] == "delete_sample_form":
             print(ErrorCodes.INVALID_SAMPLE_ENTRY_ID)
             exit()
             
+        # checking if main form is partial or completed
+        sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        mycursor.execute(sql, (uid, sample_entry_id))
+        request = mycursor.fetchone()
+        if request["status"] not in {partial_label, completed_label}:
+            print(ErrorCodes.PUBLISHED_ERROR)
+            exit()
             
-        
         # delete sample entry from connection table
         sql = "DELETE FROM %sconnect_sample WHERE sample_form_entry_id = ?;" % table_prefix
         mycursor.execute(sql, (sample_entry_id,))
@@ -1480,8 +1506,8 @@ elif content["command"] == "import_class_forms":
                 
             # import new entry based on old entry
             
-            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-            mycursor.execute(sql, (uid, class_entry_id))
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            mycursor.execute(sql, (partial_label, uid, class_entry_id))
             conn.commit()
             
             # get new class entry id
@@ -1553,8 +1579,8 @@ elif content["command"] == "import_sample_forms":
                 exit()
             
             # import new entry based on old entry    
-            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, status, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-            mycursor.execute(sql, (uid, sample_entry_id))
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, fields, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+            mycursor.execute(sql, (partial_label, uid, sample_entry_id))
             conn.commit()
             
             # get new sample entry id
@@ -1691,17 +1717,61 @@ elif content["command"] == "publish":
         if not check_entry_id(entry_id, uid, mycursor, "main"):
             print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
             exit()
+            
+        # checking if main form is partial or completed
+        sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        mycursor.execute(sql, (uid, entry_id))
+        request = mycursor.fetchone()
+        if request["status"] in {partial_label, published_label}:
+            print(ErrorCodes.ERROR_ON_PUBLISHING)
+            exit()
+            
         
+            
+        # checking if pdf was created
+        sql = "SELECT r.hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
+        mycursor.execute(sql, (entry_id, uid))
+        hash_value = mycursor.fetchone()["hash"]
+        
+        pdf_file = "completed_documents/%s.pdf" % hash_value
+        if not os.path.exists(pdf_file):
+            print(ErrorCodes.REPORT_NOT_CREATED)
+            exit()
+        
+
         # set status of entry to published
         sql = "UPDATE %sentries SET status = ? WHERE id = ? AND status = ?;" % table_prefix
         mycursor.execute(sql, (published_label, entry_id, completed_label))
         conn.commit()
+
+        
+        # give all sample forms assigned to current entry a published status
+        sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = ?;" % table_prefix
+        mycursor.execute(sql, (entry_id,))
+        sample_form_entry_ids = [row["sample_form_entry_id"] for row in mycursor.fetchall()]
+        for sample_form_entry_id in sample_form_entry_ids:
+            sql = "UPDATE %sentries SET status = ? WHERE id = ? AND status = ?;" % table_prefix
+            mycursor.execute(sql, (published_label, sample_form_entry_id, completed_label))
+            conn.commit()
+
+        
+        # give all sample forms assigned to current entry a published status
+        sql = "SELECT class_form_entry_id FROM %sconnect_lipid_class WHERE main_form_entry_id = ?;" % table_prefix
+        mycursor.execute(sql, (entry_id,))
+        class_form_entry_ids = [row["class_form_entry_id"] for row in mycursor.fetchall()]
+        
+        for class_entry_id in class_form_entry_ids:
+            sql = "UPDATE %sentries SET status = ? WHERE id = ? AND status = ?;" % table_prefix
+            mycursor.execute(sql, (published_label, class_entry_id, completed_label))
+            conn.commit()
+
+
             
     except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(ErrorCodes.ERROR_ON_PUBLISHING, e)
             
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(ErrorCodes.ERROR_ON_PUBLISHING, e)
 
     finally:
         if conn is not None: conn.close()
@@ -1740,13 +1810,28 @@ elif content["command"] == "get_form_content":
     try:
         # connect with the database
         conn, mycursor = dbconnect()
-
+        
+        
+        # check status of entry
+        sql = "SELECT status FROM %sentries WHERE id = ? and user_id = ?;" % table_prefix
+        mycursor.execute(sql, (entry_id, uid))
+        results = mycursor.fetchone()
+        
+        main_status = results["status"]
+        if main_status not in {partial_label, completed_label}:
+            print(ErrorCodes.PUBLISHED_ERROR)
+            exit()
+        
+        
         sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
         mycursor.execute(sql, (entry_id,))
         print(mycursor.fetchone()["fields"])
 
     except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM)
+        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+
+    except Exception as e:
+        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
 
     finally:
         if conn is not None: conn.close()
@@ -1804,6 +1889,15 @@ elif content["command"] == "update_form_content":
     try:
         # connect with the database
         conn, mycursor = dbconnect()
+        
+        # check status of entry
+        sql = "SELECT status FROM %sentries WHERE id = ? and user_id = ?;" % table_prefix
+        mycursor.execute(sql, (entry_id, uid))
+        results = mycursor.fetchone()
+        main_status = results["status"]
+        if main_status not in {partial_label, completed_label}:
+            print(ErrorCodes.PUBLISHED_ERROR)
+            exit()
 
         sql = "UPDATE %sentries SET fields = ? WHERE id = ? AND user_id = ?;" % table_prefix
         mycursor.execute(sql, (form_content, entry_id, uid))
