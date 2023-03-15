@@ -74,7 +74,7 @@ function update_main_forms(update_interval){
                             innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                         }
                         else {
-                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Publish your report (with unique reporting ID and URL)\" style=\"cursor: pointer; height: 20px;\" onclick=\"publish(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Publish report (with unique reporting ID and URL)\" style=\"cursor: pointer; height: 20px;\" onclick=\"publish(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
                             
                             innerHTML += "&nbsp;<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
                             
@@ -160,7 +160,7 @@ function download_pdf(update_interval, entry_id){
                     document.body.removeChild(tempLink);
                 }
                 else {
-                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n" + response_text;
+                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;
                     alert(msg);
                 }
             }
@@ -185,6 +185,13 @@ function publish(update_interval, workflow_title, entry_id){
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
                     update_main_forms(update_interval);
+                }
+                else if (response_text == "ErrorCodes.REPORT_NOT_CREATED"){
+                    alert("Before publishing, please download and review the report.");
+                }
+                else {
+                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;
+                    alert(msg);
                 }
             }
             
