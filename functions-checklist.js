@@ -668,7 +668,7 @@ function check_requirements(){
     
     // move to first required
     if (first_required != null){
-        dom_field_map[first_required].scrollIntoView();
+        dom_field_map[first_required].scrollIntoView({behavior: "smooth"});
     }
 
     return first_required == null;
