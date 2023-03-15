@@ -50,6 +50,7 @@ class ErrorCodes(Enum):
     PUBLISHED_ERROR = -32
     ERROR_ON_PUBLISHING = -33
     REPORT_NOT_CREATED = -34
+    ERROR_ON_GETTING_REPORT_LINK = -35
     
     
 def dict_factory(cursor, row):
@@ -66,10 +67,8 @@ all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
                 "get_all_class_forms", "get_all_sample_forms",
                 "import_class_forms", "import_sample_forms",
                 "complete_partial_form",
-                "get_pdf",
-                "publish",
-                "get_form_content",
-                "update_form_content"}
+                "get_pdf", "publish", "get_public_link",
+                "get_form_content", "update_form_content"}
 conn = None
 table_prefix = "TCrpQ_"
 version = "v2.0.0"
@@ -1927,3 +1926,74 @@ elif content["command"] == "update_form_content":
         if conn is not None: conn.close()
         
     print(0)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+elif content["command"] == "get_public_link":
+    
+    if "user_uuid" not in content or "uid" not in content:
+        print(ErrorCodes.NO_USER_UUID)
+        exit()
+        
+    if "entry_id" not in content:
+        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        exit()
+        
+    user_uuid = content["user_uuid"]
+    uid = int(content["uid"])
+    
+    
+    # check if main form entry id is within the request and an integer
+    if "entry_id" not in content:
+        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        exit()
+    try:
+        entry_id = int(get_decrypted_entry(content["entry_id"]))
+    except:
+        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        exit()
+        
+    if entry_id < 0:
+        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        exit()
+        
+        
+        
+    try:
+        # connect with the database
+        conn, mycursor = dbconnect()
+        
+        # check status of entry
+        sql = "SELECT status FROM %sentries WHERE id = ? and user_id = ?;" % table_prefix
+        mycursor.execute(sql, (entry_id, uid))
+        results = mycursor.fetchone()
+        main_status = results["status"]
+        if main_status != published_label:
+            print(ErrorCodes.PUBLISHED_ERROR)
+            exit()
+
+        """
+        sql = "UPDATE %sentries SET fields = ? WHERE id = ? AND user_id = ?;" % table_prefix
+        mycursor.execute(sql, (form_content, entry_id, uid))
+        conn.commit()
+        
+        
+        """
+        print("ifv3ar103i32")
+
+    except Error as e:
+        print(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK, e)
+
+    except Exception as e:
+        print(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK, e)
+
+    finally:
+        if conn is not None: conn.close()
+        

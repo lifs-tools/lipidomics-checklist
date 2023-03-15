@@ -44,6 +44,7 @@ function update_main_forms(update_interval){
                         return b["date"] - a["date"];
                     });
                     
+                    var tt_id = 0;
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
                         if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
@@ -69,7 +70,10 @@ function update_main_forms(update_interval){
                             for_hashcode += row["title"];
                         }
                         else if (row["status"] == "published") {
-                            innerHTML += "<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
+                            innerHTML += "&nbsp;<div class='tooltip'><img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"tooltiptext\" id=\"tooltip-" + tt_id + "\">Copy to clipboard</span></img></div>";
+                            tt_id++;
+                            
+                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
                             innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                         }
@@ -103,6 +107,25 @@ function update_main_forms(update_interval){
 }
 
 
+function copy_link(entry_id, tt_id) {
+    var xmlhttp_request = new XMLHttpRequest();
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            var response_text = xmlhttp_request.responseText;
+            if (response_text.length > 0 && !response_text.startsWith("ErrorCodes")){
+                document.getElementById("tooltip-" + tt_id).innerHTML = "Copied to clipboard";
+                navigator.clipboard.writeText("https://lsi-id.org/" + response_text);
+            }
+            else {
+                msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;
+                alert(msg);
+            }
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=get_public_link&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
 
 
 var update_interval = 0;
