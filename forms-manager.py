@@ -64,7 +64,7 @@ all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
                 "import_class_forms", "import_sample_forms",
                 "complete_partial_form",
                 "get_pdf",
-                "make_permanent",
+                "publish",
                 "get_form_content",
                 "update_form_content"}
 conn = None
@@ -76,6 +76,10 @@ path_name = "lipidomics-checklist"
 main_form_id = "checklist"
 class_form_id = "lipid-class"
 sample_form_id = "sample"
+
+partial_label = "partial"
+completed_label = "completed"
+published_label = "published"
 
 
 
@@ -654,11 +658,11 @@ elif content["command"] == "add_class_form":
             exit()
         
         
-        # checking if main form is permanent
+        # checking if main form is partial or completed
         sql = "SELECT fields, status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
         mycursor.execute(sql, (uid, main_entry_id))
         request = mycursor.fetchone()
-        if request["status"] == "permanent":
+        if request["status"] != {partial_label, completed_label}:
             print(ErrorCodes.MAIN_FORM_COMPLETED)
             exit()
             
@@ -740,11 +744,11 @@ elif content["command"] == "add_sample_form":
             print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
             exit()
         
-        # checking if main form is permanent
+        # checking if main form is partial or completed
         sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
         mycursor.execute(sql, (uid, main_entry_id))
         request = mycursor.fetchone()
-        if request["status"] == "permanent":
+        if request["status"] not in {partial_label, completed_label}:
             print(ErrorCodes.MAIN_FORM_COMPLETED)
             exit()
             
@@ -756,13 +760,13 @@ elif content["command"] == "add_sample_form":
         field_template = json.dumps(field_template)
         
         # add main form entry
-        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, 'partial', ?, DATETIME('now'), ?);" % table_prefix
-        values = (sample_form_id, uid, field_template, user_uuid)
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, DATETIME('now'), ?);" % table_prefix
+        values = (sample_form_id, uid, partial_label, field_template, user_uuid)
         mycursor.execute(sql, values)
         conn.commit()
         
-        sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ? and status = 'partial';" % table_prefix
-        mycursor.execute(sql, (uid, sample_form_id))
+        sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ? and status = ?;" % table_prefix
+        mycursor.execute(sql, (uid, sample_form_id, partial_label))
         request = mycursor.fetchone()
         new_sample_entry_id = request["eid"]
         
@@ -835,8 +839,8 @@ elif content["command"] == "complete_partial_form":
         conn, mycursor = dbconnect()
         
         # delete old partial entry
-        sql = "UPDATE %sentries SET status = 'completed' WHERE id = ? AND user_id = ?;" % table_prefix
-        mycursor.execute(sql, (entry_id, uid))
+        sql = "UPDATE %sentries SET status = ? WHERE id = ? AND user_id = ?;" % table_prefix
+        mycursor.execute(sql, (completed_label, entry_id, uid))
         conn.commit()
         
         
@@ -929,8 +933,8 @@ elif content["command"] == "copy_main_form":
         fields = json.dumps(fields)
         
         # copy content assigned to entry id
-        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, 'partial', ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-        mycursor.execute(sql, (fields, uid, main_entry_id))
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+        mycursor.execute(sql, (partial_label, fields, uid, main_entry_id))
         conn.commit()
         
         
@@ -1074,8 +1078,8 @@ elif content["command"] == "copy_class_form":
             
         
         # copy content assigned to entry id
-        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, 'partial', ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-        mycursor.execute(sql, (fields, uid, class_entry_id))
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+        mycursor.execute(sql, (partial_label, fields, uid, class_entry_id))
         conn.commit()
             
         
@@ -1154,8 +1158,8 @@ elif content["command"] == "copy_sample_form":
             
             
         # copy content assigned to entry id
-        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, 'partial', ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
-        mycursor.execute(sql, (fields, uid, sample_entry_id))
+        sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) SELECT form, user_id, ?, ?, DATETIME('now'), user_uuid FROM %sentries WHERE user_id = ? and id = ?;" % (table_prefix, table_prefix)
+        mycursor.execute(sql, (partial_label, fields, uid, sample_entry_id))
         conn.commit()
             
         
@@ -1350,7 +1354,7 @@ elif content["command"] == "delete_main_form":
         results = mycursor.fetchone()
         main_status = results["status"]
         hash_value = results["hash"]
-        if main_status == "permanent":
+        if main_status not in {partial_label, completed_label}:
             print(0)
             exit()
             
@@ -1660,7 +1664,7 @@ elif content["command"] == "get_pdf":
         
 
 
-elif content["command"] == "make_permanent":
+elif content["command"] == "publish":
     if "user_uuid" not in content or "uid" not in content:
         print(ErrorCodes.NO_USER_UUID)
         exit()
@@ -1688,9 +1692,9 @@ elif content["command"] == "make_permanent":
             print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
             exit()
         
-        # set status of entry to permanent
-        sql = "UPDATE %sentries SET status = 'permanent' WHERE id = ? AND status = 'completed';" % table_prefix
-        mycursor.execute(sql, (entry_id,))
+        # set status of entry to published
+        sql = "UPDATE %sentries SET status = ? WHERE id = ? AND status = ?;" % table_prefix
+        mycursor.execute(sql, (published_label, entry_id, completed_label))
         conn.commit()
             
     except Error as e:
