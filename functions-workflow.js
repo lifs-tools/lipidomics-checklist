@@ -70,7 +70,7 @@ function update_main_forms(update_interval){
                             for_hashcode += row["title"];
                         }
                         else if (row["status"] == "published") {
-                            innerHTML += "&nbsp;<div class='tooltip'><img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"tooltiptext\" id=\"tooltip-" + tt_id + "\">Copy to clipboard</span></img></div>";
+                            innerHTML += "&nbsp;<div class='lipidomics-forms-tooltip-frame'><img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer;  height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy to clipboard</span></img></div>";
                             tt_id++;
                             
                             innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
@@ -107,14 +107,19 @@ function update_main_forms(update_interval){
 }
 
 
+function reset_tooltip(tt_id){
+    document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "Copy to clipboard";
+}
+
+
 function copy_link(entry_id, tt_id) {
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             var response_text = xmlhttp_request.responseText;
             if (response_text.length > 0 && !response_text.startsWith("ErrorCodes")){
-                document.getElementById("tooltip-" + tt_id).innerHTML = "Copied to clipboard";
-                navigator.clipboard.writeText("https://lsi-id.org/" + response_text);
+                document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "Copied to clipboard";
+                navigator.clipboard.writeText(response_text);
             }
             else {
                 msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;

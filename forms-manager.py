@@ -12,7 +12,7 @@ from urllib.parse import unquote, unquote_plus
 import hashlib
 import create_report
 import sqlite3
-
+from random import randint
 
 
 class ErrorCodes(Enum):
@@ -1986,7 +1986,8 @@ elif content["command"] == "get_public_link":
         
         
         """
-        print("ifv3ar103i32")
+        link = chr(randint(97, 122)) + "".join(chr(randint(48, 57)) for i in range(8))
+        print("https://lsi-id.org/%s" % link)
 
     except Error as e:
         print(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK, e)

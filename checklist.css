@@ -20,50 +20,50 @@
 }
 
 
-.tooltip {
+.lipidomics-forms-tooltip-frame {
     position: relative;
     display: inline-block;
 }
 
-.tooltip .tooltiptext {
+.lipidomics-forms-tooltip-frame .lipidomics-forms-tooltip-text {
     visibility: hidden;
     width: 170px;
     background-color: #555;
     color: #fff;
+    z-index: 1;
+    bottom: 150%;
     text-align: center;
     border-radius: 6px;
     padding: 8px 6px;
     position: absolute;
-    z-index: 1;
-    bottom: 150%;
-    left: 50%;
-    margin-left: -91px;
-    opacity: 0;
+    left: 55%;
     transition: opacity 0.3s;
     white-space:nowrap;
+    margin-left: -91px;
+    opacity: 0;
 }
 
-.tooltip .tooltiptext::after {
+.lipidomics-forms-tooltip-frame .lipidomics-forms-tooltip-text::after {
     content: "";
+    margin-left: -5px;
+    border-width: 5px;
     position: absolute;
     top: 100%;
     left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
     border-style: solid;
     border-color: #555 transparent transparent transparent;
 }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
+.lipidomics-forms-tooltip-frame:hover .lipidomics-forms-tooltip-text {
     opacity: 1;
+    visibility: visible;
 }
 
 
 .lipidomics-forms-input-table-field {
+    border-radius: 2px;
     padding: 0 0 0 0;
     border: 1px solid #ccc;
-    border-radius: 2px;
     width: 98%;
 }
 
