@@ -2,6 +2,7 @@ import json
 import sqlite3
 from datetime import datetime
 import time
+from urllib.parse import unquote
 
 
 def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields):
@@ -126,9 +127,11 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
                 
 def unicoding(t):
-    #return "".join([c if ord(c) < 128 else "\\unichar{%s}" % ord(c) for c in t])
-    encoded = "".join([c for c in t if ord(c) < 256])
-    return encoded.replace("\\", "\\backslash").replace("&", "\&")
+    #t = t.replace("\\", "\\backslash").replace("&", "\&").replace("%", "").replace("$", "")
+    encoded = "".join(["{\ }" if ord(c) == 32 else "\\char\"%s" % hex(ord(c))[2:].upper() for c in t])
+    #encoded = "".join([c for c in t if ord(c) < 256])
+    #return encoded.replace("\\", "\\backslash").replace("&", "\&").replace("%", "\%")
+    return encoded
     
     
     
@@ -152,7 +155,7 @@ def make_table(title, text):
         else:
             result_text.append(" & ")
             
-        result_text.append(cell)
+        result_text.append(unicoding(unquote(cell)))
         
         if i % num_cols == num_cols - 1:
             result_text.append("\\\\")
@@ -275,7 +278,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
             for section in report_fields:
                 for row in section:
                     row[0] = unicoding(row[0])
-                    row[1] = unicoding(row[1])
+                    if row[1][:11] != "!!!TABLE!!!": row[1] = unicoding(row[1]) if len(row[1]) > 0 else unicoding("-")
             
             ii = 0
             for i, mc in enumerate(titles):

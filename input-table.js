@@ -57,7 +57,7 @@ class InputTable extends HTMLElement {
     }
     
     updateText(){
-        this.obj.data[this.row_num][this.cell_num] = this.value;
+        this.obj.data[this.row_num][this.cell_num] = encodeURIComponent(this.value);
         this.obj.updateTable();
     }
     
@@ -86,7 +86,7 @@ class InputTable extends HTMLElement {
                 td_obj.append(input_obj);
                 td_obj.style = "padding: 0px;";
                 input_obj.type = "text";
-                input_obj.value = cell;
+                input_obj.value = decodeURIComponent(cell);
                 input_obj.obj = this;
                 input_obj.row_num = row_num;
                 input_obj.cell_num = cell_num;
