@@ -6,8 +6,6 @@
 
 {"label": "Corresponding Email", "name": "corresponding_email", "type": "text", "required": 1, "value": "", "description": "To whom correspondence should be addressed?"},
 
-{"label": "Hobbies", "name": "hobbies", "type": "table", "columns": "Hobby", "required": 1, "value": "", "description": "Please specify your hobbies."},
-
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 
 {"label": "Is the workflow targeted or untargeted?", "name": "workflow_targeted", "type": "select", "required": 0, "choice": [{"name": "workflow_targeted#targeted", "label": "Targeted", "value": 1}, {"name": "workflow_targeted#untargeted", "label": "Untargeted", "value": 0}], "description": ""},

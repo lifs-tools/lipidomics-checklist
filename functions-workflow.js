@@ -27,6 +27,7 @@ function update_main_forms(update_interval){
                     if (!new_main_form_button.disabled){
                         new_main_form_button.disabled = true;
                         alert("Please login or sign in to use the reporting function.");
+                        window.location.replace("/reporting_checklist");
                     }
                 }
                 else {
@@ -67,13 +68,13 @@ function update_main_forms(update_interval){
                             innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer;  height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
                             for_hashcode += row["title"];
                         }
-                        else if (row["status"] == "permanent") {
+                        else if (row["status"] == "published") {
                             innerHTML += "<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
                             innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                         }
                         else {
-                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Make report permanent\" style=\"cursor: pointer; height: 20px;\" onclick=\"make_permanent(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Publish your report (with unique reporting ID and URL)\" style=\"cursor: pointer; height: 20px;\" onclick=\"publish(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
                             
                             innerHTML += "&nbsp;<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
                             
@@ -173,8 +174,8 @@ function download_pdf(update_interval, entry_id){
 
 
 
-function make_permanent(update_interval, workflow_title, entry_id){
-    if (!confirm("Do you want to make the report '" + workflow_title + "' permanent? Permanent reports cannot be deleted any more.")) return;
+function publish(update_interval, workflow_title, entry_id){
+    if (!confirm("Do you want to pubish the report '" + workflow_title + "'? Published reports cannot be deleted or updated any more.")) return;
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     
@@ -189,7 +190,7 @@ function make_permanent(update_interval, workflow_title, entry_id){
             
         }
     }
-    var request_url = connector_path + "/connector.php?command=make_permanent&entry_id=" + encodeURIComponent(entry_id);
+    var request_url = connector_path + "/connector.php?command=publish&entry_id=" + encodeURIComponent(entry_id);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
