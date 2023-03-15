@@ -249,6 +249,7 @@ function register_new_main_form(update_interval){
                 
                 else {
                     update_main_forms(update_interval);
+                    show_checklist(response_text);
                 }
             }
             

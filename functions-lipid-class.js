@@ -151,7 +151,7 @@ function update_class_forms() {
                         }
                         else {
                             innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' title='Update lipid class' style='cursor: pointer; height: 20px;' onclick=\"refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "&');\" />&nbsp;";
+                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' title='Update lipid class' style='cursor: pointer; height: 20px;' onclick=\"refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "');\" />&nbsp;";
                             innerHTML += "<img src='" + connector_path + "/recycle.png' title='Copy lipid class' style='cursor: pointer; height: 20px;' onclick=\"copy_class_form('" + row["entry_id"] + "');\" />&nbsp;";
                             
                         }
@@ -240,6 +240,7 @@ function register_new_class_form(){
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
                     update_class_forms();
+                    show_lipid_classlist(response_text);
                 }
             }
             
