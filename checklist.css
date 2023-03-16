@@ -82,6 +82,21 @@
     width: 100%;
 }
 
+.lipidomics-forms-publishing-info-box {
+    position: absolute;
+    font-size: 18px;
+    padding: 25px 25px 25px 25px;
+    width: 500px;
+    height: 550px;
+    left: calc(50% - 275px);
+    top: calc(50% - 295px);
+    border: 1px solid #ccc;
+    background-color: white;
+    overflow: auto;
+    z-index: 1000;
+    display: none;
+}
+
 .lipidomics-forms-number {
     padding: 6px 10px;
     max-width: 60%;

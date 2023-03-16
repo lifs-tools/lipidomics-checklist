@@ -47,7 +47,7 @@ lipid_class_template_file = "../workflow-templates/lipid-class.json"
 entry_id_map = {}
 
 
-sql_prep = "select entry_id from TCrpQ_wpforms_entries where form_id IN (199, 240, 245) and status = 'partial'"
+sql_prep = "select entry_id from TCrpQ_wpforms_entries where form_id IN (199, 240, 245) and status = 'partial' and status <> 'abandoned'"
 cursor_mysql.execute("%s;" % sql_prep)
 len_entry_ids = len([row["entry_id"] for row in cursor_mysql.fetchall()])
 
@@ -141,7 +141,7 @@ while min_limit < len_entry_ids:
 
 
 
-sql_prep = "select DISTINCT entry_id from TCrpQ_wpforms_entry_fields where form_id IN (199, 240, 245)"
+sql_prep = "select DISTINCT f.entry_id from TCrpQ_wpforms_entry_fields AS f INNER JOIN TCrpQ_wpforms_entries AS e ON f.entry_id = e.entry_id where f.form_id IN (199, 240, 245) and e.status <> 'abandoned'"
 cursor_mysql.execute("%s;" % sql_prep)
 len_entry_ids = len([row["entry_id"] for row in cursor_mysql.fetchall()])
 
