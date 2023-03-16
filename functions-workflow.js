@@ -1,5 +1,6 @@
 var hashcode = 0;
-var connector_path = "/lipidomics-checklist"
+var connector_path = "/lipidomics-checklist";
+var publish_data = [];
 
 String.prototype.hashCode = function() {
   var hash = 0, i, chr;
@@ -70,7 +71,7 @@ function update_main_forms(update_interval){
                             for_hashcode += row["title"];
                         }
                         else if (row["status"] == "published") {
-                            innerHTML += "&nbsp;<div class='lipidomics-forms-tooltip-frame'><img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer;  height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy to clipboard</span></img></div>";
+                            innerHTML += "&nbsp;<div class='lipidomics-forms-tooltip-frame'><img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer;  height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img></div>";
                             tt_id++;
                             
                             innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
@@ -78,7 +79,7 @@ function update_main_forms(update_interval){
                             innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                         }
                         else {
-                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Publish report (with unique reporting ID and URL)\" style=\"cursor: pointer; height: 20px;\" onclick=\"publish(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
+                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Publish report, click for more information\" style=\"cursor: pointer; height: 20px;\" onclick=\"publish_data = [" + update_interval + ", '" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';\" />";
                             
                             innerHTML += "&nbsp;<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
                             
@@ -108,7 +109,7 @@ function update_main_forms(update_interval){
 
 
 function reset_tooltip(tt_id){
-    document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "Copy to clipboard";
+    document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "Copy the DOI to clipboard";
 }
 
 
@@ -118,7 +119,7 @@ function copy_link(entry_id, tt_id) {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             var response_text = xmlhttp_request.responseText;
             if (response_text.length > 0 && !response_text.startsWith("ErrorCodes")){
-                document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "Copied to clipboard";
+                document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "DOI copied to clipboard";
                 navigator.clipboard.writeText(response_text);
             }
             else {
@@ -202,23 +203,43 @@ function download_pdf(update_interval, entry_id){
 
 
 
-function publish(update_interval, workflow_title, entry_id){
-    if (!confirm("Do you want to pubish the report '" + workflow_title + "'? Published reports cannot be deleted or updated any more.")) return;
+function publish(){
+    document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
+    document.getElementById("waiting_field").style.display = "block";
+    if (publish_data.length < 3) return;
+    
+    update_interval = publish_data[0];
+    workflow_title = publish_data[1];
+    entry_id = publish_data[2];
+    publish_data = [];
+    
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
+    
+    if (document.getElementById("publish-verify-year").value != new Date().getFullYear().toString()){
+        alert("Incorrect verification.");
+        return;
+    }
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
+            document.getElementById("grey_background_index").style.display = "none";
+            document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
+            document.getElementById("waiting_field").style.display = "none";
             if (response_text.length > 0){
                 if (!response_text.startsWith("ErrorCodes")){
                     update_main_forms(update_interval);
                 }
-                else if (response_text == "ErrorCodes.REPORT_NOT_CREATED"){
+                else if (response_text.startsWith("ErrorCodes.REPORT_NOT_CREATED")){
                     alert("Before publishing, please download and review the report.");
                 }
+                else if (response_text.startsWith("ErrorCodes.PUBLISHING_FAILED")){
+                    msg = "Unfortunately, the publishing process failed. We apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + response_text;
+                    alert(msg);
+                }
                 else {
-                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;
+                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + response_text;
                     alert(msg);
                 }
             }
@@ -331,6 +352,24 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
     <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
+    <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
+    <table width='100%' height='100%'><tr height='90%'><td height='90%' valign='top'> \
+    <h2><b>Publishing information</b></h2><br />Please read the following information carefully: \
+    <ul> \
+    <li>Your report will be published <b>freely available</b> on the <a href='https://zenodo.org' target='_blank'>Zenodo</a> platform</li> \
+    <li>Your report will <b>receive a DOI</b></li> \
+    <li>It will be published under the <i>Creative Commons Attribution 4.0 International</i> license</li> \
+    <li>The following information will be submitted, too: Principal investigator, institution, title of the report</li> \
+    <li>The process is <b>irreversible</b>, due to the DOI registration</li> \
+    <li>There are no fees or additional costs for you</li> \
+    </ul> \
+    <p align='justify'> \
+    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In Order to proceed type the current year into the following text field and click on the 'OK, proceed' button.</p> \
+    Current year: <input type='text' id='publish-verify-year' size=5 /> \
+    </td></tr> \
+    <tr height='10%'><td height='10%' valign='bottom' align='right'> \
+    <button onclick='document.getElementById(\"grey_background_index\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
+    </div> \
     <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"workflow_selector_wrapper\" style=\"left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"workflow_control_buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
