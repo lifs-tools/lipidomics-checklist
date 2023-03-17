@@ -72,6 +72,10 @@ class TableView extends HTMLElement {
     
     resetTable(){
         this.content = [];
+        for (var tr_object of this.tr_objects){
+            this.table.removeChild(tr_object);
+        }
+        this.tr_objects = [];
         this.updateTable();
     }
     
@@ -149,7 +153,7 @@ class TableView extends HTMLElement {
                 
                 var filter_matches = false;
                 for (var entry of cell){
-                    if (entry.toLowerCase().search(filter_val) > -1){
+                    if (typeof(entry) === "string" && entry.toLowerCase().search(filter_val) > -1){
                         filter_matches = true;
                         break;
                     }
@@ -199,9 +203,7 @@ class TableView extends HTMLElement {
             var tr_obj = document.createElement("tr");
             this.table.append(tr_obj);
             this.tr_objects.push(tr_obj);
-            for (var cell of row){
-                tr_obj.append(cell);
-            }            
+            for (var cell of row) tr_obj.append(cell);
         }
     }
 }

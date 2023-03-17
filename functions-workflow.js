@@ -19,11 +19,10 @@ function update_main_forms(update_interval){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            var innerHTML = "";
-            var for_hashcode = "";
             var new_main_form_button = document.getElementById("new_main_form");
-            var post = 1;
             if (response_text.length > 0){
+                document.getElementById("viewtable").resetTable();
+                
                 if (response_text.startsWith("ErrorCodes") || response_text == -1){
                     if (!new_main_form_button.disabled){
                         new_main_form_button.disabled = true;
@@ -34,16 +33,7 @@ function update_main_forms(update_interval){
                 else {
                     new_main_form_button.disabled = false;
                     var response = JSON.parse(response_text);
-                    innerHTML += "<table cellspacing=\"0\" cellpadding=\"10\">";
-                    innerHTML += "<tr><th style=\"border-bottom: 3px solid black;\">&nbsp;</th>";
-                    innerHTML += "<th style=\"border-bottom: 3px solid black;\">Workflow title</th>";
-                    innerHTML += "<th style=\"border-bottom: 3px solid black;\">Workflow type</th>";
-                    innerHTML += "<th style=\"border-bottom: 3px solid black;\">Creation date</th>";
-                    innerHTML += "<th style=\"border-bottom: 3px solid black;\">Actions</th></tr>";
                     
-                    response.sort(function(a, b){
-                        return b["date"] - a["date"];
-                    });
                     
                     var tt_id = 0;
                     for (var i = 0; i < response.length; ++i){
@@ -53,53 +43,107 @@ function update_main_forms(update_interval){
                             return;
                         }
                         
-                        for_hashcode += row["date"];
-                        innerHTML += "<tr><td>" + String(post++) + ") </td>";
-                        innerHTML += "<td>" + row["title"];
+                        var table_row = [];
+                        table_row.push([row["title"] + " "]);
+                        
                         if (row["status"] == "partial"){
-                            innerHTML += "<font color='red'><b>*</b></font>";
+                            var font_obj = document.createElement("font");
+                            font_obj.style.color = "red";
+                            font_obj.style.font_weight = "bold";
+                            font_obj.innerHTML = "*";
+                            table_row[table_row.length - 1].push(font_obj);
                         }
                         
-                        innerHTML += "</td><td>" + row["type"] + "</td><td>" + row["date"] + "</td>";
-                        for_hashcode += row["title"] + row["status"];
-                        innerHTML += "<td align=\"center\" valign=\"middle\">";
+                        table_row.push([row["type"]]);
+                        table_row.push([row["date"]]);
+                        
+                        var trb = [];
+                        table_row.push(trb);
                         
                         if (row["status"] == "partial"){
-                            innerHTML += "<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Continue report\" style=\"cursor: pointer; height: 20px;\" />";
+                            var img_continue = document.createElement("img");
+                            trb.push(img_continue);
+                            img_continue.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
+                            img_continue.src = connector_path + "/pencil.png";
+                            img_continue.title = "Continue report";
+                            img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                             
-                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer;  height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
-                            for_hashcode += row["title"];
+                            
+                            var img_del = document.createElement("img");
+                            trb.push(img_del);
+                            img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
+                            img_del.src = connector_path + "/trashbin.png";
+                            img_del.title = "Delete report";
+                            img_del.style = "cursor: pointer; height: 20px;";
                         }
                         else if (row["status"] == "published") {
-                            innerHTML += "&nbsp;<div class='lipidomics-forms-tooltip-frame'><img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer;  height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img></div>";
+                            var div_doi = document.createElement("div");
+                            trb.push(div_doi);
+                            div_doi.setAttribute("class", "lipidomics-forms-tooltip-frame");
+                            div_doi.innerHTML = "<img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer; height: 20px; padding-right: 5px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
                             tt_id++;
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer;  height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
+                            var img_copy = document.createElement("img");
+                            trb.push(img_copy);
+                            img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
+                            img_copy.src = connector_path + "/recycle.png";
+                            img_copy.title = "Copy report";
+                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                            
+                            
+                            var img_download = document.createElement("img");
+                            trb.push(img_download);
+                            img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
+                            img_download.src = connector_path + "/pdf.png";
+                            img_download.title = "Download report";
+                            img_download.style = "cursor: pointer; height: 20px;";
                         }
                         else {
-                            innerHTML += "<img src=\"" + connector_path + "/check.png\" title=\"Publish report, click for more information\" style=\"cursor: pointer; height: 20px;\" onclick=\"publish_data = [" + update_interval + ", '" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';\" />";
+                            var img_copy = document.createElement("img");
+                            trb.push(img_copy);
+                            img_copy.setAttribute("onclick", "publish_data = [" + update_interval + ", '" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
+                            img_copy.src = connector_path + "/check.png";
+                            img_copy.title = "Publish report, click here for more information";
+                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                             
-                            innerHTML += "&nbsp;<img onclick=\"show_checklist('" + row["entry_id"] + "')\" src=\"" + connector_path + "/pencil.png\" title=\"Update report\" style=\"cursor: pointer; height: 20px;\" />";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/recycle.png\" title=\"Reuse report\" style=\"cursor: pointer; height: 20px;\" onclick=\"copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');\" />";
+                            var img_update = document.createElement("img");
+                            trb.push(img_update);
+                            img_update.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
+                            img_update.src = connector_path + "/pencil.png";
+                            img_update.title = "Update report";
+                            img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                             
-                            innerHTML += "&nbsp;<img src=\"" + connector_path + "/pdf.png\" title=\"Download report\" style=\"cursor: pointer; height: 20px;\" onclick=\"download_pdf(" + update_interval + ", '" + row["entry_id"] + "');\" />";
                             
-                            innerHTML += "&nbsp;<img src='" + connector_path + "/trashbin.png'  title='Delete report' style='cursor: pointer; height: 20px;' onclick=\"delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');\" />";
+                            var img_copy = document.createElement("img");
+                            trb.push(img_copy);
+                            img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
+                            img_copy.src = connector_path + "/recycle.png";
+                            img_copy.title = "Copy report";
+                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                            
+                            
+                            var img_download = document.createElement("img");
+                            trb.push(img_download);
+                            img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
+                            img_download.src = connector_path + "/pdf.png";
+                            img_download.title = "Download report";
+                            img_download.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                            
+                            
+                            var img_del = document.createElement("img");
+                            trb.push(img_del);
+                            img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
+                            img_del.src = connector_path + "/trashbin.png";
+                            img_del.title = "Delete report";
+                            img_del.style = "cursor: pointer; height: 20px;";
                         }
-                        innerHTML += "</td></tr>";
+                        document.getElementById("viewtable").addRow(table_row);
                     }
-                    
-                    innerHTML += "</table><font color='red'><b>*</b></font> Status: partial";
                 }
             }
-            var tmp_hashcode = for_hashcode.hashCode();
-            if (hashcode != tmp_hashcode){
-                document.getElementById("main_forms_table").innerHTML = innerHTML;
-                hashcode = tmp_hashcode;
-            }
+
         }
     }
     var request_url = connector_path + "/connector.php?command=get_main_forms";
@@ -136,9 +180,10 @@ function copy_link(entry_id, tt_id) {
 
 var update_interval = 0;
 function start_interval(update_interval){
+    
     update_interval = setInterval(function(){
         update_main_forms(update_interval);
-    }, 2000);
+    }, 3000);
     update_main_forms(update_interval);
 }
 start_interval(update_interval);
@@ -351,7 +396,8 @@ window.addEventListener('resize', function(event) {
 var workflow_content = "<div style=\"display: inline-block;\"> \
         <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New workflow</div> \
         </div><p /> \
-        <div id=\"main_forms_table\"></div> \
+        <view-table id=\"viewtable\" columns=\"Workflow title|Workflow type|Creation date|Actions\"></view-table> \
+        <font color='red'><b>*</b></font> Status: partial \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
     <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
