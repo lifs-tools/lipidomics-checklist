@@ -13,6 +13,7 @@ import hashlib
 import create_report
 import sqlite3
 from random import randint
+import requests
 
 
 class ErrorCodes(Enum):
@@ -873,8 +874,9 @@ elif content["command"] == "complete_partial_form":
             
             if request == 0:
                 while True:
-                    hash_value = "%i-%i-%s" % (entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                    hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                    #hash_value = "%i-%i-%s" % (entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    #hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                    hash_value = chr(randint(97, 122)) + chr(randint(97, 122)) + "".join(str(randint(0, 9)) for i in range(8))
                     
                     sql = "SELECT COUNT(*) AS cnt FROM %sreports WHERE hash = ?;" % table_prefix
                     mycursor.execute(sql, (hash_value,))
@@ -1443,10 +1445,9 @@ elif content["command"] == "delete_main_form":
         
         # check if entry in reports exist and delete entry and pdf file
         if hash_value != None:
-            for extension in {"aux", "log", "out", "pdf", "tex"}:
-                file_to_del = "completed_documents/%s.%s" % (hash_value, extension)
-                if os.path.exists(file_to_del):
-                    os.remove(file_to_del)
+            for extension in {"aux", "log", "out", "tex", "pdf"}:
+                file_to_del = "completed_documents/report-%s.%s" % (hash_value, extension)
+                if os.path.exists(file_to_del): os.remove(file_to_del)
         
         
 
@@ -1656,15 +1657,15 @@ elif content["command"] == "get_pdf":
         mycursor.execute(sql, (entry_id, uid))
         hash_value = mycursor.fetchone()["hash"]
         
-        pdf_file = "completed_documents/%s.pdf" % hash_value
+        pdf_file = "completed_documents/report-%s.pdf" % hash_value
         
         if not os.path.exists(pdf_file):
             
             # creating the tex and pdf file
-            report_file = "completed_documents/%s.tex" % hash_value
+            report_file = "completed_documents/report-%s.tex" % hash_value
             
             create_report.create_report(mycursor, table_prefix, uid, entry_id, report_file, version)
-            p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents completed_documents/%s.tex" % hash_value, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
+            p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents %s" % report_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
             
             output = p.stdout.read() # execution
             
@@ -1727,14 +1728,26 @@ elif content["command"] == "publish":
             print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
             exit()
             
+            
+            
         # checking if main form is partial or completed
-        sql = "SELECT status FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+        sql = "SELECT status, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
         mycursor.execute(sql, (uid, entry_id))
         request = mycursor.fetchone()
+        
         if request["status"] in {partial_label, published_label}:
             print(ErrorCodes.PUBLISHING_FAILED)
             exit()
             
+        
+        fields = json.loads(request["fields"])
+        report_title, report_author,report_affiliation = "-", "-", "-"
+        
+        for field in fields["pages"][0]["content"]:
+            if "name" in field and field["name"] == "title_study": report_title = field["value"]
+            elif "name" in field and field["name"] == "principle_investigator": report_author = field["value"]
+            elif "name" in field and field["name"] == "institution": report_affiliation = field["value"]
+        
         
             
         # checking if pdf was created
@@ -1742,17 +1755,98 @@ elif content["command"] == "publish":
         mycursor.execute(sql, (entry_id, uid))
         hash_value = mycursor.fetchone()["hash"]
         
-        pdf_file = "completed_documents/%s.pdf" % hash_value
-        if not os.path.exists(pdf_file):
+        pdf_file = "report-%s.pdf" % hash_value
+        pdf_path = "completed_documents/%s" % pdf_file
+        if not os.path.exists(pdf_path):
             print(ErrorCodes.REPORT_NOT_CREATED)
             exit()
+
+        ACCESS_TOKEN = '18I97uNDxV4aSudMCuHUYwVLRZFs0by8l2M8P2lFVOkQunz2vMshEiAu8E2Y'
+        headers = {"Content-Type": "application/json"}
+        params = {'access_token': ACCESS_TOKEN}
+        zenodo_link = "sandbox.zenodo.org"
+        
+        
+        publishing_error_code = ""
+        try:
+            publishing_error_code = "XXX error during Zenodo reservation"
+            r = requests.post('https://%s/api/deposit/depositions' % zenodo_link, params = params, json = {}, headers = headers, timeout = 15)
+
+            if r.status_code != 201:
+                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                exit()
+        except:
+            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            exit()
+                
+                
+        try:
+            publishing_error_code = "XXX error during Zenodo upload"
+            bucket_url = r.json()["links"]["bucket"]
+            record_id = r.json()["record_id"]
+
+
+            with open(pdf_path, "rb") as fp:
+                r = requests.put("%s/%s" % (bucket_url, pdf_file), data = fp, params = params, timeout = 15)
+
+            if r.status_code != 200:
+                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                exit()
+        except:
+            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            exit()
+
+
+
+        try:
+            publishing_error_code = "XXX error during Zenodo meta data upload"
+            data = {
+                'metadata': {
+                    'title': report_title,
+                    'upload_type': 'publication',
+                    'publication_type': 'report',
+                    'publication_date': '2023-03-16',
+                    'description': report_title,
+                    'creators': [{'name': report_author, 'affiliation': report_affiliation}]
+                }
+            }
+            r = requests.put('https://%s/api/deposit/depositions/%s' % (zenodo_link, record_id), params = params, data=json.dumps(data), headers=headers, timeout = 15)
+            
+            if r.status_code != 200:
+                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                exit()
+            
+        except:
+            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            exit()
+
+
+        try:
+            publishing_error_code = "XXX error during Zenodo publication"
+            r = requests.post('https://%s/api/deposit/depositions/%s/actions/publish' % (zenodo_link, record_id), params = params, timeout = 15)
+            
+            if r.status_code != 202:
+                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                exit()
+                
+            doi = r.json()["doi"]
+        except:
+            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            exit()        
+
+        
         
 
         # set status of entry to published
         sql = "UPDATE %sentries SET status = ? WHERE id = ? AND status = ?;" % table_prefix
         mycursor.execute(sql, (published_label, entry_id, completed_label))
         conn.commit()
-
+        
+        
+        sql = "UPDATE %sreports SET DOI = ? WHERE entry_id = ?;" % table_prefix
+        mycursor.execute(sql, (doi, entry_id))
+        conn.commit()
+        
         
         # give all sample forms assigned to current entry a published status
         sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = ?;" % table_prefix
@@ -1773,7 +1867,6 @@ elif content["command"] == "publish":
             sql = "UPDATE %sentries SET status = ? WHERE id = ? AND status = ?;" % table_prefix
             mycursor.execute(sql, (published_label, class_entry_id, completed_label))
             conn.commit()
-
 
             
     except Error as e:
@@ -1922,7 +2015,7 @@ elif content["command"] == "update_form_content":
         if mycursor.fetchone()["count_entries"] > 0:
             sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
             mycursor.execute(sql, (entry_id, uid))
-            pdf_file = "completed_documents/%s.pdf" % mycursor.fetchone()["hash"]
+            pdf_file = "completed_documents/report-%s.pdf" % mycursor.fetchone()["hash"]
             if os.path.isfile(pdf_file): os.remove(pdf_file)
                 
 
@@ -1989,15 +2082,11 @@ elif content["command"] == "get_public_link":
             print(ErrorCodes.PUBLISHED_ERROR)
             exit()
 
-        """
-        sql = "UPDATE %sentries SET fields = ? WHERE id = ? AND user_id = ?;" % table_prefix
-        mycursor.execute(sql, (form_content, entry_id, uid))
-        conn.commit()
         
+        sql = "SELECT r.DOI FROM %sreports AS r INNER JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
+        mycursor.execute(sql, (entry_id, uid))
+        print("https://doi.org/%s" % mycursor.fetchone()["DOI"])
         
-        """
-        link = chr(randint(97, 122)) + "".join(chr(randint(48, 57)) for i in range(8))
-        print("https://lsi-id.org/%s" % link)
 
     except Error as e:
         print(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK, e)
