@@ -109,23 +109,14 @@ function update_sample_forms() {
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            var innerHTML = "";
-            var post = 1;
             
             if (response_text.length > 0){
+                document.getElementById("viewtable-sample").resetTable();
                 
                 if (!response_text.startsWith("ErrorCodes")){
                     has_partial_samples = false;
                     var response = JSON.parse(response_text);
-                    innerHTML += "<table cellspacing='0' cellpadding='10' style='width: 100%'>";
-                    innerHTML += "<tr><th style='width: 3%;'>&nbsp;</th>";
-                    innerHTML += "<th style='width: 70%;'>Sample set name / Sample type </th>";
-                    innerHTML += "<th style='width: 11%;'>Status</th>";
-                    innerHTML += "<th style='width: 11%;'>Actions</th></tr>";
                     
-                    response.sort(function(a, b){
-                        return b["date_modified"] - a["date_modified"];
-                    });
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
                         if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
@@ -133,22 +124,57 @@ function update_sample_forms() {
                             return;
                         }
                         
-                        innerHTML += "<tr><td>" + String(post++) + ") </td>";
+                        
+                        var table_row = [];
+                        table_row.push([row["title"] + " "]);
+                        if (row["status"] == "partial"){
+                            var font_obj = document.createElement("font");
+                            font_obj.style.color = "red";
+                            font_obj.style.font_weight = "bold";
+                            font_obj.innerHTML = "*";
+                            table_row[table_row.length - 1].push(font_obj);
+                        }
+                        table_row.push([row["status"]]);
+                        
+                        var trb = [];
+                        table_row.push(trb);
                         if (row["status"] == "partial"){
                             has_partial_samples = true;
-                            innerHTML += "<td>" + row["title"] + "<font color='red'>*</font></td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;'  onclick=\"refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');\" title='Continue' />&nbsp;";
+                            
+                            var img_continue = document.createElement("img");
+                            trb.push(img_continue);
+                            img_continue.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
+                            img_continue.src = connector_path + "/pencil.png";
+                            img_continue.title = "Continue sample type";
+                            img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                         }
                         else {
-                            innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');\" title='Update sample type' />&nbsp;";
-                            innerHTML += "<img src='" + connector_path + "/recycle.png' style='cursor: pointer; height: 20px;' onclick=\"copy_sample_form('" + row["entry_id"] + "');\" title='Copy sample type' />&nbsp;";
+                            
+                            var img_update = document.createElement("img");
+                            trb.push(img_update);
+                            img_update.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
+                            img_update.src = connector_path + "/pencil.png";
+                            img_update.title = "Update sample type";
+                            img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                            
+                            var img_copy = document.createElement("img");
+                            trb.push(img_copy);
+                            img_copy.setAttribute("onclick", "copy_sample_form('" + row["entry_id"] + "');");
+                            img_copy.src = connector_path + "/recycle.png";
+                            img_copy.title = "Copy sample type";
+                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                         }
-                        innerHTML += "<img title='Delete sample type' src='" + connector_path + "/trashbin.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["entry_id"] + "');\" /></td>";
-                        innerHTML += "</tr>";
+                            
+                            
+                        var img_delete = document.createElement("img");
+                        trb.push(img_delete);
+                        img_delete.setAttribute("onclick", "refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["entry_id"] + "');");
+                        img_delete.src = connector_path + "/trashbin.png";
+                        img_delete.title = "Delete sample type";
+                        img_delete.style = "cursor: pointer; height: 20px;";
+                        
+                        document.getElementById("viewtable-sample").addRow(table_row);
                     }
-
-                    innerHTML += "</table>";
                 
                     if (sample_field_object != null){
                         if (!("value" in sample_field_object)) sample_field_object["value"] = 0;
@@ -156,11 +182,6 @@ function update_sample_forms() {
                         sample_field_object["value"] = !has_partial_samples;
                     }
                 }
-            }
-            try {
-                document.getElementById("result_box_samples").innerHTML = innerHTML;
-            }
-            catch (e){
             }
         }
     }

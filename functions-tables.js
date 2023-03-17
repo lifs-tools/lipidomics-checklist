@@ -6,18 +6,27 @@ class TableView extends HTMLElement {
         this.column_labels = [];
         this.filters = [];
         this.table = document.createElement("table");
-        this.table.style = "margin: 0px; border-radius: 5px;";
+        this.table.style = "width: 100%; margin: 0px; border-radius: 5px;";
         this.tr_objects = [];
         this.sort_arrows = [];
         this.sorting = [];
         this.current_sorting = -1;
+        this.column_sizes = [];
     }
     
     connectedCallback() {
         if (!this.hasAttribute("columns")) return;
+        
         this.column_labels = this.getAttribute("columns").split("|");
         for (var c of this.column_labels) this.filters.push("");
         this.append(this.table);
+        
+        if (this.hasAttribute("size")) {
+            for (var size of this.getAttribute("size").split("|")){
+                var num = parseInt(size);
+                if (!isNaN(num)) this.column_sizes.push(size);
+            }
+        }
         
         var tr_col_obj = document.createElement("tr");
         this.table.append(tr_col_obj);
@@ -25,6 +34,7 @@ class TableView extends HTMLElement {
         for (var col_name of this.column_labels){
             var th_obj = document.createElement("th");
             tr_col_obj.append(th_obj);
+            if (col < this.column_sizes.length) th_obj.style.width = this.column_sizes[col] + "%";
             th_obj.innerHTML = col_name + "&nbsp;&nbsp;&nbsp;&nbsp;";
             
             var div_asc = document.createElement("div");
@@ -61,6 +71,7 @@ class TableView extends HTMLElement {
             var input_filter_obj = document.createElement("input");
             td_filter_obj.append(input_filter_obj);
             input_filter_obj.type = "text";
+            input_filter_obj.style.width = "100%";
             input_filter_obj.value = filter_val;
             input_filter_obj.content = this;
             input_filter_obj.col = col++;
@@ -171,6 +182,7 @@ class TableView extends HTMLElement {
                     new_row.push(td_obj);
                     for (var entry of cell){
                         td_obj.append(entry);
+                        td_obj.style = "padding: 5px 2px 5px 2px;";
                     }
                     col++;
                 }
@@ -188,10 +200,10 @@ class TableView extends HTMLElement {
         if (this.current_sorting != -1){
             view_content.sort((a, b) => {
                 if (this.sorting[this.current_sorting] < 0){
-                    return a[this.current_sorting].innerHTML < b[this.current_sorting].innerHTML;
+                    return a[this.current_sorting].innerHTML.toLowerCase() < b[this.current_sorting].innerHTML.toLowerCase();
                 }
                 else {
-                    return a[this.current_sorting].innerHTML > b[this.current_sorting].innerHTML;
+                    return a[this.current_sorting].innerHTML.toLowerCase() > b[this.current_sorting].innerHTML.toLowerCase();
                 }
                 return 0;
             });
@@ -238,7 +250,7 @@ var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</labe
     <div id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
     <div id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</div> \
 </div> \
-<div id=\"result_box_samples\"></div>";
+<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' ></view-table>";
 
 
 var lipid_class_table_view = "<label class=\"wpforms-field-label\">Lipid Classes</label> \
