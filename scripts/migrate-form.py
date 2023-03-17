@@ -7,6 +7,7 @@ from sample_field_names import sample_field_names as sfn
 from lipid_class_field_names import lipid_class_field_names as lcfn
 import hashlib
 from datetime import datetime
+from time import time
 
 
 
@@ -50,6 +51,9 @@ entry_id_map = {}
 sql_prep = "select entry_id from TCrpQ_wpforms_entries where form_id IN (199, 240, 245) and status = 'partial' and status <> 'abandoned'"
 cursor_mysql.execute("%s;" % sql_prep)
 len_entry_ids = len([row["entry_id"] for row in cursor_mysql.fetchall()])
+
+
+hashes = set()
 
 min_limit, num = 1, 1
 total = 0
@@ -126,8 +130,13 @@ while min_limit < len_entry_ids:
         new_entry_id = cursor_sqlite.fetchone()["new_id"]
 
         if form_type == "checklist":
-            hash_value = "%i-%i-%s" % (new_entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+            while True:
+                hash_value = "%i-%i-%s" % (new_entry_id, uid, time())
+                hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                
+                if hash_value not in hashes:
+                    hashes.add(hash_value)
+                    break
             
             sql = "INSERT INTO %sreports (entry_id, hash) VALUES (?, ?);" % table_prefix
             cursor_sqlite.execute(sql, (new_entry_id, hash_value))
@@ -144,6 +153,7 @@ while min_limit < len_entry_ids:
 sql_prep = "select DISTINCT f.entry_id from TCrpQ_wpforms_entry_fields AS f INNER JOIN TCrpQ_wpforms_entries AS e ON f.entry_id = e.entry_id where f.form_id IN (199, 240, 245) and e.status <> 'abandoned'"
 cursor_mysql.execute("%s;" % sql_prep)
 len_entry_ids = len([row["entry_id"] for row in cursor_mysql.fetchall()])
+
 
 min_limit, num = 1, 1
 while min_limit < len_entry_ids:
@@ -219,10 +229,15 @@ while min_limit < len_entry_ids:
         new_entry_id = cursor_sqlite.fetchone()["new_id"]
 
         if form_type == "checklist":
-            hash_value = "%i-%i-%s" % (new_entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+            while True:
+                hash_value = "%i-%i-%s" % (new_entry_id, uid, time())
+                hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                
+                if hash_value not in hashes:
+                    hashes.add(hash_value)
+                    break
             
-            sql = "INSERT INTO %sreports (entry_id, hash) VALUES (?, ?);" % table_prefix
+            sql = "INSERT INTO %sreports (entry_id, hash, DOI) VALUES (?, ?, '');" % table_prefix
             cursor_sqlite.execute(sql, (new_entry_id, hash_value))
             conn_sqlite.commit()
             

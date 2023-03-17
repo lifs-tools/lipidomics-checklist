@@ -205,7 +205,6 @@ function download_pdf(update_interval, entry_id){
 
 function publish(){
     document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
-    document.getElementById("waiting_field").style.display = "block";
     if (publish_data.length < 3) return;
     
     update_interval = publish_data[0];
@@ -217,9 +216,13 @@ function publish(){
     var xmlhttp_request = new XMLHttpRequest();
     
     if (document.getElementById("publish-verify-year").value != new Date().getFullYear().toString()){
+        document.getElementById("grey_background_index").style.display = "none";
+        document.getElementById("waiting_field").style.display = "none";
         alert("Incorrect verification.");
         return;
     }
+    
+    document.getElementById("waiting_field").style.display = "block";
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
@@ -353,21 +356,22 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
     <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
     <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
-    <table width='100%' height='100%'><tr height='90%'><td height='90%' valign='top'> \
-    <h2><b>Publishing information</b></h2><br />Please read the following information carefully: \
+    <table width='100%' height='100%' cellspacing='0px' cellpadding='0px'><tr><td style='background-color: #e0f1c7; padding: 5px 25px 5px 25px;'> \
+    <font size='+3'><b>Publication information</b></font></td></tr> \
+    <tr height='88%'><td height='88%' valign='top' style='padding: 5px 25px 5px 25px;'>Please read the following information carefully: \
     <ul> \
-    <li>Your report will be published <b>freely available</b> on the <a href='https://zenodo.org' target='_blank'>Zenodo</a> platform</li> \
-    <li>Your report will <b>receive a DOI</b></li> \
-    <li>It will be published under the <i>Creative Commons Attribution 4.0 International</i> license</li> \
-    <li>The following information will be submitted, too: Principal investigator, institution, title of the report</li> \
-    <li>The process is <b>irreversible</b>, due to the DOI registration</li> \
-    <li>There are no fees or additional costs for you</li> \
+    <li class='lipidomics-forms-publishing-li'>Your report will be published <b>freely available</b> on the <a href='https://zenodo.org' target='_blank'>Zenodo</a> platform</li> \
+    <li class='lipidomics-forms-publishing-li'>Your report will <b>receive a DOI</b></li> \
+    <li class='lipidomics-forms-publishing-li'>It will be published under the <i>Creative Commons Attribution 4.0 International</i> license</li> \
+    <li class='lipidomics-forms-publishing-li'>The following information will be submitted, too: <ul><li class='lipidomics-forms-publishing-li'>Principal investigator</li><li class='lipidomics-forms-publishing-li'>Institution</li><li class='lipidomics-forms-publishing-li'>Title of the report</li></ul></li> \
+    <li class='lipidomics-forms-publishing-li'>The process is <b>irreversible</b>, due to the DOI registration</li> \
+    <li class='lipidomics-forms-publishing-li'>There are no fees or additional costs for you</li> \
     </ul> \
     <p align='justify'> \
-    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In Order to proceed type the current year into the following text field and click on the 'OK, proceed' button.</p> \
+    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In Order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</p> \
     Current year: <input type='text' id='publish-verify-year' size=5 /> \
     </td></tr> \
-    <tr height='10%'><td height='10%' valign='bottom' align='right'> \
+    <tr height='10%'><td height='10%' valign='bottom' align='right' style='padding: 5px 25px 25px 25px;'> \
     <button onclick='document.getElementById(\"grey_background_index\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
     </div> \
     <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
