@@ -34,7 +34,7 @@ array_push($request, "user_agent=" . urlencode($_SERVER['HTTP_USER_AGENT']));
 #array_push($request, "uid=" . urlencode(get_current_user_id()));
 
 array_push($request, "user_uuid=" . urlencode("3e599f6d-476d-4d52-8e19-3ffe6ef7555d"));
-array_push($request, "uid=1055");
+array_push($request, "uid=0");
 
 
 exec("/usr/bin/python3 forms-manager.py \"" . join("&", $request) . "\" 2>&1", $out, $result);

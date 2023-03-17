@@ -48,7 +48,7 @@ class ErrorCodes(Enum):
     NO_DATABASE_CONNECTION = -30
     ERROR_ON_DECODING_FORM = -31
     PUBLISHED_ERROR = -32
-    ERROR_ON_PUBLISHING = -33
+    PUBLISHING_FAILED = -33
     REPORT_NOT_CREATED = -34
     ERROR_ON_GETTING_REPORT_LINK = -35
     
@@ -880,7 +880,7 @@ elif content["command"] == "complete_partial_form":
                     mycursor.execute(sql, (hash_value,))
                     if mycursor.fetchone()["cnt"] == 0: break
                 
-                sql = "INSERT INTO %sreports (entry_id, hash) VALUES (?, ?);" % table_prefix
+                sql = "INSERT INTO %sreports (entry_id, hash, DOI) VALUES (?, ?, '');" % table_prefix
                 mycursor.execute(sql, (entry_id, hash_value))
                 conn.commit()
         
@@ -1732,7 +1732,7 @@ elif content["command"] == "publish":
         mycursor.execute(sql, (uid, entry_id))
         request = mycursor.fetchone()
         if request["status"] in {partial_label, published_label}:
-            print(ErrorCodes.ERROR_ON_PUBLISHING)
+            print(ErrorCodes.PUBLISHING_FAILED)
             exit()
             
         
@@ -1777,10 +1777,10 @@ elif content["command"] == "publish":
 
             
     except Error as e:
-        print(ErrorCodes.ERROR_ON_PUBLISHING, e)
+        print(ErrorCodes.PUBLISHING_FAILED, e)
             
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_PUBLISHING, e)
+        print(ErrorCodes.PUBLISHING_FAILED, e)
 
     finally:
         if conn is not None: conn.close()
