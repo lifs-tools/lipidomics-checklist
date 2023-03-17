@@ -88,14 +88,18 @@
     padding: 0px;
     margin: 0px;
     width: 600px;
-    height: 700px;
+    height: 750px;
     left: calc(50% - 300px);
-    top: calc(50% - 350px);
+    top: calc(50% - 375px);
     border: 1px solid black;
     background-color: white;
     overflow: auto;
     z-index: 1000;
     display: none;
+}
+
+ul.lipidomics-forms-publishing-ul {
+    list-style: square;
 }
 
 li.lipidomics-forms-publishing-li {

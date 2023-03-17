@@ -85,10 +85,6 @@ completed_label = "completed"
 published_label = "published"
 
 
-
-main_workflow_type_field_id = 156
-class_workflow_type_field_id = 84
-
 workflow_types = {"di", "sep", "img"}
 
 form_types = {"main": main_form_id,
@@ -1769,7 +1765,7 @@ elif content["command"] == "publish":
         
         publishing_error_code = ""
         try:
-            publishing_error_code = "XXX error during Zenodo reservation"
+            publishing_error_code = "Error during Zenodo reservation"
             r = requests.post('https://%s/api/deposit/depositions' % zenodo_link, params = params, json = {}, headers = headers, timeout = 15)
 
             if r.status_code != 201:
@@ -1781,7 +1777,7 @@ elif content["command"] == "publish":
                 
                 
         try:
-            publishing_error_code = "XXX error during Zenodo upload"
+            publishing_error_code = "Error during Zenodo upload"
             bucket_url = r.json()["links"]["bucket"]
             record_id = r.json()["record_id"]
 
@@ -1799,15 +1795,16 @@ elif content["command"] == "publish":
 
 
         try:
-            publishing_error_code = "XXX error during Zenodo meta data upload"
+            publishing_error_code = "Error during Zenodo meta data upload"
             data = {
                 'metadata': {
                     'title': report_title,
                     'upload_type': 'publication',
                     'publication_type': 'report',
-                    'publication_date': '2023-03-16',
+                    'publication_date': datetime.now().strftime("%Y-%m-%d"),
                     'description': report_title,
-                    'creators': [{'name': report_author, 'affiliation': report_affiliation}]
+                    'creators': [{'name': report_author, 'affiliation': report_affiliation}],
+                    'communities': [{'identifier': 'ils'}]
                 }
             }
             r = requests.put('https://%s/api/deposit/depositions/%s' % (zenodo_link, record_id), params = params, data=json.dumps(data), headers=headers, timeout = 15)
@@ -1822,7 +1819,7 @@ elif content["command"] == "publish":
 
 
         try:
-            publishing_error_code = "XXX error during Zenodo publication"
+            publishing_error_code = "Error during Zenodo publication"
             r = requests.post('https://%s/api/deposit/depositions/%s/actions/publish' % (zenodo_link, record_id), params = params, timeout = 15)
             
             if r.status_code != 202:
