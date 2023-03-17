@@ -359,13 +359,14 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
     <font size='+3'><b>Publication information</b></font></td></tr> \
     <tr height='88%'><td height='88%' valign='top' style='padding: 5px 25px 5px 25px;'>Please read the following information carefully: \
-    <ul> \
+    <ul class='lipidomics-forms-publishing-ul'> \
     <li class='lipidomics-forms-publishing-li'>Your report will be published <b>freely available</b> on the <a href='https://zenodo.org' target='_blank'>Zenodo</a> platform</li> \
     <li class='lipidomics-forms-publishing-li'>Your report will <b>receive a DOI</b></li> \
     <li class='lipidomics-forms-publishing-li'>It will be published under the <i>Creative Commons Attribution 4.0 International</i> license</li> \
     <li class='lipidomics-forms-publishing-li'>The following information will be submitted, too: <ul><li class='lipidomics-forms-publishing-li'>Principal investigator</li><li class='lipidomics-forms-publishing-li'>Institution</li><li class='lipidomics-forms-publishing-li'>Title of the report</li></ul></li> \
     <li class='lipidomics-forms-publishing-li'>The process is <b>irreversible</b>, due to the DOI registration</li> \
     <li class='lipidomics-forms-publishing-li'>There are no fees or additional costs for you</li> \
+    <li class='lipidomics-forms-publishing-li'>The publication can take up to one minute, please be patient</li> \
     </ul> \
     <p align='justify'> \
     Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</p> \
