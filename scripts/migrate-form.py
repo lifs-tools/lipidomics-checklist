@@ -7,7 +7,7 @@ from sample_field_names import sample_field_names as sfn
 from lipid_class_field_names import lipid_class_field_names as lcfn
 import hashlib
 from datetime import datetime
-from time import time
+from random import randint
 
 
 
@@ -131,14 +131,15 @@ while min_limit < len_entry_ids:
 
         if form_type == "checklist":
             while True:
-                hash_value = "%i-%i-%s" % (new_entry_id, uid, time())
-                hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                #hash_value = "%i-%i-%s" % (new_entry_id, uid, time())
+                #hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                hash_value = chr(randint(97, 122)) + chr(randint(97, 122)) + "".join(str(randint(0, 9)) for i in range(8))
                 
                 if hash_value not in hashes:
                     hashes.add(hash_value)
                     break
             
-            sql = "INSERT INTO %sreports (entry_id, hash) VALUES (?, ?);" % table_prefix
+            sql = "INSERT INTO %sreports (entry_id, hash, DOI) VALUES (?, ?, '');" % table_prefix
             cursor_sqlite.execute(sql, (new_entry_id, hash_value))
             conn_sqlite.commit()
             
@@ -230,8 +231,9 @@ while min_limit < len_entry_ids:
 
         if form_type == "checklist":
             while True:
-                hash_value = "%i-%i-%s" % (new_entry_id, uid, time())
-                hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                #hash_value = "%i-%i-%s" % (new_entry_id, uid, time())
+                #hash_value = hashlib.md5(hash_value.encode()).hexdigest()
+                hash_value = chr(randint(97, 122)) + chr(randint(97, 122)) + "".join(str(randint(0, 9)) for i in range(8))
                 
                 if hash_value not in hashes:
                     hashes.add(hash_value)

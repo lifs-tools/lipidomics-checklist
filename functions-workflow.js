@@ -356,7 +356,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
     <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
     <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
-    <table width='100%' height='100%' cellspacing='0px' cellpadding='0px'><tr><td style='background-color: #e0f1c7; padding: 5px 25px 5px 25px;'> \
+    <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
     <font size='+3'><b>Publication information</b></font></td></tr> \
     <tr height='88%'><td height='88%' valign='top' style='padding: 5px 25px 5px 25px;'>Please read the following information carefully: \
     <ul> \
@@ -368,10 +368,10 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     <li class='lipidomics-forms-publishing-li'>There are no fees or additional costs for you</li> \
     </ul> \
     <p align='justify'> \
-    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In Order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</p> \
-    Current year: <input type='text' id='publish-verify-year' size=5 /> \
+    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</p> \
+    Current year:&nbsp;&nbsp;<input type='text' id='publish-verify-year' size=5 /> \
     </td></tr> \
-    <tr height='10%'><td height='10%' valign='bottom' align='right' style='padding: 5px 25px 25px 25px;'> \
+    <tr height='10%'><td height='10%' valign='bottom' align='right' style='border: 0px; padding: 5px 25px 25px 25px;'> \
     <button onclick='document.getElementById(\"grey_background_index\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
     </div> \
     <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
