@@ -396,7 +396,7 @@ window.addEventListener('resize', function(event) {
 var workflow_content = "<div style=\"display: inline-block;\"> \
         <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New workflow</div> \
         </div><p /> \
-        <view-table id=\"viewtable\" columns=\"Workflow title|Workflow type|Creation date|Actions\" size='50|20|20|10'></view-table> \
+        <view-table id=\"viewtable\" columns=\"Workflow title|Workflow type|Creation date|Actions\" size='50|20|20|10' sort='1|1|1|0' ></view-table> \
         <font color='red'><b>*</b></font> Status: partial \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \

@@ -17,14 +17,28 @@ class TableView extends HTMLElement {
     connectedCallback() {
         if (!this.hasAttribute("columns")) return;
         
+        var enable_sort = [];
         this.column_labels = this.getAttribute("columns").split("|");
-        for (var c of this.column_labels) this.filters.push("");
+        for (var c of this.column_labels){
+            this.filters.push("");
+            enable_sort.push(true);
+        }
         this.append(this.table);
         
         if (this.hasAttribute("size")) {
             for (var size of this.getAttribute("size").split("|")){
                 var num = parseInt(size);
                 if (!isNaN(num)) this.column_sizes.push(size);
+            }
+        }
+        
+        if (this.hasAttribute("sort")){
+            var i = 0;
+            for (var s of this.getAttribute("sort").split("|")){
+                if (s != "1" && i < enable_sort.length){
+                    enable_sort[i] = false;
+                }
+                i++;
             }
         }
         
@@ -35,10 +49,11 @@ class TableView extends HTMLElement {
             var th_obj = document.createElement("th");
             tr_col_obj.append(th_obj);
             if (col < this.column_sizes.length) th_obj.style.width = this.column_sizes[col] + "%";
-            th_obj.innerHTML = col_name + "&nbsp;&nbsp;&nbsp;&nbsp;";
+            th_obj.innerHTML = col_name;
+            if (enable_sort[col]) th_obj.innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;";
             
             var div_asc = document.createElement("div");
-            th_obj.append(div_asc);
+            if (enable_sort[col]) th_obj.append(div_asc);
             div_asc.style.display = "inline";
             div_asc.style.color = "#ccc";
             div_asc.style.cursor = "pointer";
@@ -48,7 +63,7 @@ class TableView extends HTMLElement {
             div_asc.innerHTML = "\u25B2";
             
             var div_desc = document.createElement("div");
-            th_obj.append(div_desc);
+            if (enable_sort[col]) th_obj.append(div_desc);
             div_desc.style.display = "inline";
             div_desc.style.color = "#ccc";
             div_desc.style.cursor = "pointer";
@@ -56,6 +71,7 @@ class TableView extends HTMLElement {
             div_desc.content = this;
             div_desc.setAttribute("onclick", "this.content.sortDESC(" + col + ");");
             div_desc.innerHTML = "\u25BC";
+            
             this.sort_arrows.push([div_asc, div_desc]);
             this.sorting.push(0);
             col++;
@@ -68,14 +84,19 @@ class TableView extends HTMLElement {
             var td_filter_obj = document.createElement("td");
             tr_filter_obj.append(td_filter_obj);
             
-            var input_filter_obj = document.createElement("input");
-            td_filter_obj.append(input_filter_obj);
-            input_filter_obj.type = "text";
-            input_filter_obj.style.width = "100%";
-            input_filter_obj.value = filter_val;
-            input_filter_obj.content = this;
-            input_filter_obj.col = col++;
-            input_filter_obj.onkeyup = this.setFilter;
+            if (enable_sort[col]) {
+                var input_filter_obj = document.createElement("input");
+                td_filter_obj.append(input_filter_obj);
+                input_filter_obj.type = "text";
+                input_filter_obj.style.width = "100%";
+                input_filter_obj.value = filter_val;
+                input_filter_obj.content = this;
+                input_filter_obj.col = col++;
+                input_filter_obj.onkeyup = this.setFilter;
+            }
+            else {
+                td_filter_obj.innerHTML = "&nbsp;";
+            }
         }
         
         this.updateTable();
@@ -236,8 +257,7 @@ var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</labe
             <table style=\"width: 100%; height: 100%; border: 1px solid black;\" cellpadding=\"10px\" id=\"table_wrapper\"> \
                 <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered sample types to workflows</b></td></tr> \
                 <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                    <!-- <div id=\"sample_forms_table\" style=\"overflow-y: auto;\"></div> --> \
-                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' ></view-table>\
+                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' ></view-table> \
                 </td></tr> \
                 <tr><td align=\"right\" valign=\"bottom\"> \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
@@ -251,7 +271,7 @@ var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</labe
     <div id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
     <div id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</div> \
 </div> \
-<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' ></view-table>";
+<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' ></view-table>";
 
 
 var lipid_class_table_view = "<label class=\"wpforms-field-label\">Lipid Classes</label> \
@@ -263,6 +283,7 @@ var lipid_class_table_view = "<label class=\"wpforms-field-label\">Lipid Classes
                     <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered Lipid classes to workflows</b></td></tr> \
                     <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
                         <div id=\"class_forms_table\" style=\"overflow-y: auto;\"></div> \
+                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' ></view-table> \
                     </td></tr> \
                     <tr><td align=\"right\" valign=\"bottom\"> \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
@@ -276,6 +297,7 @@ var lipid_class_table_view = "<label class=\"wpforms-field-label\">Lipid Classes
     <div id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
     <div id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</div> \
 </div> \
-<div id=\"result_box\"></div>";
+<div id=\"result_box\"></div>\
+<view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' ></view-table>";
 
 var registered_tables = {"sample": sample_table_view, "lipid-class": lipid_class_table_view};
