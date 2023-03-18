@@ -24,6 +24,8 @@ class TableView extends HTMLElement {
             enable_sort.push(true);
         }
         this.append(this.table);
+        this.style.overflow = "auto";
+        this.style.display = "block";
         
         if (this.hasAttribute("size")) {
             for (var size of this.getAttribute("size").split("|")){
@@ -83,12 +85,14 @@ class TableView extends HTMLElement {
         for (var filter_val of this.filters){
             var td_filter_obj = document.createElement("td");
             tr_filter_obj.append(td_filter_obj);
+            td_filter_obj.style.padding = "0px";
             
             if (enable_sort[col]) {
                 var input_filter_obj = document.createElement("input");
                 td_filter_obj.append(input_filter_obj);
                 input_filter_obj.type = "text";
                 input_filter_obj.style.width = "100%";
+                input_filter_obj.style.padding = "0px";
                 input_filter_obj.value = filter_val;
                 input_filter_obj.content = this;
                 input_filter_obj.col = col++;
@@ -237,7 +241,7 @@ class TableView extends HTMLElement {
             var tr_obj = document.createElement("tr");
             this.table.append(tr_obj);
             this.tr_objects.push(tr_obj);
-            var bg_color = (col++ & 1) ? "white" : "#f4f4f4";
+            var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
             for (var cell of row){
                 tr_obj.append(cell);
                 cell.style.backgroundColor = bg_color;
@@ -254,15 +258,14 @@ customElements.define("view-table", TableView);
 
 
 
-var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</label>  \
-<div id=\"grey_background\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
+var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
 <div id=\"sample_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
     <div id=\"sample_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
         <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
-            <table style=\"width: 100%; height: 100%; border: 1px solid black;\" cellpadding=\"10px\" id=\"table_wrapper\"> \
+            <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
                 <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered sample types to workflows</b></td></tr> \
                 <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' ></view-table> \
+                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' ></view-table> \
                 </td></tr> \
                 <tr><td align=\"right\" valign=\"bottom\"> \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
@@ -273,22 +276,20 @@ var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</labe
     </div> \
 </div> \
 <div style=\"display: inline-block;\"> \
-    <div id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <div id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</div> \
+    <a id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a> \
 </div> \
 <view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' ></view-table>";
 
 
-var lipid_class_table_view = "<label class=\"wpforms-field-label\">Lipid Classes</label> \
-<div id=\"grey_background_class\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
+var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
     <div id=\"class_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"class_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
-                <table style=\"width: 100%; height: 100%; border: 1px solid black;\" cellpadding=\"10px\" id=\"table_wrapper\"> \
+                <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
                     <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered Lipid classes to workflows</b></td></tr> \
                     <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                        <div id=\"class_forms_table\" style=\"overflow-y: auto;\"></div> \
-                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' ></view-table> \
+                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" ></view-table> \
                     </td></tr> \
                     <tr><td align=\"right\" valign=\"bottom\"> \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \

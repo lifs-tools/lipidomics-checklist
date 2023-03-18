@@ -396,15 +396,15 @@ window.addEventListener('resize', function(event) {
 var workflow_content = "<div style=\"display: inline-block;\"> \
         <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New workflow</div> \
         </div><p /> \
-        <view-table id=\"viewtable\" columns=\"Workflow title|Workflow type|Creation date|Actions\" size='50|20|20|10' sort='1|1|1|0' ></view-table> \
+        <view-table id=\"viewtable\" columns=\"Workflow&nbsp;title|Workflow&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' ></view-table><br /> \
         <font color='red'><b>*</b></font> Status: partial \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
     <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
     <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
-    <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
+    <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td colspan='2' style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
     <font size='+3'><b>Publication information</b></font></td></tr> \
-    <tr height='88%'><td height='88%' valign='top' style='padding: 5px 25px 5px 25px;'>Please read the following information carefully: \
+    <tr height='88%'><td height='88%' colspan='2' valign='top' style='padding: 5px 25px 5px 25px;'>Please read the following information carefully: \
     <ul class='lipidomics-forms-publishing-ul'> \
     <li class='lipidomics-forms-publishing-li'>Your report will be published <b>freely available</b> on the <a href='https://zenodo.org' target='_blank'>Zenodo</a> platform</li> \
     <li class='lipidomics-forms-publishing-li'>Your report will <b>receive a DOI</b></li> \
@@ -415,16 +415,15 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     <li class='lipidomics-forms-publishing-li'>The publication can take up to one minute, please be patient</li> \
     </ul> \
     <p align='justify'> \
-    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</p> \
-    Current year:&nbsp;&nbsp;<input type='text' id='publish-verify-year' size=5 /> \
-    </td></tr> \
-    <tr height='10%'><td height='10%' valign='bottom' align='right' style='border: 0px; padding: 5px 25px 25px 25px;'> \
+    Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</td></tr> \
+    <tr><td  height='10%' valign='bottom' align='left' style='border: 0px; padding: 5px 25px 25px 25px;'>Current year:&nbsp;&nbsp;<input type='text' id='publish-verify-year' size=5 /></td> \
+    <td height='10%' valign='bottom' align='right' style='border: 0px; padding: 5px 25px 25px 25px;'> \
     <button onclick='document.getElementById(\"grey_background_index\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
     </div> \
     <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"workflow_selector_wrapper\" style=\"left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"workflow_control_buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
-                <table style=\"width: 100%; height: 100%; border: 1px solid black; \" cellspacing=\"10px\"  id=\"workflow_table_wrapper\"> \
+                <table style=\"width: 100%; height: 100%; border: 1px solid black; \" cellspacing=\"10px\"> \
                     <tr></tr> \
                     <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"left\"> \
                         <table cellpadding=\"10px\"> \

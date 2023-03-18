@@ -65,7 +65,7 @@ function select_sample_selector(){
     
     var sample_entry_ids = [];
     for (var checkbox_obj of checkbox_list_sample){
-        if (checkbox_obj.checked) class_entry_ids.push(checkbox_obj.id);
+        if (checkbox_obj.checked) sample_entry_ids.push(checkbox_obj.id);
     }
     checkbox_list_sample = [];
     if (sample_entry_ids.length == 0) return;
