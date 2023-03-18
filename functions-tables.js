@@ -12,7 +12,22 @@ class TableView extends HTMLElement {
         this.sorting = [];
         this.current_sorting = -1;
         this.column_sizes = [];
+        this.thead = document.createElement("thead");
+        this.tbody = document.createElement("tbody");
+        
     }
+    
+    resize(){
+        this.tbody.style.height = (this.parentNode.offsetHeight - 1.5 * this.thead.offsetHeight) + "px";
+        if (this.tbody.childNodes.length > 0){
+            var i = 0;
+            for (var child of this.thead.firstChild.children){
+                this.tbody.firstChild.children[i].style.width = child.offsetWidth + "px";
+                i++;
+            }
+        }
+    }
+    
     
     connectedCallback() {
         if (!this.hasAttribute("columns")) return;
@@ -24,8 +39,15 @@ class TableView extends HTMLElement {
             enable_sort.push(true);
         }
         this.append(this.table);
-        this.style.overflow = "auto";
-        this.style.display = "block";
+        this.table.append(this.thead);
+        
+        if (this.hasAttribute("fixedHeight")){
+            window.addEventListener('resize', (event) => {
+                this.resize();
+            }, true);
+            this.tbody.style.overflowY = "auto";
+            this.tbody.style.position = "absolute";
+        }
         
         if (this.hasAttribute("size")) {
             for (var size of this.getAttribute("size").split("|")){
@@ -45,7 +67,7 @@ class TableView extends HTMLElement {
         }
         
         var tr_col_obj = document.createElement("tr");
-        this.table.append(tr_col_obj);
+        this.thead.append(tr_col_obj);
         var col = 0;
         for (var col_name of this.column_labels){
             var th_obj = document.createElement("th");
@@ -80,7 +102,7 @@ class TableView extends HTMLElement {
         }
         
         var tr_filter_obj = document.createElement("tr");
-        this.table.append(tr_filter_obj);
+        this.thead.append(tr_filter_obj);
         col = 0;
         for (var filter_val of this.filters){
             var td_filter_obj = document.createElement("td");
@@ -102,14 +124,16 @@ class TableView extends HTMLElement {
                 td_filter_obj.innerHTML = "&nbsp;";
             }
         }
+        this.table.append(this.tbody);
         
         this.updateTable();
+        if (this.hasAttribute("fixedHeight")) this.resize();
     }
     
     resetTable(){
         this.content = [];
         for (var tr_object of this.tr_objects){
-            this.table.removeChild(tr_object);
+            this.tbody.removeChild(tr_object);
         }
         this.tr_objects = [];
         this.updateTable();
@@ -167,7 +191,7 @@ class TableView extends HTMLElement {
         // clear table
         var view_content = [];
         for (var tr_object of this.tr_objects){
-            this.table.removeChild(tr_object);
+            this.tbody.removeChild(tr_object);
         }
         this.tr_objects = [];
         
@@ -239,7 +263,8 @@ class TableView extends HTMLElement {
         var col = 0;
         for (var row of view_content){
             var tr_obj = document.createElement("tr");
-            this.table.append(tr_obj);
+            this.tbody.append(tr_obj);
+            tr_obj.style.fontWeight = "normal";
             this.tr_objects.push(tr_obj);
             var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
             for (var cell of row){
@@ -247,6 +272,8 @@ class TableView extends HTMLElement {
                 cell.style.backgroundColor = bg_color;
             }
         }
+        
+        if (this.hasAttribute("fixedHeight")) this.resize();
     }
 }
 customElements.define("view-table", TableView);
@@ -265,7 +292,7 @@ var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px
             <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
                 <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered sample types to workflows</b></td></tr> \
                 <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' ></view-table> \
+                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' fixedHeight ></view-table> \
                 </td></tr> \
                 <tr><td align=\"right\" valign=\"bottom\"> \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
@@ -288,8 +315,8 @@ var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px
             <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
                 <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
                     <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered Lipid classes to workflows</b></td></tr> \
-                    <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" ></view-table> \
+                    <tr><td style=\"width: 100%; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
+                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" fixedHeight ></view-table> \
                     </td></tr> \
                     <tr><td align=\"right\" valign=\"bottom\"> \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
