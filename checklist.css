@@ -39,7 +39,7 @@
     left: 55%;
     transition: opacity 0.3s;
     white-space:nowrap;
-    margin-left: -120px;
+    margin-left: -91px;
     opacity: 0;
 }
 
@@ -88,9 +88,9 @@
     padding: 0px;
     margin: 0px;
     width: 600px;
-    height: 750px;
+    height: 700px;
     left: calc(50% - 300px);
-    top: calc(50% - 375px);
+    top: calc(50% - 350px);
     border: 1px solid black;
     background-color: white;
     overflow: auto;
