@@ -232,11 +232,16 @@ class TableView extends HTMLElement {
         
         
         // adding rows into the table
+        var col = 0;
         for (var row of view_content){
             var tr_obj = document.createElement("tr");
             this.table.append(tr_obj);
             this.tr_objects.push(tr_obj);
-            for (var cell of row) tr_obj.append(cell);
+            var bg_color = (col++ & 1) ? "white" : "#f4f4f4";
+            for (var cell of row){
+                tr_obj.append(cell);
+                cell.style.backgroundColor = bg_color;
+            }
         }
     }
 }
