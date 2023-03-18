@@ -236,7 +236,8 @@ var sample_table_view = "<label class=\"wpforms-field-label\">Sample types</labe
             <table style=\"width: 100%; height: 100%; border: 1px solid black;\" cellpadding=\"10px\" id=\"table_wrapper\"> \
                 <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered sample types to workflows</b></td></tr> \
                 <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                    <div id=\"sample_forms_table\" style=\"overflow-y: auto;\"></div> \
+                    <!-- <div id=\"sample_forms_table\" style=\"overflow-y: auto;\"></div> --> \
+                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' ></view-table>\
                 </td></tr> \
                 <tr><td align=\"right\" valign=\"bottom\"> \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
