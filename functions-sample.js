@@ -13,6 +13,7 @@ function show_sample_selector(){
     document.getElementById("grey_background").style.display = "block";
     document.getElementById("sample_selector_wrapper").style.display = "block";
     document.getElementById("viewtable-import-sample").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
+    document.getElementById("viewtable-import-sample").resize();
 }
 
 
