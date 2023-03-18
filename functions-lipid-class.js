@@ -1,18 +1,18 @@
 
 var lipid_class_field_object = null;
 var has_partial_lipid_class = false;
-
+var checkbox_list_lipid_class = [];
 
 function show_class_selector(){
     update_load_class_forms();
     
     window.addEventListener('resize', function(event) {
-        document.getElementById("class_forms_table").style.height = String(document.getElementById("control-buttons").clientHeight * 0.75) + "px";
+        document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("control-buttons").clientHeight * 0.75) + "px";
     }, true);
     
     document.getElementById("grey_background_class").style.display = "block";
     document.getElementById("class_selector_wrapper").style.display = "block";
-    document.getElementById("class_forms_table").style.height = String(document.getElementById("control-buttons").clientHeight * 0.75) + "px";
+    document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("control-buttons").clientHeight * 0.75) + "px";
 }
 
 
@@ -20,25 +20,18 @@ function update_load_class_forms(){
     refresh_lipid_class_view();
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("class_forms_table").innerHTML = "";
+    checkbox_list_lipid_class = [];
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            var innerHTML = "";
-            var post = 1;
             if (response_text.length > 0){
+                document.getElementById("viewtable-import-lipid-class").resetTable();
                 if (response_text.startsWith("ErrorCodes")){
                     console.log("Error response all");
                 }
                 else {
                     var response = JSON.parse(response_text);
-                    innerHTML += "<table cellspacing='0' cellpadding='10' style='width: 100%'>";
-                    innerHTML += "<tr><th style='border-bottom: 3px solid black;'>&nbsp;</th>";
-                    innerHTML += "<th style='border-bottom: 3px solid black;'>Workflow title</th>";
-                    innerHTML += "<th style='border-bottom: 3px solid black;'>Lipid class</th>";
-                    innerHTML += "<th style='border-bottom: 3px solid black;'>Modification date</th>";
-                    innerHTML += "<th style='border-bottom: 3px solid black;'>Selection</th></tr>";
                     
                     response.sort(function(a, b){
                         if (a["main_title"] == b["main_title"]) return a["title"] > b["title"];
@@ -47,22 +40,27 @@ function update_load_class_forms(){
                     
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
-                        if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
+                        if (!("main_title") || !("entry_id" in row) || !("title" in row) || !("status" in row)){
                             echo("Error entry all");
                             return;
                         }
                         
-                        innerHTML += "<tr><td>" + String(post++) + ") </td>";
-                        innerHTML += "<td>" + row["main_title"] + "</td><td>" + row["title"] + "</td><td>" + row["date"] + "</td>";
-                        innerHTML += "<td><input type='checkbox' id='" + row["entry_id"] + "' class='check_class'></input></td>";
-                        innerHTML += "</tr>";
+                        var table_row = [];
+                        table_row.push([row["main_title"]]);
+                        table_row.push([row["title"]]);
+                        table_row.push([row["date"]]);
+                        
+                        var checkbox_obj = document.createElement("input");
+                        checkbox_obj.type = "checkbox";
+                        checkbox_obj.setAttribute("class", "check_class");
+                        checkbox_obj.setAttribute("id", row["entry_id"]);
+                        table_row.push([checkbox_obj]);
+                        checkbox_list_lipid_class.push(checkbox_obj);
+                        
+                        document.getElementById("viewtable-import-lipid-class").addRow(table_row);
                     }
-                    
-                    
-                    innerHTML += "</table>";
                 }
             }
-            document.getElementById("class_forms_table").innerHTML = innerHTML;
         }
     }
     var request_url = connector_path + "/connector.php?command=get_all_class_forms";
@@ -82,14 +80,11 @@ function select_class_selector(){
     
     if (entry_id == undefined || entry_id.length == 0) return;
     
-    var checked_entries = document.getElementsByClassName("check_class");
     var class_entry_ids = [];
-    for (var i = 0; i < checked_entries.length; ++i){
-        var dom = checked_entries[i];
-        if (dom.checked){
-            class_entry_ids.push(dom.id);
-        }
+    for (var checkbox_obj of checkbox_list_lipid_class){
+        if (checkbox_obj.checked) class_entry_ids.push(checkbox_obj.id);
     }
+    checkbox_list_lipid_class = [];
     if (class_entry_ids.length == 0) return;
     
     var xmlhttp_request = new XMLHttpRequest();
@@ -113,29 +108,23 @@ function close_class_selector(){
 
 
 function update_class_forms() {
+    
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            var innerHTML = "";
-            var post = 1;
+            
+            if (document.getElementById("viewtable-lipid-class") == undefined) return;
             
             if (response_text.length > 0){
+                document.getElementById("viewtable-lipid-class").resetTable();
                 
                 if (!response_text.startsWith("ErrorCodes")){
                     has_partial_lipid_class = false;
                     var response = JSON.parse(response_text);
-                    innerHTML += "<table cellspacing='0' cellpadding='10' style='width: 100%'>";
-                    innerHTML += "<tr><th style='width: 5%;'>&nbsp;</th>";
-                    innerHTML += "<th style='width: 20%;'>Lipid Class</th>";
-                    innerHTML += "<th style='width: 10%;'>Status</th>";
-                    innerHTML += "<th style='width: 10%;'>Action</th></tr>";
                     
-                    response.sort(function(a, b){
-                        return b["date"] - a["date"];
-                    });
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
                         if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
@@ -143,35 +132,60 @@ function update_class_forms() {
                             return;
                         }
                         
-                        innerHTML += "<tr><td>" + String(post++) + ") </td>";
+                        var table_row = [];
+                        table_row.push([row["title"] + " "]);
                         if (row["status"] == "partial"){
-                            has_partial_lipid_class = true;
-                            innerHTML += "<td>" + row["title"] + "<font color='red'>*</font></td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' style='cursor: pointer; height: 20px;' onclick=\"refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "');\" title='Continue' />&nbsp;";
+                            var font_obj = document.createElement("font");
+                            font_obj.style.color = "red";
+                            font_obj.style.font_weight = "bold";
+                            font_obj.innerHTML = "*";
+                            table_row[table_row.length - 1].push(font_obj);
+                        }
+                        table_row.push([row["status"]]);
+                        
+                        var trb = [];
+                        table_row.push(trb);
+                        if (row["status"] == "partial"){
+                            has_partial_samples = true;
+                            
+                            var img_continue = document.createElement("img");
+                            trb.push(img_continue);
+                            img_continue.setAttribute("onclick", "refresh_sample_view(); show_lipid_classlist('" + row["entry_id"] + "');");
+                            img_continue.src = connector_path + "/pencil.png";
+                            img_continue.title = "Continue lipid class";
+                            img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                         }
                         else {
-                            innerHTML += "<td>" + row["title"] + "</td><td>" + row["status"] + "</td>";
-                            innerHTML += "<td><img src='" + connector_path + "/pencil.png' title='Update lipid class' style='cursor: pointer; height: 20px;' onclick=\"refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "');\" />&nbsp;";
-                            innerHTML += "<img src='" + connector_path + "/recycle.png' title='Copy lipid class' style='cursor: pointer; height: 20px;' onclick=\"copy_class_form('" + row["entry_id"] + "');\" />&nbsp;";
                             
+                            var img_update = document.createElement("img");
+                            trb.push(img_update);
+                            img_update.setAttribute("onclick", "refresh_sample_view(); show_lipid_classlist('" + row["entry_id"] + "');");
+                            img_update.src = connector_path + "/pencil.png";
+                            img_update.title = "Update lipid class";
+                            img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                            
+                            var img_copy = document.createElement("img");
+                            trb.push(img_copy);
+                            img_copy.setAttribute("onclick", "copy_class_form('" + row["entry_id"] + "');");
+                            img_copy.src = connector_path + "/recycle.png";
+                            img_copy.title = "Copy lipid class";
+                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                         }
-                        innerHTML += "<img src='" + connector_path + "/trashbin.png' title='Delete lipid class' style='cursor: pointer; height: 20px;' onclick=\"delete_class_form('" + row["title"] + "', '" + row["entry_id"] + "');\" /></td>";
-                        innerHTML += "</tr>";
+                        var img_delete = document.createElement("img");
+                        trb.push(img_delete);
+                        img_delete.setAttribute("onclick", "refresh_sample_view(); delete_class_form('" + row["title"] + "', '" + row["entry_id"] + "');");
+                        img_delete.src = connector_path + "/trashbin.png";
+                        img_delete.title = "Delete lipid class";
+                        img_delete.style = "cursor: pointer; height: 20px;";
+                        
+                        document.getElementById("viewtable-lipid-class").addRow(table_row);
                     }
-
-                    innerHTML += "</table>";
                     
                     if (lipid_class_field_object != null){
                         if (!("value" in lipid_class_field_object)) lipid_class_field_object["value"] = 0;
-                        
                         lipid_class_field_object["value"] = !has_partial_lipid_class;
                     }
                 }
-            }
-            try {
-                document.getElementById("result_box").innerHTML = innerHTML;
-            }
-            catch (e){
             }
         }
     }

@@ -1,7 +1,7 @@
 
 var sample_field_object = null;
 var has_partial_samples = false;
-
+var checkbox_list_sample = [];
 
 function show_sample_selector(){
     update_load_sample_forms();
@@ -29,7 +29,6 @@ function update_load_sample_forms(){
                 if (!response_text.startsWith("ErrorCodes")){
                     var response = JSON.parse(response_text);
                     
-                    
                     for (var i = 0; i < response.length; ++i){
                         var row = response[i];
                         if (!("title" in row) || !("entry_id" in row)){
@@ -38,13 +37,13 @@ function update_load_sample_forms(){
                         }
                         
                         var table_row = [];
-                        table_row.push([row["title"] + " "]);
+                        table_row.push([row["title"]]);
                         
                         var checkbox_obj = document.createElement("input");
                         checkbox_obj.type = "checkbox";
-                        checkbox_obj.setAttribute("class", "check_sample");
                         checkbox_obj.setAttribute("id", row["entry_id"]);
                         table_row.push([checkbox_obj]);
+                        checkbox_list_sample.push(checkbox_obj);
                         
                         document.getElementById("viewtable-import-sample").addRow(table_row);
                     }
@@ -64,14 +63,11 @@ function select_sample_selector(){
     
     if (entry_id == undefined || entry_id.length == 0) return;
     
-    var checked_entries = document.getElementsByClassName("check_sample");
     var sample_entry_ids = [];
-    for (var i = 0; i < checked_entries.length; ++i){
-        var dom = checked_entries[i];
-        if (dom.checked){
-            sample_entry_ids.push(dom.id);
-        }
+    for (var checkbox_obj of checkbox_list_sample){
+        if (checkbox_obj.checked) class_entry_ids.push(checkbox_obj.id);
     }
+    checkbox_list_sample = [];
     if (sample_entry_ids.length == 0) return;
     
     var xmlhttp_request = new XMLHttpRequest();
@@ -102,6 +98,7 @@ function update_sample_forms() {
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
+            if (document.getElementById("viewtable-sample") == undefined) return;
             
             if (response_text.length > 0){
                 document.getElementById("viewtable-sample").resetTable();
