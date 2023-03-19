@@ -181,9 +181,9 @@ function copy_link(entry_id, tt_id) {
 var update_interval = 0;
 function start_interval(update_interval){
     
-    //update_interval = setInterval(function(){
-    //    update_main_forms(update_interval);
-    //}, 3000);
+    update_interval = setInterval(function(){
+        update_main_forms(update_interval);
+    }, 3000);
     update_main_forms(update_interval);
 }
 start_interval(update_interval);
