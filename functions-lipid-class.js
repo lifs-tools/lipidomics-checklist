@@ -7,14 +7,11 @@ function show_class_selector(){
     update_load_class_forms();
     
     window.addEventListener('resize', function(event) {
-        //document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("control-buttons").clientHeight * 0.75) + "px";
         document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("class_selector_inner").clientHeight) + "px";
     }, true);
     
     document.getElementById("grey_background_class").style.display = "block";
     document.getElementById("class_selector_wrapper").style.display = "block";
-    //document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("control-buttons").clientHeight * 0.75) + "px";
-    document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("class_selector_inner").clientHeight) + "px";
     document.getElementById("viewtable-import-lipid-class").resize();
 }
 

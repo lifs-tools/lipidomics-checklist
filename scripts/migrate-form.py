@@ -289,6 +289,6 @@ for result in results:
     
     
     
-    
-#TODO: lösche Karteileichen
-# SELECT * FROM TCrpQ_entries WHERE form = 'lipid-class' and id NOT IN (SELECT class_form_entry_id from TCrpQ_connect_lipid_class);
+sql = "UPDATE %sentries SET status = 'completed' WHERE status = 'permanent';" % table_prefix
+cursor_sqlite.execute(sql)
+conn_sqlite.commit()

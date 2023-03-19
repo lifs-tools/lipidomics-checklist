@@ -14,7 +14,7 @@ class TableView extends HTMLElement {
         this.column_sizes = [];
         this.thead = document.createElement("thead");
         this.tbody = document.createElement("tbody");
-        
+        this.align = [];
     }
     
     resize(){
@@ -37,6 +37,7 @@ class TableView extends HTMLElement {
         for (var c of this.column_labels){
             this.filters.push("");
             enable_sort.push(true);
+            this.align.push("left");
         }
         this.append(this.table);
         this.table.append(this.thead);
@@ -61,6 +62,17 @@ class TableView extends HTMLElement {
             for (var s of this.getAttribute("sort").split("|")){
                 if (s != "1" && i < enable_sort.length){
                     enable_sort[i] = false;
+                }
+                i++;
+            }
+        }
+        
+        var aligns = {"l": "left", "c": "center", "r": "right"};
+        if (this.hasAttribute("align")){
+            var i = 0;
+            for (var s of this.getAttribute("align").split("|")){
+                if (i < this.align.length && (s in aligns)){
+                    this.align[i] = aligns[s];
                 }
                 i++;
             }
@@ -231,6 +243,7 @@ class TableView extends HTMLElement {
                     new_row.push(td_obj);
                     for (var entry of cell){
                         td_obj.append(entry);
+                        td_obj.setAttribute("align", this.align[col]);
                         td_obj.style = "padding: 5px 2px 5px 2px;";
                     }
                     col++;
@@ -291,8 +304,8 @@ var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px
         <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
             <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
                 <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered sample types to workflows</b></td></tr> \
-                <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"center\"> \
-                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' fixedHeight ></view-table> \
+                <tr><td style=\"width: 100%; height: 80%;\" id='sample_selector_inner' valign=\"top\" align=\"center\"> \
+                    <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' align='l|c' fixedHeight ></view-table> \
                 </td></tr> \
                 <tr><td align=\"right\" valign=\"bottom\"> \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
@@ -306,7 +319,7 @@ var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px
     <a id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
     <a id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a> \
 </div> \
-<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' ></view-table>";
+<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
 
 var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
@@ -316,7 +329,7 @@ var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px
                 <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
                     <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered Lipid classes to workflows</b></td></tr> \
                     <tr><td style=\"width: 100%; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
-                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" fixedHeight ></view-table> \
+                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
                     </td></tr> \
                     <tr><td align=\"right\" valign=\"bottom\"> \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
@@ -331,6 +344,6 @@ var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px
     <div id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</div> \
 </div> \
 <div id=\"result_box\"></div>\
-<view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' ></view-table>";
+<view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
 var registered_tables = {"sample": sample_table_view, "lipid-class": lipid_class_table_view};
