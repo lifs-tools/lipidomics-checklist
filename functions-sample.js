@@ -7,12 +7,11 @@ function show_sample_selector(){
     update_load_sample_forms();
     
     window.addEventListener('resize', function(event) {
-        document.getElementById("viewtable-import-sample").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
+        document.getElementById("viewtable-import-sample").style.height =  String(document.getElementById("class_selector_inner").clientHeight) + "px";
     }, true);
     
     document.getElementById("grey_background").style.display = "block";
     document.getElementById("sample_selector_wrapper").style.display = "block";
-    document.getElementById("viewtable-import-sample").style.height = String(document.getElementById("control-buttons-sample").clientHeight * 0.75) + "px";
     document.getElementById("viewtable-import-sample").resize();
 }
 

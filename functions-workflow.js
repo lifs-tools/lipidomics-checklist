@@ -181,9 +181,9 @@ function copy_link(entry_id, tt_id) {
 var update_interval = 0;
 function start_interval(update_interval){
     
-    update_interval = setInterval(function(){
-        update_main_forms(update_interval);
-    }, 3000);
+    //update_interval = setInterval(function(){
+    //    update_main_forms(update_interval);
+    //}, 3000);
     update_main_forms(update_interval);
 }
 start_interval(update_interval);
@@ -396,7 +396,7 @@ window.addEventListener('resize', function(event) {
 var workflow_content = "<div style=\"display: inline-block;\"> \
         <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New workflow</div> \
         </div><p /> \
-        <view-table id=\"viewtable\" columns=\"Workflow&nbsp;title|Workflow&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' ></view-table><br /> \
+        <view-table id=\"viewtable\" columns=\"Workflow&nbsp;title|Workflow&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
         <font color='red'><b>*</b></font> Status: partial \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
