@@ -19,131 +19,132 @@ function update_main_forms(update_interval){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            var new_main_form_button = document.getElementById("new_main_form");
-            if (response_text.length > 0){
-                document.getElementById("viewtable").resetTable();
-                
-                if (response_text.startsWith("ErrorCodes") || response_text == -1){
-                    if (!new_main_form_button.disabled){
-                        new_main_form_button.disabled = true;
-                        alert("Please login or sign in to use the reporting function.");
-                        window.location.replace("/reporting_checklist");
-                    }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                if (response_text == -1){
+                    new_main_form_button.disabled = true;
+                    alert("Please login or sign in to use the reporting function.");
+                    window.location.replace("/reporting_checklist");
                 }
                 else {
-                    new_main_form_button.disabled = false;
-                    var response = JSON.parse(response_text);
-                    
-                    
-                    var tt_id = 0;
-                    for (var i = 0; i < response.length; ++i){
-                        var row = response[i];
-                        if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
-                            echo("Error");
-                            return;
-                        }
-                        
-                        var table_row = [];
-                        table_row.push([row["title"] + " "]);
-                        
-                        if (row["status"] == "partial"){
-                            var font_obj = document.createElement("font");
-                            font_obj.style.color = "red";
-                            font_obj.style.font_weight = "bold";
-                            font_obj.innerHTML = "*";
-                            table_row[table_row.length - 1].push(font_obj);
-                        }
-                        
-                        table_row.push([row["type"]]);
-                        table_row.push([row["date"]]);
-                        
-                        var trb = [];
-                        table_row.push(trb);
-                        
-                        if (row["status"] == "partial"){
-                            var img_continue = document.createElement("img");
-                            trb.push(img_continue);
-                            img_continue.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
-                            img_continue.src = connector_path + "/pencil.png";
-                            img_continue.title = "Continue report";
-                            img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            
-                            var img_del = document.createElement("img");
-                            trb.push(img_del);
-                            img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
-                            img_del.src = connector_path + "/trashbin.png";
-                            img_del.title = "Delete report";
-                            img_del.style = "cursor: pointer; height: 20px;";
-                        }
-                        else if (row["status"] == "published") {
-                            var div_doi = document.createElement("div");
-                            trb.push(div_doi);
-                            div_doi.setAttribute("class", "lipidomics-forms-tooltip-frame");
-                            div_doi.innerHTML = "<img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer; height: 20px; padding-right: 5px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
-                            tt_id++;
-                            
-                            
-                            var img_copy = document.createElement("img");
-                            trb.push(img_copy);
-                            img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
-                            img_copy.src = connector_path + "/recycle.png";
-                            img_copy.title = "Copy report";
-                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            
-                            var img_download = document.createElement("img");
-                            trb.push(img_download);
-                            img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
-                            img_download.src = connector_path + "/pdf.png";
-                            img_download.title = "Download report";
-                            img_download.style = "cursor: pointer; height: 20px;";
-                        }
-                        else {
-                            var img_copy = document.createElement("img");
-                            trb.push(img_copy);
-                            img_copy.setAttribute("onclick", "publish_data = [" + update_interval + ", '" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
-                            img_copy.src = connector_path + "/check.png";
-                            img_copy.title = "Publish report, click here for more information";
-                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            
-                            var img_update = document.createElement("img");
-                            trb.push(img_update);
-                            img_update.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
-                            img_update.src = connector_path + "/pencil.png";
-                            img_update.title = "Update report";
-                            img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            
-                            var img_copy = document.createElement("img");
-                            trb.push(img_copy);
-                            img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
-                            img_copy.src = connector_path + "/recycle.png";
-                            img_copy.title = "Copy report";
-                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            
-                            var img_download = document.createElement("img");
-                            trb.push(img_download);
-                            img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
-                            img_download.src = connector_path + "/pdf.png";
-                            img_download.title = "Download report";
-                            img_download.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            
-                            var img_del = document.createElement("img");
-                            trb.push(img_del);
-                            img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
-                            img_del.src = connector_path + "/trashbin.png";
-                            img_del.title = "Delete report";
-                            img_del.style = "cursor: pointer; height: 20px;";
-                        }
-                        document.getElementById("viewtable").addRow(table_row);
-                    }
+                    print_error(response_text);
                 }
+                clearInterval(update_interval);
+                return;
             }
-
+            
+            var new_main_form_button = document.getElementById("new_main_form");
+            document.getElementById("viewtable").resetTable();
+                
+            new_main_form_button.disabled = false;
+            var response = JSON.parse(response_text);
+            
+            
+            var tt_id = 0;
+            for (var i = 0; i < response.length; ++i){
+                var row = response[i];
+                if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
+                    echo("Error");
+                    return;
+                }
+                
+                var table_row = [];
+                table_row.push([row["title"] + " "]);
+                
+                if (row["status"] == "partial"){
+                    var font_obj = document.createElement("font");
+                    font_obj.style.color = "red";
+                    font_obj.style.font_weight = "bold";
+                    font_obj.innerHTML = "*";
+                    table_row[table_row.length - 1].push(font_obj);
+                }
+                
+                table_row.push([row["type"]]);
+                table_row.push([row["date"]]);
+                
+                var trb = [];
+                table_row.push(trb);
+                
+                if (row["status"] == "partial"){
+                    var img_continue = document.createElement("img");
+                    trb.push(img_continue);
+                    img_continue.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
+                    img_continue.src = connector_path + "/pencil.png";
+                    img_continue.title = "Continue report";
+                    img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    
+                    var img_del = document.createElement("img");
+                    trb.push(img_del);
+                    img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
+                    img_del.src = connector_path + "/trashbin.png";
+                    img_del.title = "Delete report";
+                    img_del.style = "cursor: pointer; height: 20px;";
+                }
+                else if (row["status"] == "published") {
+                    var div_doi = document.createElement("div");
+                    trb.push(div_doi);
+                    div_doi.setAttribute("class", "lipidomics-forms-tooltip-frame");
+                    div_doi.innerHTML = "<img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer; height: 20px; padding-right: 5px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
+                    tt_id++;
+                    
+                    
+                    var img_copy = document.createElement("img");
+                    trb.push(img_copy);
+                    img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_copy.src = connector_path + "/recycle.png";
+                    img_copy.title = "Copy report";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    
+                    var img_download = document.createElement("img");
+                    trb.push(img_download);
+                    img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_download.src = connector_path + "/pdf.png";
+                    img_download.title = "Download report";
+                    img_download.style = "cursor: pointer; height: 20px;";
+                }
+                else {
+                    var img_copy = document.createElement("img");
+                    trb.push(img_copy);
+                    img_copy.setAttribute("onclick", "publish_data = [" + update_interval + ", '" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
+                    img_copy.src = connector_path + "/check.png";
+                    img_copy.title = "Publish report, click here for more information";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    
+                    var img_update = document.createElement("img");
+                    trb.push(img_update);
+                    img_update.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
+                    img_update.src = connector_path + "/pencil.png";
+                    img_update.title = "Update report";
+                    img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    
+                    var img_copy = document.createElement("img");
+                    trb.push(img_copy);
+                    img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_copy.src = connector_path + "/recycle.png";
+                    img_copy.title = "Copy report";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    
+                    var img_download = document.createElement("img");
+                    trb.push(img_download);
+                    img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_download.src = connector_path + "/pdf.png";
+                    img_download.title = "Download report";
+                    img_download.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    
+                    var img_del = document.createElement("img");
+                    trb.push(img_del);
+                    img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
+                    img_del.src = connector_path + "/trashbin.png";
+                    img_del.title = "Delete report";
+                    img_del.style = "cursor: pointer; height: 20px;";
+                }
+                document.getElementById("viewtable").addRow(table_row);
+            }
         }
     }
     var request_url = connector_path + "/connector.php?command=get_main_forms";
@@ -161,15 +162,14 @@ function copy_link(entry_id, tt_id) {
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            var response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0 && !response_text.startsWith("ErrorCodes")){
-                document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "DOI copied to clipboard";
-                navigator.clipboard.writeText(response_text);
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
             }
-            else {
-                msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;
-                alert(msg);
-            }
+            
+            document.getElementById("lipidomics-forms-tooltip-" + tt_id).innerHTML = "DOI copied to clipboard";
+            navigator.clipboard.writeText(response_text);
         }
     }
     var request_url = connector_path + "/connector.php?command=get_public_link&entry_id=" + encodeURIComponent(entry_id);
@@ -197,12 +197,12 @@ function delete_main_form(update_interval, workflow_title, entry_id){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0){
-                if (!response_text.startsWith("ErrorCodes")){
-                    update_main_forms(update_interval);
-                }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
             }
             
+            update_main_forms(update_interval);
         }
     }
     var request_url = connector_path + "/connector.php?command=delete_main_form&entry_id=" + encodeURIComponent(entry_id);
@@ -219,26 +219,22 @@ function download_pdf(update_interval, entry_id){
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            response_text = xmlhttp_request.responseText;
             document.getElementById("grey_background_index").style.display = "none";
             document.getElementById("waiting_field").style.display = "none";
-            if (response_text.length > 0){
-                if (response_text.substring(response_text.length - 4) === ".pdf"){
-                    const tempLink = document.createElement('a');
-                    tempLink.style.display = 'none';
-                    tempLink.href = response_text;
-                    tempLink.setAttribute('download', "report.pdf");
-                    tempLink.setAttribute('target', '_blank');
-                    document.body.appendChild(tempLink);
-                    tempLink.click();
-                    document.body.removeChild(tempLink);
-                }
-                else {
-                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrator and provide the following message: \n\n" + response_text;
-                    alert(msg);
-                }
-            }
             
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes") || response_text.substring(response_text.length - 4) != ".pdf"){
+                print_error(response_text);
+                return;
+            }
+            const tempLink = document.createElement('a');
+            tempLink.style.display = 'none';
+            tempLink.href = response_text;
+            tempLink.setAttribute('download', "report.pdf");
+            tempLink.setAttribute('target', '_blank');
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
         }
     }
     var request_url = connector_path + "/connector.php?command=get_pdf&entry_id=" + encodeURIComponent(entry_id);
@@ -271,15 +267,13 @@ function publish(){
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            response_text = xmlhttp_request.responseText;
             document.getElementById("grey_background_index").style.display = "none";
             document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
             document.getElementById("waiting_field").style.display = "none";
-            if (response_text.length > 0){
-                if (!response_text.startsWith("ErrorCodes")){
-                    update_main_forms(update_interval);
-                }
-                else if (response_text.startsWith("ErrorCodes.REPORT_NOT_CREATED")){
+            
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                if (response_text.startsWith("ErrorCodes.REPORT_NOT_CREATED")){
                     alert("Before publishing, please download and review the report.");
                 }
                 else if (response_text.startsWith("ErrorCodes.PUBLISHING_FAILED")){
@@ -287,11 +281,12 @@ function publish(){
                     alert(msg);
                 }
                 else {
-                    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + response_text;
-                    alert(msg);
+                    print_error(response_text);
                 }
+                return;
             }
             
+            update_main_forms(update_interval);
         }
     }
     var request_url = connector_path + "/connector.php?command=publish&entry_id=" + encodeURIComponent(entry_id);
@@ -309,19 +304,14 @@ function register_new_main_form(update_interval){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            
-            if (response_text.length > 0){
-                if (response_text.startsWith("ErrorCodes")){
-                    console.log("Error");
-                    clearInterval(update_interval);
-                }
-                
-                else {
-                    update_main_forms(update_interval);
-                    show_checklist(response_text);
-                }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                clearInterval(update_interval);
+                return;
             }
             
+            update_main_forms(update_interval);
+            show_checklist(response_text);
         }
     }
     
@@ -345,18 +335,13 @@ function copy_main_form(update_interval, entry_id){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            
-            if (response_text.length > 0){
-                if (response_text.startsWith("ErrorCodes")){
-                    console.log("Error");
-                    clearInterval(update_interval);
-                }
-                
-                else {
-                    update_main_forms(update_interval);
-                }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                clearInterval(update_interval);
+                return;
             }
             
+            update_main_forms(update_interval);
         }
     }
     var request_url = connector_path + "/connector.php?command=copy_main_form&entry_id=" + encodeURIComponent(entry_id);
