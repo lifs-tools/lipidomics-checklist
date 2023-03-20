@@ -747,19 +747,23 @@ function parseURLParams(url) {
 
 
 function request_form_content(){
-    if (entry_id != null){
-        var xmlhttp_request = new XMLHttpRequest();
-        xmlhttp_request.onreadystatechange = function() {
-            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-                if (xmlhttp_request.responseText.length > 0 && xmlhttp_request.responseText.substring(0, 5) != "ERROR"){
-                    load_data(JSON.parse(xmlhttp_request.responseText));
-                }
+    if (entry_id == null) return;
+    
+    var xmlhttp_request = new XMLHttpRequest();
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
             }
+            
+            load_data(JSON.parse(xmlhttp_request.responseText));
         }
-        var request_url = connector_path + "/connector.php?command=get_form_content&entry_id=" + encodeURIComponent(entry_id);
-        xmlhttp_request.open("GET", request_url);
-        xmlhttp_request.send();
     }
+    var request_url = connector_path + "/connector.php?command=get_form_content&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
 }
 
 var checklist_content = "<button class=\"submit-button\" id=\"back_button\" onclick=\"go_back();\">Back to Report Overview</button><p /> \

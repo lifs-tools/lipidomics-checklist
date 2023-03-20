@@ -1,4 +1,10 @@
 var stored_id = null;
+
+function print_error(error_message){
+    msg = "Oh no, an error occurred... Anyway, we apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + error_message;
+    alert(msg);
+}
+
 function show_checklist(eid){
     workflow_type = 'checklist';
     entry_id = eid;

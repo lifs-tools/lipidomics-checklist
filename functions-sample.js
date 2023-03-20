@@ -24,30 +24,31 @@ function update_load_sample_forms(){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0){
-                document.getElementById("viewtable-import-sample").resetTable();
-                if (!response_text.startsWith("ErrorCodes")){
-                    var response = JSON.parse(response_text);
-                    
-                    for (var i = 0; i < response.length; ++i){
-                        var row = response[i];
-                        if (!("title" in row) || !("entry_id" in row)){
-                            echo("Error");
-                            return;
-                        }
-                        
-                        var table_row = [];
-                        table_row.push([row["title"]]);
-                        
-                        var checkbox_obj = document.createElement("input");
-                        checkbox_obj.type = "checkbox";
-                        checkbox_obj.setAttribute("id", row["entry_id"]);
-                        table_row.push([checkbox_obj]);
-                        checkbox_list_sample.push(checkbox_obj);
-                        
-                        document.getElementById("viewtable-import-sample").addRow(table_row);
-                    }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+            
+            document.getElementById("viewtable-import-sample").resetTable();
+            var response = JSON.parse(response_text);
+            
+            for (var i = 0; i < response.length; ++i){
+                var row = response[i];
+                if (!("title" in row) || !("entry_id" in row)){
+                    echo("Error");
+                    return;
                 }
+                
+                var table_row = [];
+                table_row.push([row["title"]]);
+                
+                var checkbox_obj = document.createElement("input");
+                checkbox_obj.type = "checkbox";
+                checkbox_obj.setAttribute("id", row["entry_id"]);
+                table_row.push([checkbox_obj]);
+                checkbox_list_sample.push(checkbox_obj);
+                
+                document.getElementById("viewtable-import-sample").addRow(table_row);
             }
         }
     }
@@ -73,6 +74,12 @@ function select_sample_selector(){
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+            
             update_sample_forms();
         }
     }
@@ -98,79 +105,80 @@ function update_sample_forms() {
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+            
             if (document.getElementById("viewtable-sample") == undefined) return;
             
-            if (response_text.length > 0){
-                document.getElementById("viewtable-sample").resetTable();
+            document.getElementById("viewtable-sample").resetTable();
                 
-                if (!response_text.startsWith("ErrorCodes")){
-                    has_partial_samples = false;
-                    var response = JSON.parse(response_text);
-                    
-                    for (var i = 0; i < response.length; ++i){
-                        var row = response[i];
-                        if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
-                            echo("Error");
-                            return;
-                        }
-                        
-                        
-                        var table_row = [];
-                        table_row.push([row["title"] + " "]);
-                        if (row["status"] == "partial"){
-                            var font_obj = document.createElement("font");
-                            font_obj.style.color = "red";
-                            font_obj.style.font_weight = "bold";
-                            font_obj.innerHTML = "*";
-                            table_row[table_row.length - 1].push(font_obj);
-                        }
-                        table_row.push([row["status"]]);
-                        
-                        var trb = [];
-                        table_row.push(trb);
-                        if (row["status"] == "partial"){
-                            has_partial_samples = true;
-                            
-                            var img_continue = document.createElement("img");
-                            trb.push(img_continue);
-                            img_continue.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
-                            img_continue.src = connector_path + "/pencil.png";
-                            img_continue.title = "Continue sample type";
-                            img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                        }
-                        else {
-                            
-                            var img_update = document.createElement("img");
-                            trb.push(img_update);
-                            img_update.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
-                            img_update.src = connector_path + "/pencil.png";
-                            img_update.title = "Update sample type";
-                            img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                            
-                            var img_copy = document.createElement("img");
-                            trb.push(img_copy);
-                            img_copy.setAttribute("onclick", "copy_sample_form('" + row["entry_id"] + "');");
-                            img_copy.src = connector_path + "/recycle.png";
-                            img_copy.title = "Copy sample type";
-                            img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
-                        }
-                            
-                            
-                        var img_delete = document.createElement("img");
-                        trb.push(img_delete);
-                        img_delete.setAttribute("onclick", "refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["entry_id"] + "');");
-                        img_delete.src = connector_path + "/trashbin.png";
-                        img_delete.title = "Delete sample type";
-                        img_delete.style = "cursor: pointer; height: 20px;";
-                        
-                        document.getElementById("viewtable-sample").addRow(table_row);
-                    }
-                
-                    if (sample_field_object != null){
-                        if (!("value" in sample_field_object)) sample_field_object["value"] = 0;
-                        sample_field_object["value"] = !has_partial_samples;
-                    }
+            has_partial_samples = false;
+            var response = JSON.parse(response_text);
+            
+            for (var i = 0; i < response.length; ++i){
+                var row = response[i];
+                if (!("entry_id" in row) || !("title" in row) || !("status" in row)){
+                    echo("Error");
+                    return;
                 }
+                
+                
+                var table_row = [];
+                table_row.push([row["title"] + " "]);
+                if (row["status"] == "partial"){
+                    var font_obj = document.createElement("font");
+                    font_obj.style.color = "red";
+                    font_obj.style.font_weight = "bold";
+                    font_obj.innerHTML = "*";
+                    table_row[table_row.length - 1].push(font_obj);
+                }
+                table_row.push([row["status"]]);
+                
+                var trb = [];
+                table_row.push(trb);
+                if (row["status"] == "partial"){
+                    has_partial_samples = true;
+                    
+                    var img_continue = document.createElement("img");
+                    trb.push(img_continue);
+                    img_continue.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
+                    img_continue.src = connector_path + "/pencil.png";
+                    img_continue.title = "Continue sample type";
+                    img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                }
+                else {
+                    
+                    var img_update = document.createElement("img");
+                    trb.push(img_update);
+                    img_update.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
+                    img_update.src = connector_path + "/pencil.png";
+                    img_update.title = "Update sample type";
+                    img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
+                    var img_copy = document.createElement("img");
+                    trb.push(img_copy);
+                    img_copy.setAttribute("onclick", "copy_sample_form('" + row["entry_id"] + "');");
+                    img_copy.src = connector_path + "/recycle.png";
+                    img_copy.title = "Copy sample type";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                }
+                    
+                    
+                var img_delete = document.createElement("img");
+                trb.push(img_delete);
+                img_delete.setAttribute("onclick", "refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["entry_id"] + "');");
+                img_delete.src = connector_path + "/trashbin.png";
+                img_delete.title = "Delete sample type";
+                img_delete.style = "cursor: pointer; height: 20px;";
+                
+                document.getElementById("viewtable-sample").addRow(table_row);
+            }
+        
+            if (sample_field_object != null){
+                if (!("value" in sample_field_object)) sample_field_object["value"] = 0;
+                sample_field_object["value"] = !has_partial_samples;
             }
         }
     }
@@ -199,12 +207,12 @@ function delete_sample_form(sample_type, entry_id){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0){
-                if (!response_text.startsWith("ErrorCodes")){
-                    update_sample_forms();
-                }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
             }
-            
+                    
+            update_sample_forms();
         }
     }
     var request_url = connector_path + "/connector.php?command=delete_sample_form&entry_id=" + encodeURIComponent(entry_id);
@@ -220,10 +228,12 @@ function copy_sample_form( entry_id){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0 && !response_text.startsWith("ErrorCodes")){
-                update_sample_forms();
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
             }
             
+            update_sample_forms();
         }
     }
     var request_url = connector_path + "/connector.php?command=copy_sample_form&entry_id=" + encodeURIComponent(entry_id);
@@ -243,13 +253,13 @@ function register_new_sample_form(){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            if (response_text.length > 0){
-                if (!response_text.startsWith("ErrorCodes")){
-                    update_sample_forms();
-                    show_samplelist(response_text);
-                }
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
             }
             
+            update_sample_forms();
+            show_samplelist(response_text);
         }
     }
     var request_url = connector_path + "/connector.php?command=add_sample_form&main_entry_id=" + encodeURIComponent(entry_id);
