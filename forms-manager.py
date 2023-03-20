@@ -52,6 +52,7 @@ class ErrorCodes(Enum):
     PUBLISHING_FAILED = -33
     REPORT_NOT_CREATED = -34
     ERROR_ON_GETTING_REPORT_LINK = -35
+    ERROR_ON_EXECUTING_FUNCTION = -36
     
     
 def dict_factory(cursor, row):
@@ -100,7 +101,7 @@ def dbconnect():
         conn.row_factory = dict_factory
         curr = conn.cursor()
     except Exception as e:
-        print(ErrorCodes.NO_DATABASE_CONNECTION, e)
+        print(str(ErrorCodes.NO_DATABASE_CONNECTION) + " in dbconnect", e)
         exit()
         
     return conn, curr
@@ -129,12 +130,12 @@ def check_status(entry_id, uid, db_cursor, not_in = None, is_in = None):
     status = request["status"]
     if not_in != None:
         if status not in not_in:
-            print(ErrorCodes.PUBLISHED_ERROR)
+            print(str(ErrorCodes.PUBLISHED_ERROR) + " in check_state")
             exit()
             
     elif is_in != None:
         if status in is_in:
-            print(ErrorCodes.PUBLISHED_ERROR)
+            print(str(ErrorCodes.PUBLISHED_ERROR) + " in check_state")
             exit()
 
     return status, request
@@ -153,8 +154,8 @@ def get_encrypted_entry(entry_id):
         cipher = nonce + pysodium.crypto_secretbox(message, nonce, key)
         return str(base64.b64encode(cipher), "utf-8")
 
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS)
+    except Exception as e:
+        print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in get_encrypted_entry", e)
 
     finally:
         if conn is not None: conn.close()
@@ -174,9 +175,8 @@ def get_decrypted_entry(entry_id):
         nonce = decoded_entry_id[:pysodium.crypto_stream_NONCEBYTES]
         return str(pysodium.crypto_secretbox_open(decoded_entry_id[pysodium.crypto_stream_NONCEBYTES:], nonce, key), "utf-8")
 
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS)
+    except Exception as e:
+        print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in get_decrypted_entry", e)
 
     finally:
         if conn is not None: conn.close()
@@ -198,19 +198,18 @@ if len(sys.argv) > 1:
 
           
 
-            
 if len(content) == 0:
-    print(ErrorCodes.NO_CONTENT)
+    print(str(ErrorCodes.NO_CONTENT) + " in main")
     exit()
       
 
     
 # check if manager command is present and valid
 if "command" not in content: 
-    print(ErrorCodes.NO_COMMAND_ARGUMENT)
+    print(str(ErrorCodes.NO_COMMAND_ARGUMENT) + " in main")
     exit()
 if content["command"] not in all_commands:
-    print(ErrorCodes.INVALID_COMMAND_ARGUMENT)
+    print(str(ErrorCodes.INVALID_COMMAND_ARGUMENT) + " in main")
     exit()
     
     
@@ -233,8 +232,9 @@ def get_select_value(field, field_name, current_label):
 
 
 if content["command"] == "get_main_forms":
+    
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
@@ -270,16 +270,12 @@ if content["command"] == "get_main_forms":
             entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
         print(json.dumps(request))
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
-        
+    
         
         
         
@@ -288,22 +284,22 @@ if content["command"] == "get_main_forms":
 
 elif content["command"] == "get_class_forms":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     # check if main form entry id is within the request and an integer
 
     if "main_entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["main_entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -311,7 +307,7 @@ elif content["command"] == "get_class_forms":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
         
         # getting all main forms
@@ -345,13 +341,9 @@ elif content["command"] == "get_class_forms":
                 ion = pos_ion if ion_type.lower() == "positive" else neg_ion
             entry["title"] = "%s%s" % (lipid_class, ion)
         print(json.dumps(request))
-        
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_CLASS_FORMS, e)
 
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_CLASS_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_CLASS_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -361,22 +353,22 @@ elif content["command"] == "get_class_forms":
 
 elif content["command"] == "get_sample_forms":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     # check if main form entry id is within the request and an integer
 
     if "main_entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["main_entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -384,7 +376,7 @@ elif content["command"] == "get_sample_forms":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
         
         # getting all main forms
@@ -409,14 +401,9 @@ elif content["command"] == "get_sample_forms":
             if len(sample_type) > 0 and len(sample_set) > 0:
                 entry["title"] = "%s / %s" % (sample_set, sample_type)
         print(json.dumps(request))
-        
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_SAMPLE_FORMS, e)
-        
 
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_SAMPLE_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_SAMPLE_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -445,7 +432,7 @@ elif content["command"] == "get_sample_forms":
 
 elif content["command"] == "get_all_class_forms":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
@@ -496,12 +483,8 @@ elif content["command"] == "get_all_class_forms":
                 del entry["fields"]
             entry["title"] = "%s%s" % (lipid_class, ion)
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -514,7 +497,7 @@ elif content["command"] == "get_all_class_forms":
 
 elif content["command"] == "get_all_sample_forms":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
@@ -562,12 +545,8 @@ elif content["command"] == "get_all_sample_forms":
                     entry["title"] = "%s / %s / %s" % (sample_set_name, sample_origin, sample_type)
         print(json.dumps(request))
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
-        
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()   
@@ -592,21 +571,22 @@ elif content["command"] == "get_all_sample_forms":
 ################################################################################
 ## add forms
 ################################################################################   
-        
+
         
 elif content["command"] == "add_main_form":
+    
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     
     if "workflow_type" not in content:
-        print(ErrorCodes.NO_WORKFLOW_TYPE)
+        print(str(ErrorCodes.NO_WORKFLOW_TYPE) + " in %s" % content["command"])
         exit()
     if content["workflow_type"] not in workflow_types:
-        print(ErrorCodes.INCORRECT_WORKFLOW_TYPE)
+        print(str(ErrorCodes.INCORRECT_WORKFLOW_TYPE) + " in %s" % content["command"])
         exit()
     workflow_type = content["workflow_type"]
     
@@ -636,15 +616,8 @@ elif content["command"] == "add_main_form":
         
         print(get_encrypted_entry(db_cursor.fetchone()["max_id"]))
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_ADDING_MAIN_FORMS, e)
-        
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_ADDING_MAIN_FORMS, e)
-        
-    except:
-        print(ErrorCodes.ERROR_ON_ADDING_MAIN_FORMS)
+        print(str(ErrorCodes.ERROR_ON_ADDING_MAIN_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -655,22 +628,22 @@ elif content["command"] == "add_main_form":
 elif content["command"] == "add_class_form":
     
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "main_entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["main_entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     
@@ -679,7 +652,7 @@ elif content["command"] == "add_class_form":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
             
@@ -730,13 +703,8 @@ elif content["command"] == "add_class_form":
         
         print(get_encrypted_entry(new_class_entry_id))
         
-        
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_ADDING_CLASS_FORMS, e)
-        
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_ADDING_CLASS_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_ADDING_CLASS_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -748,22 +716,22 @@ elif content["command"] == "add_class_form":
         
 elif content["command"] == "add_sample_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "main_entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["main_entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     
@@ -772,7 +740,7 @@ elif content["command"] == "add_sample_form":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
         
         # checking if main form is partial or completed
@@ -806,12 +774,8 @@ elif content["command"] == "add_sample_form":
             
         print(get_encrypted_entry(new_sample_entry_id))
             
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_ADDING_SAMPLE_FORMS, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_ADDING_SAMPLE_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_ADDING_SAMPLE_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -845,19 +809,19 @@ elif content["command"] == "add_sample_form":
 elif content["command"] == "complete_partial_form":
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
@@ -901,12 +865,8 @@ elif content["command"] == "complete_partial_form":
                 db_cursor.execute(sql, (entry_id, hash_value))
                 conn.commit()
         
-    
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_DELETING_MAIN_FORM, e)
-        
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_DELETING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_DELETING_MAIN_FORM) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -934,22 +894,22 @@ elif content["command"] == "complete_partial_form":
 
 elif content["command"] == "copy_main_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -957,7 +917,7 @@ elif content["command"] == "copy_main_form":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
             
@@ -1054,15 +1014,8 @@ elif content["command"] == "copy_main_form":
             db_cursor.execute(sql, (new_main_entry_id, new_class_entry_id))
             conn.commit()
             
-            
-            
-            
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1075,22 +1028,22 @@ elif content["command"] == "copy_main_form":
 
 elif content["command"] == "copy_class_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_CLASS_ENTRY_ID)
+        print(str(ErrorCodes.NO_CLASS_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         class_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_CLASS_SAMPLE_ID)
+        print(str(ErrorCodes.INVALID_CLASS_SAMPLE_ID) + " in %s" % content["command"])
         exit()
     if class_entry_id < 0:
-        print(ErrorCodes.INVALID_CLASS_SAMPLE_ID)
+        print(str(ErrorCodes.INVALID_CLASS_SAMPLE_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -1098,7 +1051,7 @@ elif content["command"] == "copy_class_form":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(class_entry_id, uid, db_cursor, "class"):
-            print(ErrorCodes.INVALID_CLASS_SAMPLE_ID)
+            print(str(ErrorCodes.INVALID_CLASS_SAMPLE_ID) + " in %s" % content["command"])
             exit()
             
             
@@ -1147,12 +1100,8 @@ elif content["command"] == "copy_class_form":
             db_cursor.execute(sql, (partial_label, main_entry_id, uid))
             conn.commit()
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1165,22 +1114,22 @@ elif content["command"] == "copy_class_form":
 
 elif content["command"] == "copy_sample_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_SAMPLE_ENTRY_ID)
+        print(str(ErrorCodes.NO_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         sample_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_SAMPLE_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if sample_entry_id < 0:
-        print(ErrorCodes.INVALID_SAMPLE_SAMPLE_ID)
+        print(str(ErrorCodes.INVALID_SAMPLE_SAMPLE_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -1188,7 +1137,7 @@ elif content["command"] == "copy_sample_form":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(sample_entry_id, uid, db_cursor, "sample"):
-            print(ErrorCodes.INVALID_SAMPLE_SAMPLE_ID)
+            print(str(ErrorCodes.INVALID_SAMPLE_SAMPLE_ID) + " in %s" % content["command"])
             exit()
         
         
@@ -1237,12 +1186,8 @@ elif content["command"] == "copy_sample_form":
             db_cursor.execute(sql, (partial_label, main_entry_id, uid))
             conn.commit()
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1269,28 +1214,28 @@ elif content["command"] == "copy_sample_form":
 
 elif content["command"] == "delete_class_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         class_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_CLASS_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
         exit()
-    if class_entry_id < 0: print(ErrorCodes.INVALID_CLASS_ENTRY_ID)
+    if class_entry_id < 0: print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
     
     try:
         # connect with the database
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(class_entry_id, uid, db_cursor, "class"):
-            print(ErrorCodes.INVALID_CLASS_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
             exit()
         
         # checking if class form is partial or completed
@@ -1307,12 +1252,8 @@ elif content["command"] == "delete_class_form":
         db_cursor.execute(sql, (class_entry_id, class_form_id, uid))
         conn.commit()
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_DELETING_CLASS_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_DELETING_CLASS_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_DELETING_CLASS_FORM) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1324,28 +1265,28 @@ elif content["command"] == "delete_class_form":
 
 elif content["command"] == "delete_sample_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         sample_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_SAMPLE_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
         exit()
-    if sample_entry_id < 0: print(ErrorCodes.INVALID_SAMPLE_ENTRY_ID)
+    if sample_entry_id < 0: print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
     
     try:
         # connect with the database
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(sample_entry_id, uid, db_cursor, "sample"):
-            print(ErrorCodes.INVALID_SAMPLE_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
             
@@ -1364,12 +1305,8 @@ elif content["command"] == "delete_sample_form":
         db_cursor.execute(sql, (sample_entry_id, sample_form_id, uid))
         conn.commit()
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_DELETING_SAMPLE_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_DELETING_CLASS_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_DELETING_SAMPLE_FORM) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1384,22 +1321,22 @@ elif content["command"] == "delete_sample_form":
 
 elif content["command"] == "delete_main_form":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -1407,7 +1344,7 @@ elif content["command"] == "delete_main_form":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
 
         # check status of entry
@@ -1474,13 +1411,8 @@ elif content["command"] == "delete_main_form":
                 file_to_del = "completed_documents/report-%s.%s" % (hash_value, extension)
                 if os.path.exists(file_to_del): os.remove(file_to_del)
         
-        
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1501,32 +1433,32 @@ elif content["command"] == "delete_main_form":
 
 elif content["command"] == "import_class_forms":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     
     if "class_entry_ids" not in content:
-        print(ErrorCodes.NO_CLASS_ENTRY_ID)
+        print(str(ErrorCodes.NO_CLASS_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         import_class_forms = [int(get_decrypted_entry(c_id)) for c_id in content["class_entry_ids"].split("|")]
     except:
-        print(ErrorCodes.INVALID_CLASS_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     
@@ -1540,7 +1472,7 @@ elif content["command"] == "import_class_forms":
         
         for class_entry_id in import_class_forms:
             if not check_entry_id(class_entry_id, uid, db_cursor, "class"):
-                print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+                print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
                 exit()
                 
             # import new entry based on old entry
@@ -1565,12 +1497,8 @@ elif content["command"] == "import_class_forms":
             db_cursor.execute(sql, (partial_label, main_entry_id, uid))
             conn.commit()
             
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close() 
@@ -1582,7 +1510,7 @@ elif content["command"] == "import_class_forms":
 
 elif content["command"] == "import_sample_forms":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
@@ -1590,24 +1518,24 @@ elif content["command"] == "import_sample_forms":
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         main_entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if main_entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     if "sample_entry_ids" not in content:
-        print(ErrorCodes.NO_SAMPLE_ENTRY_ID)
+        print(str(ErrorCodes.NO_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         import_sample_forms = [int(get_decrypted_entry(c_id)) for c_id in content["sample_entry_ids"].split("|")]
     except:
-        print(ErrorCodes.INVALID_SAMPLE_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     
@@ -1623,7 +1551,7 @@ elif content["command"] == "import_sample_forms":
         
         for sample_entry_id in import_sample_forms:
             if not check_entry_id(sample_entry_id, uid, db_cursor, "sample"):
-                print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+                print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
                 exit()
             
             # import new entry based on old entry    
@@ -1647,13 +1575,8 @@ elif content["command"] == "import_sample_forms":
             db_cursor.execute(sql, (partial_label, main_entry_id, uid))
             conn.commit()
         
-        
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1668,22 +1591,22 @@ elif content["command"] == "import_sample_forms":
 elif content["command"] == "get_pdf":
     
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
     
@@ -1692,7 +1615,7 @@ elif content["command"] == "get_pdf":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
         sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
@@ -1720,11 +1643,8 @@ elif content["command"] == "get_pdf":
         else:
             print("/%s/%s" % (path_name, pdf_file))
 
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_CREATING_PDF, e)
-        
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_CREATING_PDF, e)
+        print(str(ErrorCodes.ERROR_ON_CREATING_PDF) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1744,22 +1664,22 @@ elif content["command"] == "get_pdf":
 
 elif content["command"] == "publish":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     if entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     
     try:
@@ -1767,7 +1687,7 @@ elif content["command"] == "publish":
         conn, db_cursor = dbconnect()
         
         if not check_entry_id(entry_id, uid, db_cursor, "main"):
-            print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
             
@@ -1794,7 +1714,7 @@ elif content["command"] == "publish":
         pdf_file = "report-%s.pdf" % hash_value
         pdf_path = "completed_documents/%s" % pdf_file
         if not os.path.exists(pdf_path):
-            print(ErrorCodes.REPORT_NOT_CREATED)
+            print(str(ErrorCodes.REPORT_NOT_CREATED) + " in %s" % content["command"])
             exit()
 
         ACCESS_TOKEN = '18I97uNDxV4aSudMCuHUYwVLRZFs0by8l2M8P2lFVOkQunz2vMshEiAu8E2Y'
@@ -1809,10 +1729,10 @@ elif content["command"] == "publish":
             r = requests.post('https://%s/api/deposit/depositions' % zenodo_link, params = params, json = {}, headers = headers, timeout = 15)
 
             if r.status_code != 201:
-                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
                 exit()
         except:
-            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
             exit()
                 
                 
@@ -1826,10 +1746,10 @@ elif content["command"] == "publish":
                 r = requests.put("%s/%s" % (bucket_url, pdf_file), data = fp, params = params, timeout = 15)
 
             if r.status_code != 200:
-                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
                 exit()
         except:
-            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
             exit()
 
 
@@ -1850,11 +1770,11 @@ elif content["command"] == "publish":
             r = requests.put('https://%s/api/deposit/depositions/%s' % (zenodo_link, record_id), params = params, data=json.dumps(data), headers=headers, timeout = 15)
             
             if r.status_code != 200:
-                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
                 exit()
             
         except:
-            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
             exit()
 
 
@@ -1863,12 +1783,12 @@ elif content["command"] == "publish":
             r = requests.post('https://%s/api/deposit/depositions/%s/actions/publish' % (zenodo_link, record_id), params = params, timeout = 15)
             
             if r.status_code != 202:
-                print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, json.dumps(r.json())))
+                print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
                 exit()
                 
             doi = r.json()["doi"]
         except:
-            print("%s %s" % (ErrorCodes.PUBLISHING_FAILED, publishing_error_code))
+            print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
             exit()        
 
         
@@ -1905,12 +1825,8 @@ elif content["command"] == "publish":
             db_cursor.execute(sql, (published_label, class_entry_id, completed_label))
             conn.commit()
 
-            
-    except Error as e:
-        print(ErrorCodes.PUBLISHING_FAILED, e)
-            
     except Exception as e:
-        print(ErrorCodes.PUBLISHING_FAILED, e)
+        print(str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1928,42 +1844,40 @@ elif content["command"] == "publish":
         
 elif content["command"] == "get_form_content":
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
     user_uuid = content["user_uuid"]
     uid = int(content["uid"])
     
+    
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
+        
     try:
         entry_id = int(get_decrypted_entry(content["entry_id"]))
-    except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+    except Exception as e:
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"], e)
         exit()
+        
     if entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
     try:
         # connect with the database
         conn, db_cursor = dbconnect()
         
-        
         # checking if main form is partial or completed
         status, request = check_status(entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
-        
         
         sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
         db_cursor.execute(sql, (entry_id,))
         print(db_cursor.fetchone()["fields"])
 
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -1980,15 +1894,15 @@ elif content["command"] == "get_form_content":
 elif content["command"] == "update_form_content":
     
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
         
     if "content" not in content:
-        print(ErrorCodes.NO_CONTENT)
+        print(str(ErrorCodes.NO_CONTENT) + " in %s" % content["command"])
         exit()
         
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
     
@@ -1998,22 +1912,22 @@ elif content["command"] == "update_form_content":
         form_content = unquote(base64.b64decode(content["content"]).decode("utf-8"))
         
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_DECODING_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_DECODING_FORM) + " in %s" % content["command"], e)
         exit()
     
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
     if entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
         
@@ -2043,12 +1957,8 @@ elif content["command"] == "update_form_content":
             pdf_file = "completed_documents/report-%s.pdf" % db_cursor.fetchone()["hash"]
             if os.path.isfile(pdf_file): os.remove(pdf_file)
                 
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_REUSING_MAIN_FORM, e)
+        print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
@@ -2067,11 +1977,11 @@ elif content["command"] == "update_form_content":
 elif content["command"] == "get_public_link":
     
     if "user_uuid" not in content or "uid" not in content:
-        print(ErrorCodes.NO_USER_UUID)
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
         
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
     user_uuid = content["user_uuid"]
@@ -2080,16 +1990,16 @@ elif content["command"] == "get_public_link":
     
     # check if main form entry id is within the request and an integer
     if "entry_id" not in content:
-        print(ErrorCodes.NO_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
     try:
         entry_id = int(get_decrypted_entry(content["entry_id"]))
     except:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
     if entry_id < 0:
-        print(ErrorCodes.INVALID_MAIN_ENTRY_ID)
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
         exit()
         
         
@@ -2107,12 +2017,8 @@ elif content["command"] == "get_public_link":
         db_cursor.execute(sql, (entry_id, uid))
         print("https://doi.org/%s" % db_cursor.fetchone()["DOI"])
         
-
-    except Error as e:
-        print(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK, e)
-
     except Exception as e:
-        print(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK, e)
+        print(str(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()

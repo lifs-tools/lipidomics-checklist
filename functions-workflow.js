@@ -13,7 +13,7 @@ String.prototype.hashCode = function() {
   return hash;
 };
 
-function update_main_forms(update_interval){
+function update_main_forms(){
     var xmlhttp_request = new XMLHttpRequest();
     
     xmlhttp_request.onreadystatechange = function() {
@@ -28,7 +28,6 @@ function update_main_forms(update_interval){
                 else {
                     print_error(response_text);
                 }
-                clearInterval(update_interval);
                 return;
             }
             
@@ -75,7 +74,7 @@ function update_main_forms(update_interval){
                     
                     var img_del = document.createElement("img");
                     trb.push(img_del);
-                    img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
+                    img_del.setAttribute("onclick", "delete_main_form(" + "'" + row["title"] + "', '" + row["entry_id"] + "');");
                     img_del.src = connector_path + "/trashbin.png";
                     img_del.title = "Delete report";
                     img_del.style = "cursor: pointer; height: 20px;";
@@ -90,7 +89,7 @@ function update_main_forms(update_interval){
                     
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
-                    img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_copy.setAttribute("onclick", "copy_main_form('" + row["entry_id"] + "');");
                     img_copy.src = connector_path + "/recycle.png";
                     img_copy.title = "Copy report";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -98,7 +97,7 @@ function update_main_forms(update_interval){
                     
                     var img_download = document.createElement("img");
                     trb.push(img_download);
-                    img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
                     img_download.src = connector_path + "/pdf.png";
                     img_download.title = "Download report";
                     img_download.style = "cursor: pointer; height: 20px;";
@@ -106,7 +105,7 @@ function update_main_forms(update_interval){
                 else {
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
-                    img_copy.setAttribute("onclick", "publish_data = [" + update_interval + ", '" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
+                    img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
                     img_copy.src = connector_path + "/check.png";
                     img_copy.title = "Publish report, click here for more information";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -122,7 +121,7 @@ function update_main_forms(update_interval){
                     
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
-                    img_copy.setAttribute("onclick", "copy_main_form(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_copy.setAttribute("onclick", "copy_main_form('" + row["entry_id"] + "');");
                     img_copy.src = connector_path + "/recycle.png";
                     img_copy.title = "Copy report";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -130,7 +129,7 @@ function update_main_forms(update_interval){
                     
                     var img_download = document.createElement("img");
                     trb.push(img_download);
-                    img_download.setAttribute("onclick", "download_pdf(" + update_interval + ", '" + row["entry_id"] + "');");
+                    img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
                     img_download.src = connector_path + "/pdf.png";
                     img_download.title = "Download report";
                     img_download.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -138,7 +137,7 @@ function update_main_forms(update_interval){
                     
                     var img_del = document.createElement("img");
                     trb.push(img_del);
-                    img_del.setAttribute("onclick", "delete_main_form(" + update_interval + ", " + "'" + row["title"] + "', '" + row["entry_id"] + "');");
+                    img_del.setAttribute("onclick", "delete_main_form('" + row["title"] + "', '" + row["entry_id"] + "');");
                     img_del.src = connector_path + "/trashbin.png";
                     img_del.title = "Delete report";
                     img_del.style = "cursor: pointer; height: 20px;";
@@ -178,18 +177,7 @@ function copy_link(entry_id, tt_id) {
 }
 
 
-var update_interval = 0;
-function start_interval(update_interval){
-    
-    update_interval = setInterval(function(){
-        update_main_forms(update_interval);
-    }, 3000);
-    update_main_forms(update_interval);
-}
-start_interval(update_interval);
-
-
-function delete_main_form(update_interval, workflow_title, entry_id){
+function delete_main_form(workflow_title, entry_id){
     if (!confirm("Do you want to delete the report '" + workflow_title + "'? After deletion, it cannot be restored.")) return;
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
@@ -202,7 +190,7 @@ function delete_main_form(update_interval, workflow_title, entry_id){
                 return;
             }
             
-            update_main_forms(update_interval);
+            update_main_forms();
         }
     }
     var request_url = connector_path + "/connector.php?command=delete_main_form&entry_id=" + encodeURIComponent(entry_id);
@@ -211,7 +199,7 @@ function delete_main_form(update_interval, workflow_title, entry_id){
 }
 
 
-function download_pdf(update_interval, entry_id){
+function download_pdf(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     document.getElementById("grey_background_index").style.display = "block";
@@ -246,11 +234,10 @@ function download_pdf(update_interval, entry_id){
 
 function publish(){
     document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
-    if (publish_data.length < 3) return;
+    if (publish_data.length < 2) return;
     
-    update_interval = publish_data[0];
-    workflow_title = publish_data[1];
-    entry_id = publish_data[2];
+    workflow_title = publish_data[0];
+    entry_id = publish_data[1];
     publish_data = [];
     
     if (entry_id == undefined || entry_id.length == 0) return;
@@ -286,7 +273,7 @@ function publish(){
                 return;
             }
             
-            update_main_forms(update_interval);
+            update_main_forms();
         }
     }
     var request_url = connector_path + "/connector.php?command=publish&entry_id=" + encodeURIComponent(entry_id);
@@ -298,7 +285,7 @@ function publish(){
 
 
 
-function register_new_main_form(update_interval){
+function register_new_main_form(){
     var xmlhttp_request = new XMLHttpRequest();
     
     xmlhttp_request.onreadystatechange = function() {
@@ -306,11 +293,10 @@ function register_new_main_form(update_interval){
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
                 print_error(response_text);
-                clearInterval(update_interval);
                 return;
             }
             
-            update_main_forms(update_interval);
+            update_main_forms();
             show_checklist(response_text);
         }
     }
@@ -328,7 +314,7 @@ function register_new_main_form(update_interval){
 
 
 
-function copy_main_form(update_interval, entry_id){
+function copy_main_form(entry_id){
     if (!window.confirm("Do you want to copy the complete workflow?")) return;
     var xmlhttp_request = new XMLHttpRequest();
     
@@ -337,11 +323,10 @@ function copy_main_form(update_interval, entry_id){
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
                 print_error(response_text);
-                clearInterval(update_interval);
                 return;
             }
             
-            update_main_forms(update_interval);
+            update_main_forms();
         }
     }
     var request_url = connector_path + "/connector.php?command=copy_main_form&entry_id=" + encodeURIComponent(entry_id);
@@ -361,7 +346,7 @@ function workflow_show_selector(){
 
 
 function workflow_select_selector(){
-    register_new_main_form(update_interval);
+    register_new_main_form();
     workflow_close_selector();
 }
 

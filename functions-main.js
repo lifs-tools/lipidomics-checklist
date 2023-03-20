@@ -18,6 +18,7 @@ function show_checklist(eid){
 function hide_checklist(){
     document.getElementById("workflow-list").style.display = "block";
     document.getElementById("checklist-form").style.display = "none";
+    update_main_forms();
 }
 
 
