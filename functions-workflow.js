@@ -83,9 +83,13 @@ function update_main_forms(){
                     var div_doi = document.createElement("div");
                     trb.push(div_doi);
                     div_doi.setAttribute("class", "lipidomics-forms-tooltip-frame");
-                    div_doi.innerHTML = "<img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer; height: 20px; padding-right: 5px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
+                    div_doi.innerHTML = "<img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer; height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
                     tt_id++;
                     
+                    var div_sep = document.createElement("div");
+                    trb.push(div_sep);
+                    div_sep.style.display = "inline";
+                    div_sep.innerHTML = "&nbsp;";
                     
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
