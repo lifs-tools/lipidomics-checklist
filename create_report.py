@@ -208,10 +208,24 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
         tmp_titles = []
         tmp_report_fields = []
         
-        
         fill_report_fields(mycursor, table_prefix, uid, class_entry_id, tmp_titles, tmp_report_fields)
-        for t in tmp_titles: lipid_classes_titles.append("Lipid class %i - %s" % (i + 1, t))
         lipid_classes_report_fields += tmp_report_fields
+        
+        lipid_class_prefix = "Lipid class %i" % (i + 1)
+        
+        for tmp_report_field, tmp_title in zip(tmp_report_fields, tmp_titles):
+            lipid_class, polarity, adduct_pos, adduct_neg = "", "negative", "", ""
+            for tmp_rep_field in tmp_report_field:
+                if tmp_rep_field[0] == "Lipid class": lipid_class = tmp_rep_field[1]
+                elif tmp_rep_field[0] == "Polarity mode": polarity = tmp_rep_field[1].lower()
+                elif tmp_rep_field[0] == "Type of positive (precursor)ion": adduct_pos = tmp_rep_field[1]
+                elif tmp_rep_field[0] == "Type of negative (precursor)ion": adduct_neg = tmp_rep_field[1]
+            
+            if len(lipid_class) > 0 and (len(adduct_pos) > 0 or len(adduct_neg) > 0):
+                lipid_class_prefix = "%s%s" % (lipid_class, adduct_pos if polarity == "positive" else adduct_neg)
+            
+            lipid_class_title = "%i) %s / %s" % (i + 1, lipid_class_prefix, tmp_title)
+            lipid_classes_titles.append(lipid_class_title)
     
 
 

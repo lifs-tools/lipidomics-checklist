@@ -4,7 +4,7 @@
 
 {"label": "Institution", "name": "institution", "type": "text", "required": 1, "value": "", "description": "Please specify the institution where the data was acquired."},
 
-{"label": "Corresponding Email", "name": "corresponding_email", "type": "text", "required": 1, "value": "", "description": "To whom correspondence should be addressed?"},
+{"label": "Corresponding Email", "name": "corresponding_email", "type": "text", "required": 1, "value": "", "description": "To whom correspondence should be addressed?", "validate": "^(([^<>()[\\]\\\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))"},
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 
@@ -14,7 +14,9 @@
 
 {"label": "Other extraction method", "name": "other_extraction_method", "type": "text", "required": 1, "value": "", "description": "Which other extraction method was applied?", "condition": "extraction_method#other=1"},
 
-{"label": "pH adjustment", "name": "ph_adjustment", "type": "select", "required": 0, "choice": [{"name": "ph_adjustment#none", "label": "None", "value": 1}, {"name": "ph_adjustment#hydrochloric_acid", "label": "Hydrochloric acid", "value": 0}, {"name": "ph_adjustment#citrate", "label": "Citrate", "value": 0}, {"name": "ph_adjustment#ammonium_formate", "label": "Ammonium formate", "value": 0}], "description": "Was the pH adjusted for extraction? If yes, which buffer, acid/base was added?", "condition": "workflowtype~'img'"},
+{"label": "pH adjustment", "name": "ph_adjustment", "type": "select", "required": 0, "choice": [{"name": "ph_adjustment#none", "label": "None", "value": 1}, {"name": "ph_adjustment#hydrochloric_acid", "label": "Hydrochloric acid", "value": 0}, {"name": "ph_adjustment#citrate", "label": "Citrate", "value": 0}, {"name": "ph_adjustment#ammonium_formate", "label": "Ammonium formate", "value": 0}, {"name": "ph_adjustment#other", "label": "Other", "value": 0}], "description": "Was the pH adjusted for extraction? If yes, which buffer, acid/base was added?", "condition": "workflowtype~'img'"},
+
+{"label": "Other ph adjustment", "name": "other_ph_adjustment", "type": "text", "required": 1, "value": "", "description": "Which other pH adjustment was applied?", "condition": "ph_adjustment#other=1"},
 
 {"label": "1-phase system", "name": "1-phase_system", "type": "select", "required": 0, "choice": [{"name": "1-phase_system#acetonitrile", "label": "Acetonitrile", "value": 1}, {"name": "1-phase_system#isopropanol", "label": "Isopropanol", "value": 0}, {"name": "1-phase_system#methanol", "label": "Methanol", "value": 0}, {"name": "1-phase_system#ethanol", "label": "Ethanol", "value": 0}, {"name": "1-phase_system#butanol", "label": "Butanol", "value": 0}, {"name": "1-phase_system#butanol/methanol_1_1", "label": "Butanol/Methanol (1/1)", "value": 0}, {"name": "1-phase_system#butanol/methanol_3_1", "label": "Butanol/Methanol (3/1)", "value": 0}, {"name": "1-phase_system#other", "label": "Other", "value": 0}], "description": "Type of 1-phase, i.e. organic solvent used for protein precipitation.", "condition": "extraction_method#1-phase_system=1"},
 
@@ -72,7 +74,9 @@
 
 {"label": "Other imaging ion source", "name": "other_imaging_ion_source", "type": "text", "required": 1, "value": "", "description": "Specify another imaging ion source.", "condition": "imaging_ion_source#other=1"},
 
-{"label": "Direct type", "name": "direct_type", "type": "select", "required": 0, "choice": [{"name": "direct_type#syringe", "label": "Syringe", "value": 1}, {"name": "direct_type#fia", "label": "FIA", "value": 0}, {"name": "direct_type#chip", "label": "Chip", "value": 0}], "description": "Which inlet was used for direct MS?", "condition": "workflowtype='di'"},
+{"label": "Direct type", "name": "direct_type", "type": "select", "required": 0, "choice": [{"name": "direct_type#syringe", "label": "Syringe", "value": 1}, {"name": "direct_type#fia", "label": "FIA", "value": 0}, {"name": "direct_type#chip", "label": "Chip", "value": 0}, {"name": "direct_type#other", "label": "Other", "value": 0}], "description": "Which inlet was used for direct MS?", "condition": "workflowtype='di'"},
+
+{"label": "Other direct type", "name": "other_direct_type", "type": "text", "required": 1, "value": "", "description": "Which other inlet was used for direct MS?", "condition": "direct_type#other=1"},
 
 {"label": "MS Level", "name": "ms_level", "type": "multiple", "required": 1, "choice": [{"name": "ms_level#ms1", "label": "MS1", "value": 0}, {"name": "ms_level#ms2", "label": "MS2", "value": 0}, {"name": "ms_level#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for identification?"},
 
@@ -102,9 +106,9 @@
 
 {"label": "Mass accuracy in ppm at MSn", "name": "mass_accuracy_ppm_msn", "type": "number", "required": 1, "value": 0, "description": "", "min": 0.0, "condition": "ms_level#msn=1&mass_resolution_msn#high_resolution=1"},
 
-{"label": "Additional dimension/techniques", "name": "additional_dimension", "type": "multiple", "required": 0, "choice": [{"name": "additional_dimension#ims", "label": "IMS", "value": 0}, {"name": "additional_dimension#ozid", "label": "OzID", "value": 0}, {"name": "additional_dimension#uv-pd", "label": "UV-PD", "value": 0}, {"name": "additional_dimension#paterno-buechi", "label": "Paterno-B\u00fcchi", "value": 0}, {"name": "additional_dimension#other", "label": "Other", "value": 0}], "description": "Were additional analytical dimensions applied?"},
+{"label": "Was/Were additional dimension/techniques used", "name": "add_dimension", "type": "select", "required": 0, "choice": [{"name": "add_dimension#yes", "label": "Yes", "value": 0}, {"name": "add_dimension#no", "label": "No", "value": 1}], "description": "Were additional analytical dimensions (e.g., IMS) applied?"}
 
-{"label": "Other additional dimension/techniques", "name": "other_additional_dimension", "type": "text", "required": 1, "value": "", "description": "Which other additional dimension/technique was used?", "condition": "additional_dimension#other=1"}]}, {"title": "Lipid identification / Additional separation method(s) / Additional analytical dimension / Lipid Quantification", "content": [{"name": "table_lipid_class", "type": "tableview", "value": 0, "required": 1, "view": "lipid-class"}]}, {"title": "Quality control", "content": [{"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?"},
+]}, {"title": "Lipid identification / Additional separation method(s) / Additional analytical dimension / Lipid Quantification", "content": [{"name": "table_lipid_class", "type": "tableview", "value": 0, "required": 1, "view": "lipid-class"}]}, {"title": "Quality control", "content": [{"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?"},
 
 {"label": "Type of Blanks", "name": "type_of_blanks", "type": "multiple", "required": 1, "choice": [{"name": "type_of_blanks#extraction_blank", "label": "Extraction blank", "value": 0}, {"name": "type_of_blanks#injection_blank", "label": "Injection blank", "value": 0}], "description": "Which types of blank samples were analyzed?", "condition": "blanks#yes=1"},
 
