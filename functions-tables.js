@@ -120,6 +120,7 @@ class TableView extends HTMLElement {
         for (var filter_val of this.filters){
             var td_filter_obj = document.createElement("td");
             tr_filter_obj.append(td_filter_obj);
+            td_filter_obj.style.padding = "0px";
             
             if (enable_sort[col]) {
                 var input_filter_obj = document.createElement("input");
@@ -219,7 +220,7 @@ class TableView extends HTMLElement {
                 
                 var filter_matches = false;
                 for (var entry of cell){
-                    if (typeof(entry) === "string" && entry.toLowerCase().search(filter_val) > -1){
+                    if (typeof(entry) === "string" && entry.toLowerCase().indexOf(filter_val) > -1){
                         filter_matches = true;
                         break;
                     }

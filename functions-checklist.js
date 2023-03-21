@@ -81,7 +81,7 @@ function load_data(content){
                 for (con of condition_and.split("&")){
                     var single_condition = null;
                     var operator = "=";
-                    if (con.search("~") != -1){
+                    if (con.indexOf("~") != -1){
                         single_condition = con.split("~");
                         operator = "~";
                     }
