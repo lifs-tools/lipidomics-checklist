@@ -6,8 +6,9 @@ class TableView extends HTMLElement {
         this.column_labels = [];
         this.filters = [];
         this.table = document.createElement("table");
-        this.table.style = "width: 100%; margin: 0px; border-radius: 5px;";
-        this.tr_objects = [];
+        this.table.style = "width: 100%; margin: 0px; padding: 0px;";
+        this.table.setAttribute("cellspacing", "0px");
+        this.table.setAttribute("border", "0px");
         this.sort_arrows = [];
         this.sorting = [];
         this.current_sorting = -1;
@@ -119,7 +120,6 @@ class TableView extends HTMLElement {
         for (var filter_val of this.filters){
             var td_filter_obj = document.createElement("td");
             tr_filter_obj.append(td_filter_obj);
-            td_filter_obj.style.padding = "0px";
             
             if (enable_sort[col]) {
                 var input_filter_obj = document.createElement("input");
@@ -144,10 +144,7 @@ class TableView extends HTMLElement {
     
     resetTable(){
         this.content = [];
-        for (var tr_object of this.tr_objects){
-            this.tbody.removeChild(tr_object);
-        }
-        this.tr_objects = [];
+        this.tbody.innerHTML = "";
         this.updateTable();
     }
     
@@ -202,10 +199,7 @@ class TableView extends HTMLElement {
     updateTable(){
         // clear table
         var view_content = [];
-        for (var tr_object of this.tr_objects){
-            this.tbody.removeChild(tr_object);
-        }
-        this.tr_objects = [];
+        this.tbody.innerHTML = "";
         
         var num_cols = this.column_labels.length;
         
@@ -244,7 +238,7 @@ class TableView extends HTMLElement {
                     for (var entry of cell){
                         td_obj.append(entry);
                         td_obj.setAttribute("align", this.align[col]);
-                        td_obj.style = "padding: 5px 2px 5px 2px;";
+                        td_obj.style = "padding: 3px 0 3px 0;";
                     }
                     col++;
                 }
@@ -260,12 +254,12 @@ class TableView extends HTMLElement {
         
         // sort rows
         if (this.current_sorting != -1){
-            view_content.sort((a, b) => {
+            view_content.sort((row_one, row_two) => {
                 if (this.sorting[this.current_sorting] < 0){
-                    return a[this.current_sorting].innerHTML.toLowerCase() < b[this.current_sorting].innerHTML.toLowerCase();
+                    return row_one[this.current_sorting].innerHTML.toLowerCase() < row_two[this.current_sorting].innerHTML.toLowerCase();
                 }
                 else {
-                    return a[this.current_sorting].innerHTML.toLowerCase() > b[this.current_sorting].innerHTML.toLowerCase();
+                    return row_one[this.current_sorting].innerHTML.toLowerCase() > row_two[this.current_sorting].innerHTML.toLowerCase();
                 }
                 return 0;
             });
@@ -276,9 +270,9 @@ class TableView extends HTMLElement {
         var col = 0;
         for (var row of view_content){
             var tr_obj = document.createElement("tr");
+            tr_obj.style.backgroundColor = "red";
             this.tbody.append(tr_obj);
             tr_obj.style.fontWeight = "normal";
-            this.tr_objects.push(tr_obj);
             var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
             for (var cell of row){
                 tr_obj.append(cell);
@@ -303,7 +297,7 @@ var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px
     <div id=\"sample_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
         <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
             <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
-                <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered sample types to workflows</b></td></tr> \
+                <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Select sample types from other reports for import</b></td></tr> \
                 <tr><td style=\"width: 100%; height: 80%;\" id='sample_selector_inner' valign=\"top\" align=\"center\"> \
                     <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' align='l|c' fixedHeight ></view-table> \
                 </td></tr> \
@@ -327,7 +321,7 @@ var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px
         <div id=\"class_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
                 <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
-                    <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Registered Lipid classes to workflows</b></td></tr> \
+                    <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
                     <tr><td style=\"width: 100%; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
                         <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
                     </td></tr> \

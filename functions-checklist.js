@@ -522,6 +522,7 @@ function update_text(form){
     var field_name = form.content["name"];
     form.content["value"] = form.value;
     required_messages[field_name].style.display = "none";
+    required_messages[field_name].innerHTML = "This field is required.";
     form.style.border = "1px solid #ccc";
     check_conditions();
 }
@@ -615,7 +616,12 @@ function check_requirements(){
         if (!field_visible[form_name]) continue;
         
         if (field["type"] == "text"){
-            if (field["value"].length > 0) continue;
+            if (field["value"].length > 0){
+                if (!("validate" in field)) continue;
+                var re = new RegExp(field["validate"]);
+                if (re.test(field["value"])) continue;
+                required_messages[form_name].innerHTML = "Incorrect format";
+            }
             
             dom_text_fields[form_name].style.border = "1px solid #cc0000";
         }
