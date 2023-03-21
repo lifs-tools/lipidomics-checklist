@@ -718,6 +718,9 @@ function submit_form(){
     else {
         alert("Lipidomics report successfully completed.");
         hide_checklist();
+        var xmlhttp_m = new XMLHttpRequest();
+        xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=report_completed", true);
+        xmlhttp_m.send();
     }
 }
 

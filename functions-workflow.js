@@ -278,6 +278,10 @@ function publish(){
             }
             
             update_main_forms();
+            
+            var xmlhttp_m = new XMLHttpRequest();
+            xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=report_published", true);
+            xmlhttp_m.send();
         }
     }
     var request_url = connector_path + "/connector.php?command=publish&entry_id=" + encodeURIComponent(entry_id);
@@ -302,6 +306,10 @@ function register_new_main_form(){
             
             update_main_forms();
             show_checklist(response_text);
+            
+            var xmlhttp_m = new XMLHttpRequest();
+            xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=new_report", true);
+            xmlhttp_m.send();
         }
     }
     
