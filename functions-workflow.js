@@ -376,9 +376,9 @@ window.addEventListener('resize', function(event) {
 
 
 var workflow_content = "<div style=\"display: inline-block;\"> \
-        <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New workflow</div> \
+        <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New Report</div> \
         </div><p /> \
-        <view-table id=\"viewtable\" columns=\"Workflow&nbsp;title|Workflow&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
+        <view-table id=\"viewtable\" columns=\"Report&nbsp;title|Report&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
         <font color='red'><b>*</b></font> Status: partial \
      \
     <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
@@ -409,7 +409,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
                     <tr></tr> \
                     <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"left\"> \
                         <table cellpadding=\"10px\"> \
-                          <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your new workflow type</b></td></tr> \
+                          <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your new report type</b></td></tr> \
                           <tr><td><input type=\"radio\" id=\"radio_direct_infusion\" name=\"workflow_type_field\" value=\"workflow_direct_infusion\" checked></td> \
                           <td><label for=\"radio_direct_infusion\" style=\"font-size: 20px;\">Direct Infusion</label></td></tr> \
                           <tr><td><input type=\"radio\" id=\"radio_separation\" name=\"workflow_type_field\" value=\"workflow_separation\"></td> \
