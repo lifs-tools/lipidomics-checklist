@@ -4,6 +4,7 @@
 
 encryption_key = "..."
 db_file = "db/checklist.sqlite"
+machine = "home"    # can be 'home' or 'server'
 
 #################################################################
 ## Zenodo sandbox config data
@@ -12,6 +13,7 @@ db_file = "db/checklist.sqlite"
 
 ACCESS_TOKEN = '...'
 zenodo_link = "sandbox.zenodo.org"
+environment = "sandbox"
 
 
 #################################################################
@@ -20,3 +22,4 @@ zenodo_link = "sandbox.zenodo.org"
 
 #ACCESS_TOKEN = '...'
 #zenodo_link = "zenodo.org"
+#environment = "productive"
