@@ -85,6 +85,7 @@ class TableView extends HTMLElement {
         for (var col_name of this.column_labels){
             var th_obj = document.createElement("th");
             tr_col_obj.append(th_obj);
+            th_obj.setAttribute("align", "center");
             if (col < this.column_sizes.length) th_obj.style.width = this.column_sizes[col] + "%";
             th_obj.innerHTML = col_name;
             if (enable_sort[col]) th_obj.innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;";
