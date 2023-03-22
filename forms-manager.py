@@ -14,6 +14,7 @@ import create_report
 import sqlite3
 from random import randint
 import requests
+import db.checklist_config as cfg
 
 
 class ErrorCodes(Enum):
@@ -97,7 +98,7 @@ form_types = {"main": main_form_id,
 
 def dbconnect():
     try:
-        conn = sqlite3.connect("db/checklist.sqlite")
+        conn = sqlite3.connect(cfg.db_file)
         conn.row_factory = dict_factory
         curr = conn.cursor()
     except Exception as e:
@@ -145,10 +146,10 @@ def check_status(entry_id, uid, db_cursor, not_in = None, is_in = None):
 def get_encrypted_entry(entry_id):
     conn, db_cursor = dbconnect()
     try:
-        key = "zMpfgHoUsie9p8VwcT3v7yYGBTunMs/PcFivTvDqDCU="
+        #key = "zMpfgHoUsie9p8VwcT3v7yYGBTunMs/PcFivTvDqDCU="
         message = bytes(str(entry_id), 'utf-8')
         nonce = pysodium.randombytes(pysodium.crypto_stream_NONCEBYTES)
-        key = base64.b64decode(key)
+        key = base64.b64decode(cfg.encryption_key)
         
         
         cipher = nonce + pysodium.crypto_secretbox(message, nonce, key)
@@ -167,9 +168,9 @@ def get_encrypted_entry(entry_id):
 def get_decrypted_entry(entry_id):
     conn, db_cursor = dbconnect()
     try:
-        key = "zMpfgHoUsie9p8VwcT3v7yYGBTunMs/PcFivTvDqDCU="
+        #key = "zMpfgHoUsie9p8VwcT3v7yYGBTunMs/PcFivTvDqDCU="
         message = bytes(str(entry_id), 'utf-8')
-        key = base64.b64decode(key)
+        key = base64.b64decode(cfg.encryption_key)
         decoded_entry_id = base64.b64decode(entry_id)
         
         nonce = decoded_entry_id[:pysodium.crypto_stream_NONCEBYTES]
@@ -1717,16 +1718,14 @@ elif content["command"] == "publish":
             print(str(ErrorCodes.REPORT_NOT_CREATED) + " in %s" % content["command"])
             exit()
 
-        ACCESS_TOKEN = '18I97uNDxV4aSudMCuHUYwVLRZFs0by8l2M8P2lFVOkQunz2vMshEiAu8E2Y'
         headers = {"Content-Type": "application/json"}
-        params = {'access_token': ACCESS_TOKEN}
-        zenodo_link = "sandbox.zenodo.org"
+        params = {'access_token': cfg.ACCESS_TOKEN}
         
         
         publishing_error_code = ""
         try:
             publishing_error_code = "Error during Zenodo reservation"
-            r = requests.post('https://%s/api/deposit/depositions' % zenodo_link, params = params, json = {}, headers = headers, timeout = 15)
+            r = requests.post('https://%s/api/deposit/depositions' % cfg.zenodo_link, params = params, json = {}, headers = headers, timeout = 15)
 
             if r.status_code != 201:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
@@ -1767,7 +1766,7 @@ elif content["command"] == "publish":
                     'communities': [{'identifier': 'ils'}]
                 }
             }
-            r = requests.put('https://%s/api/deposit/depositions/%s' % (zenodo_link, record_id), params = params, data=json.dumps(data), headers=headers, timeout = 15)
+            r = requests.put('https://%s/api/deposit/depositions/%s' % (cfg.zenodo_link, record_id), params = params, data=json.dumps(data), headers=headers, timeout = 15)
             
             if r.status_code != 200:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
@@ -1780,7 +1779,7 @@ elif content["command"] == "publish":
 
         try:
             publishing_error_code = "Error during Zenodo publication"
-            r = requests.post('https://%s/api/deposit/depositions/%s/actions/publish' % (zenodo_link, record_id), params = params, timeout = 15)
+            r = requests.post('https://%s/api/deposit/depositions/%s/actions/publish' % (cfg.zenodo_link, record_id), params = params, timeout = 15)
             
             if r.status_code != 202:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))

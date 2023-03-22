@@ -18,9 +18,11 @@ function update_main_forms(){
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            var new_main_form_button = document.getElementById("new_main_form");
+            
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
-                if (response_text == -1){
+                if (response_text == "ErrorCodes.NO_WORDPRESS_CONNECTION"){
                     new_main_form_button.disabled = true;
                     alert("Please login or sign in to use the reporting function.");
                     window.location.replace("/reporting_checklist");
@@ -30,8 +32,6 @@ function update_main_forms(){
                 }
                 return;
             }
-            
-            var new_main_form_button = document.getElementById("new_main_form");
             document.getElementById("viewtable").resetTable();
                 
             new_main_form_button.disabled = false;
