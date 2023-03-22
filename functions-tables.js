@@ -157,6 +157,24 @@ class TableView extends HTMLElement {
     
     setFilter(){
         this.content.filters[this.col] = this.value.toLowerCase();
+        if (this.content.filters[this.col] == "dadjoke"){
+            this.value = "";
+            this.content.filters[this.col] = "";
+            var dadjokes = ["Why is 6 afraid of 7? Because 7 8 9!",
+                         "No matter how kind you are, german children are 'Kinder'!",
+                         "I only know 25 letters of the alphabet. I don't know y.",
+                         "Why do seagulls fly over the sea? Because if they flew over the bay, we'd call them baygels.",
+                         "I am doing now a sea food diet: every time I see food, I eat it.",
+                         "Sweet dreams are made of cheese, who am I to diss a brie. I chadder the world and the feta cheese. Everybody's looking for sour cream.",
+                         "How do you call 8 hobbits? A hobbyte!",
+                         "I only seem to get sick on weekdays. I must have a weekend immune system.",
+                         "What's the favorite key on a keyboard for a pirate? It's the C.",
+                         "There are only 10 types of people, these who understand binary and the others.",
+                         "Applied so hard, and got so far. But in the end, I wasn't even hired. - Linkedin Park"];
+            
+            alert(dadjokes[Math.floor((Math.random() * dadjokes.length))]);
+        }
+        
         this.content.updateTable();
     }
     
