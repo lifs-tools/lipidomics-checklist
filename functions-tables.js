@@ -329,10 +329,17 @@ var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px
         </div> \
     </div> \
 </div> \
+<div id='import_samples_from_file_form' style=\"top: calc(50% - 100px)%; left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
+<table width='100%' height='100%'><tr><td width='100%' height='100%' align='center' valign='middle'> \
+Select a spreadsheet file for upload: <p /> \
+<input type='file' id='sample_file_upload' accept='.xlsx'></input><p /> \
+<button onclick='upload_samples(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_samples_importer();'>Cancel</button> \
+</td></tr></table></div> \
 <div style=\"display: inline-block;\"> \
     <a id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"new_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"export_sample_forms\" title=\"You can export sample entries into spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"export_samples(entry_id);\">Export samples to file</a> \
+    <a id=\"import_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"export_sample_forms\" title=\"You can export sample entries into a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"export_samples(entry_id);\">Export samples to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"upload_sample_forms\" title=\"You can import sample entries from a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_samples_importer();\">Import samples from file</a> \
 </div> \
 <view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 

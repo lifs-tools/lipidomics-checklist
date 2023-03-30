@@ -196,6 +196,85 @@ function refresh_sample_view(){
 
 
 
+function export_samples(entry_id){
+    if (entry_id == undefined || entry_id.length == 0) return;
+    var xmlhttp_request = new XMLHttpRequest();
+    document.getElementById("grey_background_index").style.display = "block";
+    document.getElementById("waiting_field").style.display = "block";
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            document.getElementById("grey_background_index").style.display = "none";
+            document.getElementById("waiting_field").style.display = "none";
+            
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+            const tempLink = document.createElement('a');
+            tempLink.style.display = 'none';
+            tempLink.href = response_text;
+            tempLink.setAttribute('download', "Sample List.pdf");
+            tempLink.setAttribute('target', '_blank');
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=export_samples&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
+
+
+
+
+function show_samples_importer(){
+    document.getElementById("grey_background").style.display = "block";
+    document.getElementById("import_samples_from_file_form").style.display = "block";
+}
+
+
+
+function hide_samples_importer(){
+    document.getElementById("grey_background").style.display = "none";
+    document.getElementById("import_samples_from_file_form").style.display = "none";
+}
+
+
+
+
+function upload_samples(entry_id){
+    document.getElementById("import_samples_from_file_form").style.display = "none";
+    if (entry_id == undefined || entry_id.length == 0){
+        document.getElementById("grey_background").style.display = "none";
+        return;
+    }
+    document.getElementById("waiting_field").style.display = "block";
+    
+    var files = document.getElementById("sample_file_upload");
+    if (files.files.length == 0){
+        alert("Warning: no file selected for upload!");
+        document.getElementById("grey_background").style.display = "none";
+        return;
+    }
+    
+    
+    var file = files.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(){
+        console.log(reader.result);
+    }
+    reader.readAsDataURL(file);
+}
+
+
+
+
+
 function delete_sample_form(sample_type, entry_id){
     refresh_sample_view();
     if (!confirm("Do you really want to delete '" + sample_type + "' type?")) return;

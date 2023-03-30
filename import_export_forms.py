@@ -151,19 +151,9 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
     fields = [row["fields"] for row in cursor.fetchall()]
 
 
-    row_num = 3
-    for sample in fields:
-        sample_name_to_field = {}
-        
-        for page in json.loads(sample)["pages"]:
-            for field in page["content"]:
-                if "name" not in field or "type" not in field: continue
-                sample_name_to_field[field["name"]] = field
-                if "choice" in field:
-                    for choice in field["choice"]:
-                        sample_name_to_field[choice["name"]] = choice
-                        
-                        
+    
+    row_num = 3  
+    if len(fields) == 0:
         for name in columns:
             col_name = name_to_column[name]
             cell_id = "%s%i" % (col_name, row_num)
@@ -178,33 +168,60 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                 r = Rule(type="expression", dxf = dxf)
                 r.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
                 sheet.conditional_formatting.add(cell_id, r)
+        
+        
+    else:
+        for sample in fields:
+            sample_name_to_field = {}
             
-            
-            # fill column with values
-            if name not in sample_name_to_field: continue
-            field = sample_name_to_field[name]
-            
-            
-            
-            if name in multiple_names:
-                sheet[cell_id] = checked if sample_name_to_field[name]["value"] == 1 else unchecked
+            for page in json.loads(sample)["pages"]:
+                for field in page["content"]:
+                    if "name" not in field or "type" not in field: continue
+                    sample_name_to_field[field["name"]] = field
+                    if "choice" in field:
+                        for choice in field["choice"]:
+                            sample_name_to_field[choice["name"]] = choice
+                            
+                            
+            for name in columns:
+                col_name = name_to_column[name]
+                cell_id = "%s%i" % (col_name, row_num)
+                # add validations
+                if name in name_to_data_validation: name_to_data_validation[name].add(cell_id)
                 
-            else:
-                if field["type"] == "text" and name_to_field[name]["type"] == "text":
-                    sheet[cell_id] = field["value"]
                 
-                elif field["type"] == "number" and name_to_field[name]["type"] == "number":
-                    sheet[cell_id] = field["value"]
                 
-                elif field["type"] == "select" and name_to_field[name]["type"] == "select":
-                    label = None
-                    for choice in field["choice"]:
-                        if choice["value"] == 1:
-                            label = choice["label"]
-                            break
-                    sheet[cell_id] = label if name in name_to_select and label in name_to_select[name] else ""
-            
-        row_num += 1
+                # add conditional formatting
+                if name in name_to_condition:
+                    dxf = DifferentialStyle(fill = PatternFill(bgColor="DDDDDD"))
+                    r = Rule(type="expression", dxf = dxf)
+                    r.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
+                    sheet.conditional_formatting.add(cell_id, r)
+                
+                
+                # fill column with values
+                if name not in sample_name_to_field: continue
+                field = sample_name_to_field[name]
+                
+                if name in multiple_names:
+                    sheet[cell_id] = checked if sample_name_to_field[name]["value"] == 1 else unchecked
+                    
+                else:
+                    if field["type"] == "text" and name_to_field[name]["type"] == "text":
+                        sheet[cell_id] = field["value"]
+                    
+                    elif field["type"] == "number" and name_to_field[name]["type"] == "number":
+                        sheet[cell_id] = field["value"]
+                    
+                    elif field["type"] == "select" and name_to_field[name]["type"] == "select":
+                        label = None
+                        for choice in field["choice"]:
+                            if choice["value"] == 1:
+                                label = choice["label"]
+                                break
+                        sheet[cell_id] = label if name in name_to_select and label in name_to_select[name] else ""
+                
+            row_num += 1
                     
                     
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
@@ -213,6 +230,25 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
     workbook.save(filename)
 
     return filename
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
