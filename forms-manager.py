@@ -54,6 +54,7 @@ class ErrorCodes(Enum):
     REPORT_NOT_CREATED = -34
     ERROR_ON_GETTING_REPORT_LINK = -35
     ERROR_ON_EXECUTING_FUNCTION = -36
+    ERROR_ON_EXPORTING_FORMS = -37
     
     
 def dict_factory(cursor, row):
@@ -715,6 +716,12 @@ elif content["command"] == "add_class_form":
     
     
     
+    
+    
+    
+    
+    
+    
         
 elif content["command"] == "add_sample_form":
     if "user_uuid" not in content or "uid" not in content:
@@ -1026,6 +1033,14 @@ elif content["command"] == "copy_main_form":
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
 
 
 elif content["command"] == "copy_class_form":
@@ -1110,7 +1125,12 @@ elif content["command"] == "copy_class_form":
         
     print(0)
         
-        
+    
+    
+    
+    
+    
+    
         
 
 
@@ -1315,7 +1335,11 @@ elif content["command"] == "delete_sample_form":
         
     print(0)
         
-        
+     
+     
+     
+     
+     
         
         
         
@@ -1426,6 +1450,12 @@ elif content["command"] == "delete_main_form":
         
         
         
+        
+        
+        
+        
+        
+        
  
     
 ################################################################################
@@ -1510,6 +1540,12 @@ elif content["command"] == "import_class_forms":
 
 
 
+
+
+
+
+
+
 elif content["command"] == "import_sample_forms":
     if "user_uuid" not in content or "uid" not in content:
         print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
@@ -1584,6 +1620,11 @@ elif content["command"] == "import_sample_forms":
         if conn is not None: conn.close()
         
     print(0)
+        
+        
+        
+        
+        
         
         
         
@@ -1842,6 +1883,11 @@ elif content["command"] == "publish":
         
         
         
+        
+        
+        
+        
+        
 elif content["command"] == "get_form_content":
     if "user_uuid" not in content or "uid" not in content:
         print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
@@ -1881,6 +1927,9 @@ elif content["command"] == "get_form_content":
 
     finally:
         if conn is not None: conn.close()
+        
+        
+        
         
         
         
@@ -1974,6 +2023,10 @@ elif content["command"] == "update_form_content":
         
         
         
+        
+        
+        
+        
 elif content["command"] == "get_public_link":
     
     if "user_uuid" not in content or "uid" not in content:
@@ -2003,7 +2056,6 @@ elif content["command"] == "get_public_link":
         exit()
         
         
-        
     try:
         # connect with the database
         conn, db_cursor = dbconnect()
@@ -2023,6 +2075,11 @@ elif content["command"] == "get_public_link":
     finally:
         if conn is not None: conn.close()
         
+
+
+
+
+
 
 
 
@@ -2054,18 +2111,17 @@ elif content["command"] == "export_samples":
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
-            
-        field_template = json.loads(open("workflow-templates/sample.json").read())
-            
-            
-        import pandas as pd
+        from export_forms import export_forms_to_worksheet
+        worksheet_filename = export_forms_to_worksheet(table_prefix, "workflow-templates/sample.json", db_cursor, uid, entry_id)
         
-        worksheet = open("Authors.xlsx", "rb").read()
+        with open(worksheet_filename, "rb") as wsf:
+            worksheet = wsf.read()
+        
+        os.remove(worksheet_filename)
         print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % str(base64.b64encode(worksheet), "utf-8"))
         
-        
     except Exception as e:
-        print(str(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK) + " in %s" % content["command"], e)
+        print(str(ErrorCodes.ERROR_ON_EXPORTING_FORMS) + " in %s" % content["command"], e)
 
     finally:
         if conn is not None: conn.close()
