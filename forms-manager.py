@@ -2111,7 +2111,7 @@ elif content["command"] == "export_samples":
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
-        from export_forms import export_forms_to_worksheet
+        from import_export_forms import export_forms_to_worksheet
         worksheet_filename = export_forms_to_worksheet(table_prefix, "workflow-templates/sample.json", db_cursor, uid, entry_id)
         
         with open(worksheet_filename, "rb") as wsf:
