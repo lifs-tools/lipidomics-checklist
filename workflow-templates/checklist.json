@@ -82,7 +82,7 @@
 
 {"label": "Mass resolution for detected ion at MS1", "name": "mass_resolution_ms1", "type": "select", "required": 0, "choice": [{"name": "mass_resolution_ms1#low_resolution", "label": "Low resolution", "value": 1}, {"name": "mass_resolution_ms1#high_resolution", "label": "High resolution", "value": 0}], "description": "Which mass resolution was applied for the detected ion?", "condition": "ms_level#ms1=1"},
 
-{"label": "Resolution in Da at MS1", "name": "resolution_da_ms1", "type": "number", "required": 1, "value": 0, "description": "Specify the total window size in Da.", "min": 0.0, "condition": "ms_level#ms1=1&mass_resolution_ms1#low_resolution=1"},
+{"label": "Resolution at MS1", "name": "resolution_ms1_low", "type": "select", "required": 0, "choice": [{"name": "resolution_ms1_low#low", "label": "Low", "value": 1}, {"name": "resolution_ms1_low#unit", "label": "Unit", "value": 0}, {"name": "resolution_ms1_low#high", "label": "High", "value": 0}], "description": "", "condition": "ms_level#ms1=1&mass_resolution_ms1#low_resolution=1"},
 
 {"label": "Resolution at m/z 200 at MS1", "name": "resolution_mz_ms1", "type": "number", "required": 1, "value": 0, "description": "Specify the resolution at m/z 200 FWHM.", "min": 0.0, "condition": "ms_level#ms1=1&mass_resolution_ms1#high_resolution=1"},
 
@@ -92,7 +92,7 @@
 
 {"label": "Mass resolution for detected ion at MS2", "name": "mass_resolution_ms2", "type": "select", "required": 0, "choice": [{"name": "mass_resolution_ms2#low_resolution", "label": "Low resolution", "value": 1}, {"name": "mass_resolution_ms2#high_resolution", "label": "High resolution", "value": 0}], "description": "Which mass resolution was applied for the detected ion?", "condition": "ms_level#ms2=1"},
 
-{"label": "Resolution in Da at MS2", "name": "resolution_da_ms2", "type": "number", "required": 1, "value": 0, "description": "Specify the total window size in Da.", "min": 0.0, "condition": "ms_level#ms2=1&mass_resolution_ms2#low_resolution=1"},
+{"label": "Resolution at MS2", "name": "resolution_ms2_low", "type": "select", "required": 0, "choice": [{"name": "resolution_ms2_low#low", "label": "Low", "value": 1}, {"name": "resolution_ms2_low#unit", "label": "Unit", "value": 0}, {"name": "resolution_ms2_low#high", "label": "High", "value": 0}], "description": "", "condition": "ms_level#ms2=1&mass_resolution_ms2#low_resolution=1"},
 
 {"label": "Resolution at m/z 200 at MS2", "name": "resolution_mz_ms2", "type": "number", "required": 1, "value": 0, "description": "Specify the resolution at m/z 200 FWHM.", "min": 0.0, "condition": "ms_level#ms2=1&mass_resolution_ms2#high_resolution=1"},
 
@@ -100,7 +100,7 @@
 
 {"label": "Mass resolution for detected ion at MSn", "name": "mass_resolution_msn", "type": "select", "required": 0, "choice": [{"name": "mass_resolution_msn#low_resolution", "label": "Low resolution", "value": 1}, {"name": "mass_resolution_msn#high_resolution", "label": "High resolution", "value": 0}], "description": "Which mass resolution was applied for the detected ion?", "condition": "ms_level#msn=1"},
 
-{"label": "Resolution in Da at MSn", "name": "resolution_da_msn", "type": "number", "required": 1, "value": 0, "description": "Specify the total window size in Da.", "min": 0.0, "condition": "ms_level#msn=1&mass_resolution_msn#low_resolution=1"},
+{"label": "Resolution at MSn", "name": "resolution_msn_low", "type": "select", "required": 0, "choice": [{"name": "resolution_msn_low#low", "label": "Low", "value": 1}, {"name": "resolution_msn_low#unit", "label": "Unit", "value": 0}, {"name": "resolution_msn_low#high", "label": "High", "value": 0}], "description": "", "condition": "ms_level#msn=1&mass_resolution_msn#low_resolution=1"},
 
 {"label": "Resolution at m/z 200 at MSn", "name": "resolution_mz_msn", "type": "number", "required": 1, "value": 0, "description": "Specify the resolution at m/z 200 FWHM.", "min": 0.0, "condition": "ms_level#msn=1&mass_resolution_msn#high_resolution=1"},
 
