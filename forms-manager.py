@@ -71,7 +71,8 @@ all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
                 "import_class_forms", "import_sample_forms",
                 "complete_partial_form",
                 "get_pdf", "publish", "get_public_link",
-                "get_form_content", "update_form_content"}
+                "get_form_content", "update_form_content",
+                "export_samples"}
 conn = None
 table_prefix = "TCrpQ_"
 version = "v2.0.0"
@@ -2022,3 +2023,49 @@ elif content["command"] == "get_public_link":
     finally:
         if conn is not None: conn.close()
         
+
+
+
+elif content["command"] == "export_samples":
+    if "user_uuid" not in content or "uid" not in content:
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+        exit()
+    user_uuid = content["user_uuid"]
+    uid = int(content["uid"])
+    # check if main form entry id is within the request and an integer
+
+    if "entry_id" not in content:
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
+        exit()
+    try:
+        entry_id = int(get_decrypted_entry(content["entry_id"]))
+    except:
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+        exit()
+    if entry_id < 0:
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+        exit()
+    
+    try:
+        # connect with the database
+        conn, db_cursor = dbconnect()
+        
+        if not check_entry_id(entry_id, uid, db_cursor, "main"):
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+            
+        field_template = json.loads(open("workflow-templates/sample.json").read())
+            
+            
+        import pandas as pd
+        
+        worksheet = open("Authors.xlsx", "rb").read()
+        print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % str(base64.b64encode(worksheet), "utf-8"))
+        
+        
+    except Exception as e:
+        print(str(ErrorCodes.ERROR_ON_GETTING_REPORT_LINK) + " in %s" % content["command"], e)
+
+    finally:
+        if conn is not None: conn.close()
