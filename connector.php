@@ -1,5 +1,8 @@
 <?php
+
+////////////////////////////////////////////////////////////////////////////
 // read in config file
+////////////////////////////////////////////////////////////////////////////
 $conf_file_path = "db/checklist_config.py";
 
 try {
@@ -60,7 +63,10 @@ if ($config["machine"] != "home"){
 }
 
 
+
+////////////////////////////////////////////////////////////////////////////
 // get all GET and POST variables
+////////////////////////////////////////////////////////////////////////////
 $request = array();
 foreach($_GET as $key => $val) {
     array_push($request, "$key=" . urlencode($val));
@@ -71,20 +77,39 @@ foreach($_POST as $key => $val) {
 
 
 
+////////////////////////////////////////////////////////////////////////////
+// collect all information for the request
+////////////////////////////////////////////////////////////////////////////
 array_push($request, "ip=" . urlencode($_SERVER['REMOTE_ADDR']));
 array_push($request, "user_agent=" . urlencode($_SERVER['HTTP_USER_AGENT']));
+$user_id = 0;
 if ($config["machine"] != "home"){
     $user_uuid = !empty( $_COOKIE['_wpfuuid'] ) ? $_COOKIE['_wpfuuid'] : "";
     array_push($request, "user_uuid=" . $user_uuid);
     array_push($request, "uid=" . get_current_user_id());
+    $user_id = get_current_user_id();
 }
 else {
     array_push($request, "user_uuid=" . urlencode("3e599f6d-476d-4d52-8e19-3ffe6ef7555d"));
     array_push($request, "uid=2");
+    $user_id = 2;
+}
+
+// if the request is too big, write in file and send over the filename
+$request_join = join("&", $request);
+if (strlen($request_join) > 65536){
+    $file_name = 'db/request-' . $user_id . '.txt';
+    file_put_contents($file_name, $request_join);
+    $request_join = "request_file=" . $file_name;
 }
 
 
-exec("/usr/bin/python3 forms-manager.py \"" . join("&", $request) . "\" 2>&1", $out, $result);
+
+
+////////////////////////////////////////////////////////////////////////////
+// send request
+////////////////////////////////////////////////////////////////////////////
+exec("/usr/bin/python3 forms-manager.py \"" . $request_join . "\" 2>&1", $out, $result);
 echo($out[0]);
 
 

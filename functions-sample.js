@@ -254,7 +254,6 @@ function upload_samples(entry_id){
     }
     document.getElementById("waiting_field").style.display = "block";
     
-    return;
     
     var files = document.getElementById("sample_file_upload");
     if (files.files.length == 0){
@@ -266,9 +265,7 @@ function upload_samples(entry_id){
     
     var file = files.files[0];
     var reader = new FileReader();
-
     reader.onload = function(){
-        
         var xmlhttp_request = new XMLHttpRequest();
         xmlhttp_request.onreadystatechange = function() {
             if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
@@ -280,13 +277,16 @@ function upload_samples(entry_id){
                     print_error(response_text);
                     return;
                 }
-                // foo
+                // TODO: implement
             }
         }
+        
+        
         var request_url = connector_path + "/connector.php";
         xmlhttp_request.open("POST", request_url);
         xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xmlhttp_request.send("command=import_samples&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(reader.result));
+        var request = "command=import_samples&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(reader.result);
+        xmlhttp_request.send(request);
     }
     reader.readAsDataURL(file);
 }

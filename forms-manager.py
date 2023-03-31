@@ -1,3 +1,5 @@
+
+
 import sys
 import os
 import time
@@ -15,6 +17,8 @@ import sqlite3
 from random import randint
 import requests
 import db.checklist_config as cfg
+
+
 
 
 class ErrorCodes(Enum):
@@ -187,17 +191,30 @@ def get_decrypted_entry(entry_id):
 
 
 
-# retrieve variables in request
-#content = dict(parse.parse_qsl(parse.urlsplit(sys.argv[1]).query))
-
-content = {}
-if len(sys.argv) > 1:
-    for entry in sys.argv[1].split("&"):
+def get_content(request):
+    content = {}
+    for entry in request.split("&"):
         tokens = entry.split("=")
         if len(tokens) == 2:
             content[tokens[0]] = unquote(tokens[1])
         elif len(tokens) == 1:
             content[tokens[0]] = ""
+    return content
+
+
+if len(sys.argv) > 1:
+    content = get_content(sys.argv[1])
+else:
+    print("ErrorCodes.NO_REQUEST_CONTENT")
+    exit()
+    
+
+if "request_file" in content:
+    with open(content["request_file"], "rt") as request_file:
+        request = request_file.read()
+    os.remove(content["request_file"])
+    content = get_content(request)
+
 
           
 
