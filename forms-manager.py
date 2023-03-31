@@ -73,7 +73,7 @@ all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
                 "complete_partial_form",
                 "get_pdf", "publish", "get_public_link",
                 "get_form_content", "update_form_content",
-                "export_samples"}
+                "export_samples", "import_samples"}
 conn = None
 table_prefix = "TCrpQ_"
 version = "v2.0.0"
@@ -2125,3 +2125,7 @@ elif content["command"] == "export_samples":
 
     finally:
         if conn is not None: conn.close()
+        
+     
+elif content["command"] == "import_samples":
+    print("ErrorCodes.FUNCTION_NOT_YET_IMPLEMENTED")

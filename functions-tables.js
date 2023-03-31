@@ -312,8 +312,7 @@ customElements.define("view-table", TableView);
 
 
 
-var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
-<div id=\"sample_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
+var sample_table_view = "<div id=\"sample_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
     <div id=\"sample_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
         <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
             <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
@@ -329,7 +328,7 @@ var sample_table_view = "<div id=\"grey_background\" style=\"top: 0px; left: 0px
         </div> \
     </div> \
 </div> \
-<div id='import_samples_from_file_form' style=\"top: calc(50% - 100px)%; left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
+<div id='import_samples_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <table width='100%' height='100%'><tr><td width='100%' height='100%' align='center' valign='middle'> \
 Select a spreadsheet file for upload: <p /> \
 <input type='file' id='sample_file_upload' accept='.xlsx'></input><p /> \
@@ -344,8 +343,7 @@ Select a spreadsheet file for upload: <p /> \
 <view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
 
-var lipid_class_table_view = "<div id=\"grey_background_class\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"></div> \
-    <div id=\"class_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
+var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"class_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
                 <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \

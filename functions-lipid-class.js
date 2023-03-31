@@ -10,7 +10,7 @@ function show_class_selector(){
         document.getElementById("viewtable-import-lipid-class").style.height = String(document.getElementById("class_selector_inner").clientHeight) + "px";
     }, true);
     
-    document.getElementById("grey_background_class").style.display = "block";
+    document.getElementById("grey_background").style.display = "block";
     document.getElementById("class_selector_wrapper").style.display = "block";
     document.getElementById("viewtable-import-lipid-class").resize();
 }
@@ -102,7 +102,7 @@ function select_class_selector(){
 
 
 function close_class_selector(){
-    document.getElementById("grey_background_class").style.display = "none";
+    document.getElementById("grey_background").style.display = "none";
     document.getElementById("class_selector_wrapper").style.display = "none";
 }
 
