@@ -1,5 +1,3 @@
-
-
 import sys
 import os
 import time
@@ -2101,6 +2099,8 @@ elif content["command"] == "get_public_link":
 
 
 elif content["command"] == "export_samples":
+    
+    
     if "user_uuid" not in content or "uid" not in content:
         print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
         exit()
@@ -2128,14 +2128,10 @@ elif content["command"] == "export_samples":
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
+        
         from import_export_forms import export_forms_to_worksheet
-        worksheet_filename = export_forms_to_worksheet(table_prefix, "workflow-templates/sample.json", db_cursor, uid, entry_id)
-        
-        with open(worksheet_filename, "rb") as wsf:
-            worksheet = wsf.read()
-        
-        os.remove(worksheet_filename)
-        print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % str(base64.b64encode(worksheet), "utf-8"))
+        worksheet_base64 = export_forms_to_worksheet(table_prefix, "workflow-templates/sample.json", db_cursor, uid, entry_id)
+        print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)
         
     except Exception as e:
         print(str(ErrorCodes.ERROR_ON_EXPORTING_FORMS) + " in %s" % content["command"], e)

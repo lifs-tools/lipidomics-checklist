@@ -5,8 +5,11 @@ from openpyxl.styles import PatternFill, Font, Border, Side
 from openpyxl.formatting.rule import FormulaRule, DifferentialStyle, Rule
 from openpyxl.utils.cell import get_column_letter as gcl
 from openpyxl.worksheet.datavalidation import DataValidation
+from tempfile import NamedTemporaryFile
 import json
 import sqlite3
+import base64
+from io import BytesIO
 
 
 
@@ -226,24 +229,34 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                     
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
 
-    filename = "db/sample_list_%s.xlsx" % uid
-    workbook.save(filename)
-
-    return filename
-
-
-
-
-
-
-
-
-
+        
+    
+    with NamedTemporaryFile() as tmp:
+        workbook.save(tmp.name)
+        output_stream = BytesIO(tmp.read())
+        
+    output_stream = base64.b64encode(output_stream.getvalue())
+    output_stream = str(output_stream, "utf-8")
+    
+    
+    return output_stream
 
 
 
 
 
+
+
+"""
+def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, cursor, uid, main_entry_id):
+    global checked, unchecked
+
+
+
+    t = base64.b64decode(file_base_64)
+    wb = load_workbook(filename=BytesIO(t))
+    sheet = wb.active
+    print(sheet["A1"].value)
 
 
 
@@ -270,5 +283,11 @@ try:
 except Exception as e:
     print("Error in dbconnect", e)
     exit()
-    
 export_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", curr, 2, 156)
+exit()
+    
+with open("Sample-list.txt") as infile:
+    file_base_64 = infile.read().replace("\n", "")
+    
+import_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, "sample", curr, 2, 156)
+"""

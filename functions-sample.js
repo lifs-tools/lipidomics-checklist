@@ -215,7 +215,7 @@ function export_samples(entry_id){
             const tempLink = document.createElement('a');
             tempLink.style.display = 'none';
             tempLink.href = response_text;
-            tempLink.setAttribute('download', "Sample List.pdf");
+            tempLink.setAttribute('download', "Sample-list.xlsx");
             tempLink.setAttribute('target', '_blank');
             document.body.appendChild(tempLink);
             tempLink.click();
@@ -281,12 +281,18 @@ function upload_samples(entry_id){
             }
         }
         
+        var tokens = reader.result.split("base64,");
+        if (tokens.length != 2){
+            print_error("Read file encoding not base 64.");
+            return;
+        }
         
         var request_url = connector_path + "/connector.php";
         xmlhttp_request.open("POST", request_url);
         xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        var request = "command=import_samples&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(reader.result);
+        var request = "command=import_samples&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(tokens[1]);
         xmlhttp_request.send(request);
+        console.log(tokens[1].length);
     }
     reader.readAsDataURL(file);
 }
