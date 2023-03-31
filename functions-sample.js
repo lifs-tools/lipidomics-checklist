@@ -199,12 +199,12 @@ function refresh_sample_view(){
 function export_samples(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("grey_background_index").style.display = "block";
+    document.getElementById("grey_background").style.display = "block";
     document.getElementById("waiting_field").style.display = "block";
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background_index").style.display = "none";
+            document.getElementById("grey_background").style.display = "none";
             document.getElementById("waiting_field").style.display = "none";
             
             response_text = xmlhttp_request.responseText;
