@@ -109,7 +109,7 @@ function update_main_forms(){
                 else {
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
-                    img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background_index').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
+                    img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
                     img_copy.src = connector_path + "/check.png";
                     img_copy.title = "Publish report, click here for more information";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -207,12 +207,12 @@ function delete_main_form(workflow_title, entry_id){
 function download_pdf(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("grey_background_index").style.display = "block";
+    document.getElementById("grey_background").style.display = "block";
     document.getElementById("waiting_field").style.display = "block";
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background_index").style.display = "none";
+            document.getElementById("grey_background").style.display = "none";
             document.getElementById("waiting_field").style.display = "none";
             
             response_text = xmlhttp_request.responseText;
@@ -249,7 +249,7 @@ function publish(){
     var xmlhttp_request = new XMLHttpRequest();
     
     if (document.getElementById("publish-verify-year").value != new Date().getFullYear().toString()){
-        document.getElementById("grey_background_index").style.display = "none";
+        document.getElementById("grey_background").style.display = "none";
         document.getElementById("waiting_field").style.display = "none";
         alert("Incorrect verification.");
         return;
@@ -259,7 +259,7 @@ function publish(){
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background_index").style.display = "none";
+            document.getElementById("grey_background").style.display = "none";
             document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
             document.getElementById("waiting_field").style.display = "none";
             
@@ -349,7 +349,7 @@ function copy_main_form(entry_id){
 
 
 function workflow_show_selector(){
-    document.getElementById("grey_background_index").style.display = "block";
+    document.getElementById("grey_background").style.display = "block";
     document.getElementById("workflow_selector").style.display = "block";
     var workflow_selector = document.getElementById("workflow_selector_wrapper").offsetHeight;
     var window_height = window.innerHeight;
@@ -365,7 +365,7 @@ function workflow_select_selector(){
 
 
 function workflow_close_selector(){
-    document.getElementById("grey_background_index").style.display = "none";
+    document.getElementById("grey_background").style.display = "none";
     document.getElementById("workflow_selector").style.display = "none";
 }
 
@@ -382,8 +382,6 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
         <view-table id=\"viewtable\" columns=\"Report&nbsp;title|Report&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
         <font color='red'><b>*</b></font> Status: partial \
      \
-    <div id=\"grey_background_index\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 110; background-color: rgba(0, 0, 0, 0.4); display: none;\"> \
-    <div id=\"waiting_field\" style=\"top: calc(50% - 28px); left: calc(50% - 58px); position: absolute; background-color: white; border: 1px solid black; display: none;\"><img style=\"display: inline; padding-left: 50px; padding-right: 50px; padding-top: 20px; padding-bottom: 20px;\" src=\"/lipidomics-checklist/loader.gif\" /></div></div> \
     <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
     <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td colspan='2' style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
     <font size='+3'><b>Publication information</b></font></td></tr> \
@@ -401,7 +399,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</td></tr> \
     <tr><td  height='10%' valign='bottom' align='left' style='border: 0px; padding: 5px 25px 25px 25px;'>Current year:&nbsp;&nbsp;<input type='text' id='publish-verify-year' size=5 /></td> \
     <td height='10%' valign='bottom' align='right' style='border: 0px; padding: 5px 25px 25px 25px;'> \
-    <button onclick='document.getElementById(\"grey_background_index\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
+    <button onclick='document.getElementById(\"grey_background\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
     </div> \
     <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"workflow_selector_wrapper\" style=\"left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;\"> \
