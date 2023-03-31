@@ -132,6 +132,7 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                 cell.font = Font(bold = True)
                 sheet[cell_id] = field["label"]
                 name_to_field[field_name] = field
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
                 for choice in field["choice"]:
                     choice_name = choice["name"]
                     sheet.column_dimensions[gcl(col_num)].width = len(choice["label"]) + 4
@@ -245,14 +246,28 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
 
 
 
-def process_condition(conditions_text):
-    conditions
+def process_condition(conditions_text, field_types):
+    conditions = conditions_text.split("|")
+    conditions = [condition.split("&") for condition in conditions]
+    for i, condition_and in enumerate(conditions):
+        for j, condition in enumerate(condition_and):
+            split_sign = "=" if condition.find("=") > -1 else "~"
+            key, value = condition.split(split_sign)
+            field_type = field_types[key]
+            if field_type == "text":
+                value = value.strip('"')
+            elif field_type == "number":
+                value = float(value)
+            elif field_type in {"select", "multiple"}:
+                value = int(value)
+            
+            conditions[i][j] = [key, split_sign, value]
     
     return conditions
 
 
 
-def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, cursor, uid, main_entry_id):
+def import_forms_from_worksheet(table_prefix, template, file_base_64, form_type, cursor, uid, main_entry_id):
     global checked, unchecked
 
     t = base64.b64decode(file_base_64)
@@ -262,32 +277,53 @@ def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, c
     
     name_to_data_validation, label_to_name = {}, {}
     name_to_condition, multiple_names = {}, set()
+    field_types, required_names = {}, []
+    field_visible, choice_to_field, names_list = {}, {}, []
 
     field_template = json.loads(open(template).read())
     for page in field_template["pages"]:
         for field in page["content"]:
             if "name" not in field or "type" not in field: continue
             field_name = field["name"]
+            field_types[field_name] = field["type"]
+            field_visible[field_name] = True
+            names_list.append(field_name)
         
             if field["type"] == "text":
                 label_to_name[field["label"]] = field_name
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
+                if "required" in field and field["required"] == 1: required_names.append(field_name)
                 
         
             elif field["type"] == "number":
                 label_to_name[field["label"]] = field_name
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
+                if "required" in field and field["required"] == 1: required_names.append(field_name)
                 
                 
             elif field["type"] == "select":
                 label_to_name[field["label"]] = field_name
+                if "required" in field and field["required"] == 1: required_names.append(field_name)
+                for choice in field["choice"]:
+                    field_types[choice["name"]] = field["type"]
+                    choice_to_field[choice["name"]] = field_name
                 
                 
             elif field["type"] == "multiple":
+                if "required" in field and field["required"] == 1: required_names.append(field_name)
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
                 for choice in field["choice"]:
                     choice_name = choice["name"]
                     multiple_names.add(choice_name)
                     label_to_name["%s---%s" % (field["label"], choice["label"])] = choice_name
+                    field_types[choice_name] = field["type"]
+                    choice_to_field[choice_name] = field_name
+    
+    
+    for name in name_to_condition:
+        name_to_condition[name] = process_condition(name_to_condition[name], field_types)
+    
+    
     
     
     # determine column_id / label pair
@@ -328,7 +364,8 @@ def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, c
         found_entry = False
         
         name_to_field = {}
-        is_complete = False
+        is_complete = True
+        unset_names = []
         
         # load fresh template
         field_template = json.loads(open(template).read())
@@ -344,7 +381,9 @@ def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, c
         for col_id, label in column_labels:
             name = label_to_name[label]
             value = sheet["%s%i" % (col_id, row_num)].value
-            if value == None: continue
+            if value == None:
+                unset_names.append(name)
+                continue
             
             if name in multiple_names:
                 if name not in name_to_field: continue
@@ -364,7 +403,7 @@ def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, c
                     try:
                         field["value"] = float(value)
                     except:
-                        pass
+                        unset_names.append(name)
                     
                 elif field["type"] == "select":
                     found_choice = False
@@ -377,15 +416,52 @@ def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, c
                             choice["value"] = 0
                             
                     if not found_choice and len(field["choice"]) > 0:
-                        field["choice"][0].value = 1
+                        field["choice"][0]["value"] = 1
+                        unset_names.append(name)
                     
     
     
-        # check if form is complete, i.e., all required fields without conditions are filled
-        # as well as all fields where the conditions are met
-        # TODO: write
-        
         if found_entry:
+            
+            # check if form is complete, i.e., all required fields without conditions are filled
+            # as well as all fields where the conditions are met
+            for field_name in names_list:
+                if field_name not in name_to_condition: continue
+                field_visible[field_name] = False
+                for condition_and in name_to_condition[field_name]:
+                    condition_met = True
+                    for key, operator, value in condition_and:
+                        conditional_field = choice_to_field[key]
+                        condition_met &= (conditional_field in field_visible and field_visible[conditional_field]) and ((operator == "=" and name_to_field[key]["value"] == value) or (operator == "~" and name_to_field[key]["value"] != value))
+                    
+                    field_visible[field_name] |= condition_met
+                    
+            for name in unset_names:
+                if name in field_visible and field_visible[name]: is_complete = False
+                    
+            
+            for name in required_names:
+                if name not in field_visible or not field_visible[name]: continue
+            
+                field = name_to_field[name]
+                
+                if field["type"] == "text":
+                    if field["value"] == "":
+                        is_complete = False
+                        break
+                
+                elif field["type"] == "number":
+                    if field["value"] == "" or field["value"] == None:
+                        field["value"] = 0
+                        print(row_num, field["name"])
+                        break
+                
+                elif field["type"] == "multiple":
+                    any_set = sum([choice["value"] for choice in field["choice"]])
+                    if any_set == 0:
+                        is_complete = False
+                        break
+            
             skipped_empty_rows = 0
             imported_forms.append([field_template, is_complete])
             
@@ -416,9 +492,12 @@ if __name__ == "__main__":
         print("Error in dbconnect", e)
         exit()
         
-    with open("Sample-list.txt") as infile:
-        file_base_64 = infile.read().replace("\n", "")
         
-    imp_forms = import_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, "sample", curr, 2, 156)
-    print(imp_forms)
+        
+        
+    with open("Sample-list.xlsx", "rb") as infile:
+        file_base_64 = base64.b64encode(infile.read())
+    imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, "sample", curr, 2, 156)
+    
+    for form in imp_forms: print(form[1])
 

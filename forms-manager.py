@@ -57,6 +57,7 @@ class ErrorCodes(Enum):
     ERROR_ON_GETTING_REPORT_LINK = -35
     ERROR_ON_EXECUTING_FUNCTION = -36
     ERROR_ON_EXPORTING_FORMS = -37
+    ERROR_ON_IMPORTING_FORMS = -38
     
     
 def dict_factory(cursor, row):
@@ -2140,5 +2141,99 @@ elif content["command"] == "export_samples":
         if conn is not None: conn.close()
         
      
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
 elif content["command"] == "import_samples":
-    print("ErrorCodes.FUNCTION_NOT_YET_IMPLEMENTED")
+    if "user_uuid" not in content or "uid" not in content:
+        print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+        exit()
+    user_uuid = content["user_uuid"]
+    uid = int(content["uid"])
+    # check if main form entry id is within the request and an integer
+
+    if "entry_id" not in content:
+        print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
+        exit()
+    try:
+        main_entry_id = int(get_decrypted_entry(content["entry_id"]))
+    except:
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+        exit()
+    if main_entry_id < 0:
+        print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+        exit()
+        
+    if "content" not in content:
+        print(str(ErrorCodes.NO_CONTENT) + " in %s" % content["command"])
+        exit()
+    
+    worksheet_base64 = content["content"]
+    force_upload = "force_upload" in content
+    
+    
+    try:
+        # connect with the database
+        conn, db_cursor = dbconnect()
+        
+        if not check_entry_id(main_entry_id, uid, db_cursor, "main"):
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        
+        # checking if main form is partial or completed
+        status, request = check_status(main_entry_id, uid, db_cursor, is_in = {published_label})
+            
+        
+        from import_export_forms import import_forms_from_worksheet
+        forms = import_forms_from_worksheet(table_prefix, "workflow-templates/sample.json", worksheet_base64, "sample", db_cursor, uid, main_entry_id)
+        
+        # all complete
+        if sum(form[1] for form in forms) == len(forms) or force_upload:
+            for field_template, is_complete in forms:
+                field_template["version"] = version
+                field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                field_template = json.dumps(field_template)
+                
+                status_label = completed_label if is_complete else partial_label
+                
+                # add sample form entry
+                sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, DATETIME('now'), ?);" % table_prefix
+                values = (sample_form_id, uid, status_label, field_template, user_uuid)
+                db_cursor.execute(sql, values)
+                conn.commit()
+                
+                sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ? and status = ?;" % table_prefix
+                db_cursor.execute(sql, (uid, sample_form_id, status_label))
+                request = db_cursor.fetchone()
+                new_sample_entry_id = request["eid"]
+                
+                # add main entry id and sample entry id pair into DB
+                sql = "INSERT INTO %sconnect_sample (main_form_entry_id, sample_form_entry_id) VALUES (?, ?);" % table_prefix
+                db_cursor.execute(sql, (main_entry_id, new_sample_entry_id))
+                conn.commit()
+                
+                if status == completed_label:
+                    sql = "UPDATE %sentries SET status = ? WHERE id = ? AND user_id = ?;" % table_prefix
+                    db_cursor.execute(sql, (partial_label, main_entry_id, uid))
+                    conn.commit()
+            
+            print(0)
+            
+        else:
+            print("Warning: the following rows are incomplete: %s" % [(i + 3) for i, form in enumerate(forms) if not form[1]])
+                
+        
+        
+    except Exception as e:
+        print(str(ErrorCodes.ERROR_ON_IMPORTING_FORMS) + " in %s" % content["command"], e)
+
+    finally:
+        if conn is not None: conn.close()

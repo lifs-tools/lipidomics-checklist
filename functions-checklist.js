@@ -622,7 +622,7 @@ function check_conditions(){
                 var operator = single_condition[1];
                 var value = single_condition[2];
                 var conditional_field = choice_to_field[key];
-                condition_met &= (conditional_field in field_visible && field_visible[conditional_field]) && (operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value);
+                condition_met &= (conditional_field in field_visible && field_visible[conditional_field]) && ((operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value));
             }
             field_visible[field_name] |= condition_met;
         }
