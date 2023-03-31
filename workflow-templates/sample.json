@@ -28,7 +28,7 @@
 
 {"label": "Freeze-thaw cycles", "name": "freeze-thaw_cycles", "type": "number", "required": 1, "value": 0, "description": "How many freeze-thaw cycles underwent the sample?", "min": 0.0, "condition": "provided_information#freeze-thaw_cycles=1"},
 
-{"label": "Additives", "name": "additives", "type": "select", "required": 0, "choice": [{"name": "additives#bht", "label": "BHT", "value": 0}, {"name": "additives#lipase_inhib", "label": "lipase Inhibitors", "value": 0}, {"name": "additives#none", "label": "None", "value": 1}, {"name": "additives#other", "label": "Other", "value": 0}], "description": "Were the samples stored with additional preservenats or in buffers/solvents?\r\n\r\n\r\n\r\n"},
+{"label": "Additives", "name": "additives", "type": "select", "required": 0, "choice": [{"name": "additives#bht", "label": "BHT", "value": 0}, {"name": "additives#lipase_inhib", "label": "lipase Inhibitors", "value": 0}, {"name": "additives#none", "label": "None", "value": 1}, {"name": "additives#other", "label": "Other", "value": 0}], "description": "Were the samples stored with additional preservenats or in buffers/solvents?"},
 
 {"label": "Other additives", "name": "other_additives", "type": "text", "required": 1, "value": "", "description": "Which other additives were used?", "condition": "additives#other=1"},
 
