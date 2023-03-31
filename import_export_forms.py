@@ -14,6 +14,7 @@ from io import BytesIO
 
 
 checked, unchecked = "[X]", "[  ]"
+fake_comma = chr(11794)
 
 def create_condition_formula(condition, name_to_column, name_to_field, choice_to_field, row_num):
     global checked, unchecked
@@ -109,7 +110,7 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                 cell.font = Font(bold = True)
                 sheet[cell_id] = field["label"]
                 sheet.column_dimensions[gcl(col_num)].width = len(field["label"]) + 4
-                formula = ",".join(choice["label"] for choice in field["choice"])
+                formula = ",".join(choice["label"].replace(",", fake_comma) for choice in field["choice"])
                 dv = DataValidation(type="list", formula1='"%s"' % formula, allow_blank = False)
                 name_to_data_validation[field_name] = dv
                 name_to_column[field_name] = gcl(col_num)
@@ -229,15 +230,12 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                     
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
 
-        
-    
     with NamedTemporaryFile() as tmp:
         workbook.save(tmp.name)
         output_stream = BytesIO(tmp.read())
         
     output_stream = base64.b64encode(output_stream.getvalue())
     output_stream = str(output_stream, "utf-8")
-    
     
     return output_stream
 
@@ -247,47 +245,180 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
 
 
 
-"""
+def process_condition(conditions_text):
+    conditions
+    
+    return conditions
+
+
+
 def import_forms_to_worksheet(table_prefix, template, file_base_64, form_type, cursor, uid, main_entry_id):
     global checked, unchecked
-
-
 
     t = base64.b64decode(file_base_64)
     wb = load_workbook(filename=BytesIO(t))
     sheet = wb.active
-    print(sheet["A1"].value)
 
-
-
-
-
-
-
-
-
-
-
-
-
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-try:
-    conn = sqlite3.connect("db/checklist.sqlite")
-    conn.row_factory = dict_factory
-    curr = conn.cursor()
-except Exception as e:
-    print("Error in dbconnect", e)
-    exit()
-export_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", curr, 2, 156)
-exit()
     
-with open("Sample-list.txt") as infile:
-    file_base_64 = infile.read().replace("\n", "")
+    name_to_data_validation, label_to_name = {}, {}
+    name_to_condition, multiple_names = {}, set()
+
+    field_template = json.loads(open(template).read())
+    for page in field_template["pages"]:
+        for field in page["content"]:
+            if "name" not in field or "type" not in field: continue
+            field_name = field["name"]
+        
+            if field["type"] == "text":
+                label_to_name[field["label"]] = field_name
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                
+        
+            elif field["type"] == "number":
+                label_to_name[field["label"]] = field_name
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                
+                
+            elif field["type"] == "select":
+                label_to_name[field["label"]] = field_name
+                
+                
+            elif field["type"] == "multiple":
+                for choice in field["choice"]:
+                    choice_name = choice["name"]
+                    multiple_names.add(choice_name)
+                    label_to_name["%s---%s" % (field["label"], choice["label"])] = choice_name
     
-import_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, "sample", curr, 2, 156)
-"""
+    
+    # determine column_id / label pair
+    column_labels = []
+    skipped_empty_cols = 0
+    col_num = 1
+    previous_label = None
+    imported_forms = []
+    while col_num < 10000:
+        if skipped_empty_cols >= 5: break
+        
+        if sheet["%s1" % gcl(col_num)].value == None and sheet["%s2" % gcl(col_num)].value == None:
+            skipped_empty_cols += 1
+            col_num += 1
+            continue
+        
+        skipped_empty_cols = 0
+        
+        if sheet["%s2" % gcl(col_num)].value != None:
+            if sheet["%s1" % gcl(col_num)].value != None:
+                label = sheet["%s1" % gcl(col_num)].value + "---" + sheet["%s2" % gcl(col_num)].value
+                previous_label = sheet["%s1" % gcl(col_num)].value
+            else:
+                label = previous_label + "---" + sheet["%s2" % gcl(col_num)].value
+        
+        else:
+            label = sheet["%s1" % gcl(col_num)].value
+            
+        if label in label_to_name: column_labels.append([gcl(col_num), label])
+        col_num += 1
+        
+        
+    # go through rows
+    row_num = 3
+    skipped_empty_rows = 0
+    while row_num < 10000:
+        if skipped_empty_rows >= 5: break
+        found_entry = False
+        
+        name_to_field = {}
+        is_complete = False
+        
+        # load fresh template
+        field_template = json.loads(open(template).read())
+        for page in field_template["pages"]:
+            for field in page["content"]:
+                if "name" not in field or "type" not in field: continue
+                name_to_field[field["name"]] = field
+                    
+                if field["type"] in {"select", "multiple"}:
+                    for choice in field["choice"]: name_to_field[choice["name"]] = choice
+        
+        # add all information from row into fields
+        for col_id, label in column_labels:
+            name = label_to_name[label]
+            value = sheet["%s%i" % (col_id, row_num)].value
+            if value == None: continue
+            
+            if name in multiple_names:
+                if name not in name_to_field: continue
+                field = name_to_field[name]
+                found_entry = True
+                field["value"] = 1 if value == checked else 0
+            
+            else:
+                if name not in name_to_field: continue
+                field = name_to_field[name]
+                found_entry = True
+                
+                if field["type"] == "text":
+                    field["value"] = value
+                    
+                elif field["type"] == "number":
+                    try:
+                        field["value"] = float(value)
+                    except:
+                        pass
+                    
+                elif field["type"] == "select":
+                    found_choice = False
+                    value = value.replace(fake_comma, ",")
+                    for choice in field["choice"]:
+                        if choice["label"] == value:
+                            choice["value"] = 1
+                            found_choice = True
+                        else:
+                            choice["value"] = 0
+                            
+                    if not found_choice and len(field["choice"]) > 0:
+                        field["choice"][0].value = 1
+                    
+    
+    
+        # check if form is complete, i.e., all required fields without conditions are filled
+        # as well as all fields where the conditions are met
+        # TODO: write
+        
+        if found_entry:
+            skipped_empty_rows = 0
+            imported_forms.append([field_template, is_complete])
+            
+        else: skipped_empty_rows += 1
+        row_num += 1
+        
+    return imported_forms
+        
+        
+        
+        
+        
+        
+
+
+if __name__ == "__main__":
+    def dict_factory(cursor, row):
+        d = {}
+        for idx, col in enumerate(cursor.description):
+            d[col[0]] = row[idx]
+        return d
+
+    try:
+        conn = sqlite3.connect("db/checklist.sqlite")
+        conn.row_factory = dict_factory
+        curr = conn.cursor()
+    except Exception as e:
+        print("Error in dbconnect", e)
+        exit()
+        
+    with open("Sample-list.txt") as infile:
+        file_base_64 = infile.read().replace("\n", "")
+        
+    imp_forms = import_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, "sample", curr, 2, 156)
+    print(imp_forms)
+

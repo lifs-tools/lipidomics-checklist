@@ -43,6 +43,8 @@ function load_data(content){
     }
     
     check_fields = {};
+    label_set = new Set();
+    
     for (page of lipidomics_forms_content["pages"]){
         for (field of page["content"]){
             // add field info into field map
@@ -69,6 +71,30 @@ function load_data(content){
             }
             else {
                 choice_to_field[field_name] = field_name;
+            }
+            
+            if (field["type"] == "multiple"){
+                for (choice of field["choice"]){
+                    label = field["label"] + "---" + choice["label"];
+                    if (!label_set.has(label)){
+                        label_set.add(label);
+                    }
+                    else {
+                        alert("Corrupted form, labels are not allowed to be used twice: \"" + choice["label"] + "\".");
+                        form_enabled = false;
+                        break;
+                    }
+                }
+            }
+            else if (field["type"] == "text" || field["type"] == "number" || field["type"] == "select"){
+                if (!label_set.has(field["label"])){
+                    label_set.add(field["label"]);
+                }
+                else {
+                    alert("Corrupted form, labels are not allowed to be used twice: \"" + field["label"] + "\".");
+                    form_enabled = false;
+                    break;
+                }
             }
             
             // check for any logical conditions
@@ -133,6 +159,7 @@ function load_data(content){
             }
         }
     }
+    
     
 
     for (field_name in field_map){
