@@ -234,6 +234,7 @@ function export_samples(entry_id){
 function show_samples_importer(){
     document.getElementById("grey_background").style.display = "block";
     document.getElementById("import_samples_from_file_form").style.display = "block";
+    document.getElementById("sample_file_upload").value = null;
 }
 
 
@@ -246,7 +247,10 @@ function hide_samples_importer(){
 
 
 
-function upload_samples(entry_id){
+function upload_samples(entry_id, force_upload){
+    if (force_upload == undefined) force_upload = false;
+    document.getElementById("grey_background").style.display = "block";
+    
     document.getElementById("import_samples_from_file_form").style.display = "none";
     if (entry_id == undefined || entry_id.length == 0){
         document.getElementById("grey_background").style.display = "none";
@@ -277,7 +281,13 @@ function upload_samples(entry_id){
                     print_error(response_text);
                     return;
                 }
-                // TODO: implement
+                else if (!force_upload && response_text.startsWith("Warning")){
+                    if (confirm(response_text + "\n\nDo you want to continue the import which includes partial sample forms?")){
+                        upload_samples(entry_id, true);
+                        return;
+                    }
+                }
+                update_sample_forms();
             }
         }
         
@@ -290,9 +300,8 @@ function upload_samples(entry_id){
         var request_url = connector_path + "/connector.php";
         xmlhttp_request.open("POST", request_url);
         xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        var request = "command=import_samples&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(tokens[1]);
+        var request = "command=import_samples" + (force_upload ? "&force_upload=1" : "") + "&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(tokens[1]);
         xmlhttp_request.send(request);
-        console.log(tokens[1].length);
     }
     reader.readAsDataURL(file);
 }
