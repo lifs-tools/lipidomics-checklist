@@ -2089,16 +2089,18 @@ try:
             if form_type == FormType.SAMPLE:
                 sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
                 template_file = "workflow-templates/sample.json"
+                sheet_name = "Sample forms"
             
             else:
                 sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
                 template_file = "workflow-templates/lipid-class.json"
+                sheet_name = "Lipid class forms"
                 
             db_cursor.execute(sql, (entry_id, uid))
             fields = [row["fields"] for row in db_cursor.fetchall()]
             
             from ImportExportForms import export_forms_to_worksheet
-            worksheet_base64 = export_forms_to_worksheet(template_file, fields)
+            worksheet_base64 = export_forms_to_worksheet(template_file, fields, sheet_name)
             print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)
             
         except Exception as e:
