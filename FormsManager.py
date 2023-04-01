@@ -6,58 +6,16 @@ import json
 import pysodium
 import base64
 from datetime import datetime
-from enum import Enum
 from urllib import parse
 from urllib.parse import unquote, unquote_plus
 import hashlib
-import create_report
+import CreateReport
 import sqlite3
 from random import randint
 import requests
-import db.checklist_config as cfg
+import db.ChecklistConfig as cfg
+from FormsEnum import *
 
-
-
-
-class ErrorCodes(Enum):
-    NO_DB_CONNECTION = -1
-    NO_COMMAND_ARGUMENT = -2
-    INVALID_COMMAND_ARGUMENT = -3
-    NO_USER_UUID = -4
-    INVALID_USER_UUID = -5
-    ERROR_ON_GETTING_MAIN_FORMS = -6
-    NO_MAIN_ENTRY_ID = -7
-    INVALID_MAIN_ENTRY_ID = -8
-    ERROR_ON_GETTING_CLASS_FORMS = -9
-    ERROR_ON_ADDING_MAIN_FORMS = -10
-    ERROR_ON_ADDING_CLASS_FORMS = -11
-    NO_CONTENT = -12
-    ERROR_ON_DELETING_MAIN_FORM = -13
-    ERROR_ON_COPYING_MAIN_FORM = -14
-    NO_FORM_TYPE = -15
-    NO_CLASS_ENTRY_ID = -16
-    INVALID_CLASS_ENTRY_ID = -17
-    ERROR_ON_CREATING_PDF = -18
-    ERROR_ON_ADDING_SAMPLE_FORMS = -19
-    MAIN_FORM_COMPLETED = -20
-    ERROR_ON_GETTING_SAMPLE_FORMS = -21
-    INVALID_SAMPLE_ENTRY_ID = -22
-    ERROR_ON_DELETING_CLASS_FORM = -23
-    ERROR_ON_DELETING_SAMPLE_FORM = -24
-    INVALID_CLASS_SAMPLE_ID = -25
-    NO_SAMPLE_ENTRY_ID = -26
-    WPFORMS_CONFIG_FILE_UNREADABLE = -27
-    NO_WORKFLOW_TYPE = -28
-    INCORRECT_WORKFLOW_TYPE = -29
-    NO_DATABASE_CONNECTION = -30
-    ERROR_ON_DECODING_FORM = -31
-    PUBLISHED_ERROR = -32
-    PUBLISHING_FAILED = -33
-    REPORT_NOT_CREATED = -34
-    ERROR_ON_GETTING_REPORT_LINK = -35
-    ERROR_ON_EXECUTING_FUNCTION = -36
-    ERROR_ON_EXPORTING_FORMS = -37
-    ERROR_ON_IMPORTING_FORMS = -38
     
     
 def dict_factory(cursor, row):
@@ -76,7 +34,8 @@ all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
                 "complete_partial_form",
                 "get_pdf", "publish", "get_public_link",
                 "get_form_content", "update_form_content",
-                "export_samples", "import_samples"}
+                "export_samples", "import_samples",
+                "export_lipid_class", "import_lipid_class"}
 conn = None
 table_prefix = "TCrpQ_"
 version = "v2.0.0"
@@ -1688,7 +1647,7 @@ elif content["command"] == "get_pdf":
             # creating the tex and pdf file
             report_file = "completed_documents/report-%s.tex" % hash_value
             
-            create_report.create_report(db_cursor, table_prefix, uid, entry_id, report_file, version)
+            CreateReport.create_report(db_cursor, table_prefix, uid, entry_id, report_file, version)
             p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents %s" % report_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
             
             output = p.stdout.read() # execution
@@ -2099,7 +2058,7 @@ elif content["command"] == "get_public_link":
 
 
 
-elif content["command"] == "export_samples":
+elif content["command"] in {"export_samples", "export_lipid_class"}:
     
     
     if "user_uuid" not in content or "uid" not in content:
@@ -2129,9 +2088,11 @@ elif content["command"] == "export_samples":
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
+        form_type = FormType.LIPID_CLASS if content["command"] == "export_lipid_class" else FormType.SAMPLE
+        template_file = "workflow-templates/sample.json" if form_type == FormType.SAMPLE else "workflow-templates/lipid-class.json"
         
-        from import_export_forms import export_forms_to_worksheet
-        worksheet_base64 = export_forms_to_worksheet(table_prefix, "workflow-templates/sample.json", db_cursor, uid, entry_id)
+        from ImportExportForms import export_forms_to_worksheet
+        worksheet_base64 = export_forms_to_worksheet(table_prefix, template_file, form_type, db_cursor, uid, entry_id)
         print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)
         
     except Exception as e:

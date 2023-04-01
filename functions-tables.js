@@ -343,6 +343,8 @@ Select a spreadsheet file for upload: <p /> \
 <view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
 
+
+
 var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
         <div id=\"class_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
             <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
@@ -359,9 +361,17 @@ var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0p
             </div> \
         </div> \
     </div> \
+<div id='import_lipid_class_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
+<table width='100%' height='100%'><tr><td width='100%' height='100%' align='center' valign='middle'> \
+Select a spreadsheet file for upload: <p /> \
+<input type='file' id='lipid_class_file_upload' accept='.xlsx'></input><p /> \
+<button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
+</td></tr></table></div> \
 <div style=\"display: inline-block;\"> \
-    <div id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</div>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <div id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</div> \
+    <a id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"export_lipid_class_forms\" title=\"You can export lipid class entries into a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"export_lipid_class(entry_id);\">Export lipid classes to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"upload_lipid_class_forms\" title=\"You can import lipid_class entries from a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</a> \
 </div> \
 <div id=\"result_box\"></div>\
 <view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";

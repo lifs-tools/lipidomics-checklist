@@ -10,7 +10,7 @@ import json
 import sqlite3
 import base64
 from io import BytesIO
-
+from FormsEnum import *
 
 
 checked, unchecked = "[X]", "[  ]"
@@ -56,7 +56,10 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
 
 
 
-def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id):
+
+
+
+def export_forms_to_worksheet(table_prefix, template, form_type, cursor, uid, main_entry_id):
     global checked, unchecked
     
     field_template = json.loads(open(template).read())
@@ -69,6 +72,13 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
 
 
     col_num = 1
+    cell_id = "%s1" % gcl(col_num)
+    sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+    cell = sheet[cell_id]
+    cell.alignment = Alignment(horizontal="center", vertical="center")
+    cell.font = Font(bold = True)
+    sheet[cell_id] = "ID"
+    col_num = 2
     for page in field_template["pages"]:
         for field in page["content"]:
             if "name" not in field or "type" not in field: continue
@@ -116,6 +126,7 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                 name_to_column[field_name] = gcl(col_num)
                 name_to_select[field_name] = {choice["label"] for choice in field["choice"]}
                 name_to_field[field_name] = field
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
                 columns.append(field_name)
                 for choice in field["choice"]:
                     name_to_column[choice["name"]] = gcl(col_num)
@@ -148,10 +159,12 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                     choice_to_field[choice_name] = field_name
                     col_num += 1
 
-
-
+    if form_type == FormType.SAMPLE:
+        sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
+    
+    else:
+        sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
         
-    sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
     cursor.execute(sql, (main_entry_id, uid))
     fields = [row["fields"] for row in cursor.fetchall()]
 
@@ -159,6 +172,7 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
     
     row_num = 3  
     if len(fields) == 0:
+        sheet["A%i" % row_num].value = "=ROW() - 2"
         for name in columns:
             col_name = name_to_column[name]
             cell_id = "%s%i" % (col_name, row_num)
@@ -176,18 +190,19 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
         
         
     else:
-        for sample in fields:
-            sample_name_to_field = {}
+        for form in fields:
+            form_name_to_field = {}
             
-            for page in json.loads(sample)["pages"]:
+            for page in json.loads(form)["pages"]:
                 for field in page["content"]:
                     if "name" not in field or "type" not in field: continue
-                    sample_name_to_field[field["name"]] = field
+                    form_name_to_field[field["name"]] = field
                     if "choice" in field:
                         for choice in field["choice"]:
-                            sample_name_to_field[choice["name"]] = choice
+                            form_name_to_field[choice["name"]] = choice
                             
-                            
+              
+            sheet["A%i" % row_num].value = "=ROW() - 2"              
             for name in columns:
                 col_name = name_to_column[name]
                 cell_id = "%s%i" % (col_name, row_num)
@@ -205,18 +220,18 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                 
                 
                 # fill column with values
-                if name not in sample_name_to_field: continue
-                field = sample_name_to_field[name]
+                if name not in form_name_to_field: continue
+                field = form_name_to_field[name]
                 
                 if name in multiple_names:
-                    sheet[cell_id] = checked if sample_name_to_field[name]["value"] == 1 else unchecked
+                    sheet[cell_id].value = checked if form_name_to_field[name]["value"] == 1 else unchecked
                     
                 else:
                     if field["type"] == "text" and name_to_field[name]["type"] == "text":
-                        sheet[cell_id] = field["value"]
+                        sheet[cell_id].value = field["value"]
                     
                     elif field["type"] == "number" and name_to_field[name]["type"] == "number":
-                        sheet[cell_id] = field["value"]
+                        sheet[cell_id].value = field["value"]
                     
                     elif field["type"] == "select" and name_to_field[name]["type"] == "select":
                         label = None
@@ -224,7 +239,7 @@ def export_forms_to_worksheet(table_prefix, template, cursor, uid, main_entry_id
                             if choice["value"] == 1:
                                 label = choice["label"]
                                 break
-                        sheet[cell_id] = label if name in name_to_select and label in name_to_select[name] else ""
+                        sheet[cell_id].value = label if name in name_to_select and label in name_to_select[name] else ""
                 
             row_num += 1
                     
@@ -267,7 +282,7 @@ def process_condition(conditions_text, field_types):
 
 
 
-def import_forms_from_worksheet(table_prefix, template, file_base_64, form_type, cursor, uid, main_entry_id):
+def import_forms_from_worksheet(table_prefix, template, file_base_64, cursor, uid, main_entry_id):
     global checked, unchecked
 
     t = base64.b64decode(file_base_64)
@@ -303,6 +318,7 @@ def import_forms_from_worksheet(table_prefix, template, file_base_64, form_type,
                 
             elif field["type"] == "select":
                 label_to_name[field["label"]] = field_name
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
                 if "required" in field and field["required"] == 1: required_names.append(field_name)
                 for choice in field["choice"]:
                     field_types[choice["name"]] = field["type"]
@@ -492,12 +508,17 @@ if __name__ == "__main__":
         print("Error in dbconnect", e)
         exit()
         
+       
+    sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", FormType.LIPID_CLASS, curr, 2, 156)
+    with open("text.xlsx", "wb") as out:
+        out.write(base64.b64decode(sheet_b64))
+    
         
-        
-        
+    """
     with open("Sample-list.xlsx", "rb") as infile:
         file_base_64 = base64.b64encode(infile.read())
-    imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, "sample", curr, 2, 156)
+    imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, curr, 2, 156)
     
     for form in imp_forms: print(form[1])
+    """
 

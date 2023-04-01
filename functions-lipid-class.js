@@ -147,11 +147,11 @@ function update_class_forms() {
                 var trb = [];
                 table_row.push(trb);
                 if (row["status"] == "partial"){
-                    has_partial_samples = true;
+                    has_partial_lipid_class = true;
                     
                     var img_continue = document.createElement("img");
                     trb.push(img_continue);
-                    img_continue.setAttribute("onclick", "refresh_sample_view(); show_lipid_classlist('" + row["entry_id"] + "');");
+                    img_continue.setAttribute("onclick", "refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "');");
                     img_continue.src = connector_path + "/pencil.png";
                     img_continue.title = "Continue lipid class";
                     img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -160,7 +160,7 @@ function update_class_forms() {
                     
                     var img_update = document.createElement("img");
                     trb.push(img_update);
-                    img_update.setAttribute("onclick", "refresh_sample_view(); show_lipid_classlist('" + row["entry_id"] + "');");
+                    img_update.setAttribute("onclick", "refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "');");
                     img_update.src = connector_path + "/pencil.png";
                     img_update.title = "Update lipid class";
                     img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
@@ -174,7 +174,7 @@ function update_class_forms() {
                 }
                 var img_delete = document.createElement("img");
                 trb.push(img_delete);
-                img_delete.setAttribute("onclick", "refresh_sample_view(); delete_class_form('" + row["title"] + "', '" + row["entry_id"] + "');");
+                img_delete.setAttribute("onclick", "refresh_lipid_class_view(); delete_class_form('" + row["title"] + "', '" + row["entry_id"] + "');");
                 img_delete.src = connector_path + "/trashbin.png";
                 img_delete.title = "Delete lipid class";
                 img_delete.style = "cursor: pointer; height: 20px;";
@@ -192,6 +192,121 @@ function update_class_forms() {
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
+
+
+
+
+function export_lipid_class(entry_id){
+    if (entry_id == undefined || entry_id.length == 0) return;
+    var xmlhttp_request = new XMLHttpRequest();
+    document.getElementById("grey_background").style.display = "block";
+    document.getElementById("waiting_field").style.display = "block";
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            document.getElementById("grey_background").style.display = "none";
+            document.getElementById("waiting_field").style.display = "none";
+            
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+            const tempLink = document.createElement('a');
+            tempLink.style.display = 'none';
+            tempLink.href = response_text;
+            tempLink.setAttribute('download', "Lipid-class-list.xlsx");
+            tempLink.setAttribute('target', '_blank');
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=export_lipid_class&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
+
+
+
+
+function show_lipid_class_importer(){
+    document.getElementById("grey_background").style.display = "block";
+    document.getElementById("import_lipid_class_from_file_form").style.display = "block";
+    document.getElementById("lipid_class_file_upload").value = null;
+}
+
+
+
+function hide_lipid_class_importer(){
+    document.getElementById("grey_background").style.display = "none";
+    document.getElementById("import_lipid_class_from_file_form").style.display = "none";
+}
+
+
+
+
+function upload_lipid_class(entry_id, force_upload){
+    if (force_upload == undefined) force_upload = false;
+    document.getElementById("grey_background").style.display = "block";
+    
+    document.getElementById("import_lipid_class_from_file_form").style.display = "none";
+    if (entry_id == undefined || entry_id.length == 0){
+        document.getElementById("grey_background").style.display = "none";
+        return;
+    }
+    document.getElementById("waiting_field").style.display = "block";
+    
+    
+    var files = document.getElementById("lipid_class_file_upload");
+    if (files.files.length == 0){
+        alert("Warning: no file selected for upload!");
+        document.getElementById("grey_background").style.display = "none";
+        return;
+    }
+    
+    
+    var file = files.files[0];
+    var reader = new FileReader();
+    reader.onload = function(){
+        var xmlhttp_request = new XMLHttpRequest();
+        xmlhttp_request.onreadystatechange = function() {
+            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+                document.getElementById("grey_background").style.display = "none";
+                document.getElementById("waiting_field").style.display = "block";
+                
+                response_text = xmlhttp_request.responseText;
+                if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                    print_error(response_text);
+                    return;
+                }
+                else if (!force_upload && response_text.startsWith("Warning")){
+                    if (confirm(response_text + "\n\nDo you want to continue the import which includes partial lipid class forms?")){
+                        upload_lipid_class(entry_id, true);
+                        return;
+                    }
+                }
+                update_class_forms();
+            }
+        }
+        
+        var tokens = reader.result.split("base64,");
+        if (tokens.length != 2){
+            print_error("Read file encoding not base 64.");
+            return;
+        }
+        
+        var request_url = connector_path + "/connector.php";
+        xmlhttp_request.open("POST", request_url);
+        xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        var request = "command=import_lipid_class" + (force_upload ? "&force_upload=1" : "") + "&entry_id=" + encodeURIComponent(entry_id) + "&content=" + encodeURIComponent(tokens[1]);
+        xmlhttp_request.send(request);
+    }
+    reader.readAsDataURL(file);
+}
+
+
 
 
 function delete_class_form(lipid_class, entry_id){

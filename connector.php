@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////
 // read in config file
 ////////////////////////////////////////////////////////////////////////////
-$conf_file_path = "db/checklist_config.py";
+$conf_file_path = "db/ChecklistConfig.py";
 
 try {
     $conf_file = fopen($conf_file_path, "r") or die("Unable to open file!");
@@ -109,7 +109,7 @@ if (strlen($request_join) > 65536){
 ////////////////////////////////////////////////////////////////////////////
 // send request
 ////////////////////////////////////////////////////////////////////////////
-exec("/usr/bin/python3 forms-manager.py \"" . $request_join . "\" 2>&1", $out, $result);
+exec("/usr/bin/python3 FormsManager.py \"" . $request_join . "\" 2>&1", $out, $result);
 echo($out[0]);
 
 
