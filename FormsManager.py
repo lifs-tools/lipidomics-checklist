@@ -1,6 +1,6 @@
 
-try:
 
+try:
     import sys
     import os
     import time
@@ -22,10 +22,7 @@ try:
         
         
     def dict_factory(cursor, row):
-        d = {}
-        for idx, col in enumerate(cursor.description):
-            d[col[0]] = row[idx]
-        return d
+        return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
     all_commands = {"get_main_forms", "get_class_forms", "get_sample_forms",
@@ -113,7 +110,6 @@ try:
     def get_encrypted_entry(entry_id):
         conn, db_cursor = dbconnect()
         try:
-            #key = "zMpfgHoUsie9p8VwcT3v7yYGBTunMs/PcFivTvDqDCU="
             message = bytes(str(entry_id), 'utf-8')
             nonce = pysodium.randombytes(pysodium.crypto_stream_NONCEBYTES)
             key = base64.b64decode(cfg.encryption_key)
@@ -135,7 +131,6 @@ try:
     def get_decrypted_entry(entry_id):
         conn, db_cursor = dbconnect()
         try:
-            #key = "zMpfgHoUsie9p8VwcT3v7yYGBTunMs/PcFivTvDqDCU="
             message = bytes(str(entry_id), 'utf-8')
             key = base64.b64decode(cfg.encryption_key)
             decoded_entry_id = base64.b64decode(entry_id)
@@ -2056,14 +2051,12 @@ try:
 
 
 
-
+    
 
 
 
 
     elif content["command"] in {"export_samples", "export_lipid_class"}:
-        
-        
         if "user_uuid" not in content or "uid" not in content:
             print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
             exit()
@@ -2092,19 +2085,20 @@ try:
                 exit()
                 
             form_type = FormType.LIPID_CLASS if content["command"] == "export_lipid_class" else FormType.SAMPLE
-            template_file = "workflow-templates/sample.json" if form_type == FormType.SAMPLE else "workflow-templates/lipid-class.json"
             
             if form_type == FormType.SAMPLE:
                 sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
+                template_file = "workflow-templates/sample.json"
             
             else:
                 sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
+                template_file = "workflow-templates/lipid-class.json"
                 
             db_cursor.execute(sql, (entry_id, uid))
             fields = [row["fields"] for row in db_cursor.fetchall()]
             
             from ImportExportForms import export_forms_to_worksheet
-            worksheet_base64 = export_forms_to_worksheet(table_prefix, template_file, fields)
+            worksheet_base64 = export_forms_to_worksheet(template_file, fields)
             print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)
             
         except Exception as e:
@@ -2166,11 +2160,11 @@ try:
                 
             
             from ImportExportForms import import_forms_from_worksheet
-            forms = import_forms_from_worksheet(table_prefix, "workflow-templates/sample.json", worksheet_base64)
+            imported_forms = import_forms_from_worksheet("workflow-templates/sample.json", worksheet_base64)
             
             # all complete
-            if sum(form[1] for form in forms) == len(forms) or force_upload:
-                for field_template, is_complete in forms:
+            if sum(form[1] for form in imported_forms) == len(imported_forms) or force_upload:
+                for field_template, is_complete in imported_forms:
                     field_template["version"] = version
                     field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     field_template = json.dumps(field_template)
@@ -2201,7 +2195,7 @@ try:
                 print(0)
                 
             else:
-                print("Warning: the following rows are incomplete: %s" % [(i + 3) for i, form in enumerate(forms) if not form[1]])
+                print("Warning: the following rows are incomplete: %s" % [(i + 3) for i, form in enumerate(imported_forms) if not form[1]])
                     
             
             
@@ -2261,24 +2255,20 @@ try:
             
             # checking if main form is partial or completed
             status, request = check_status(main_entry_id, uid, db_cursor, is_in = {published_label})
-                
-            
-            from ImportExportForms import import_forms_from_worksheet
-            forms = import_forms_from_worksheet(table_prefix, "workflow-templates/lipid-class.json", worksheet_base64)
-            
             
             workflow_type = ""
             field_data = json.loads(request["fields"])
             for field in field_data["pages"][0]["content"]:
                 if "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
                     workflow_type = field["value"]
-                    
+                
+            
+            from ImportExportForms import import_forms_from_worksheet
+            imported_forms = import_forms_from_worksheet("workflow-templates/lipid-class.json", worksheet_base64)
             
             # all complete
-            if sum(form[1] for form in forms) == len(forms) or force_upload:
-                for field_template, is_complete in forms:
-            
-                    field_template = json.loads(open("workflow-templates/lipid-class.json").read())
+            if sum(form[1] for form in imported_forms) == len(imported_forms) or force_upload:
+                for field_template, is_complete in imported_forms:
                     if "pages" in field_template and len(field_template["pages"]) > 0:
                         for field in field_template["pages"][0]["content"]:
                             if field["type"] == "hidden":
@@ -2315,7 +2305,7 @@ try:
                 print(0)
                 
             else:
-                print("Warning: the following rows are incomplete: %s" % [(i + 3) for i, form in enumerate(forms) if not form[1]])
+                print("Warning: the following rows are incomplete: %s" % [(i + 3) for i, form in enumerate(imported_forms) if not form[1]])
                     
             
             
@@ -2324,7 +2314,6 @@ try:
 
         finally:
             if conn is not None: conn.close()
-            
             
             
             
