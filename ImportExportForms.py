@@ -59,7 +59,7 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
 
 
 
-def export_forms_to_worksheet(table_prefix, template, form_type, cursor, uid, main_entry_id):
+def export_forms_to_worksheet(table_prefix, template, fields):
     global checked, unchecked
     
     field_template = json.loads(open(template).read())
@@ -158,15 +158,6 @@ def export_forms_to_worksheet(table_prefix, template, form_type, cursor, uid, ma
                     columns.append(choice_name)
                     choice_to_field[choice_name] = field_name
                     col_num += 1
-
-    if form_type == FormType.SAMPLE:
-        sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
-    
-    else:
-        sql = "SELECT e.fields FROM %sentries AS e INNER JOIN %sconnect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
-        
-    cursor.execute(sql, (main_entry_id, uid))
-    fields = [row["fields"] for row in cursor.fetchall()]
 
 
     
@@ -513,23 +504,32 @@ if __name__ == "__main__":
     try:
         conn = sqlite3.connect("db/checklist.sqlite")
         conn.row_factory = dict_factory
-        curr = conn.cursor()
+        cursor = conn.cursor()
     except Exception as e:
         print("Error in dbconnect", e)
         exit()
         
         
-    test_case = "im-l"
+    test_case = "ex-l"
+    
     
     if test_case == "ex-s":
-        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", FormType.SAMPLE, curr, 2, 156)
+        sql = "SELECT e.fields FROM TCrpQ_entries AS e INNER JOIN TCrpQ_connect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;"
+        cursor.execute(sql, (156, 2))
+        fields = [row["fields"] for row in cursor.fetchall()]
+        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", fields)
         with open("test-sample.xlsx", "wb") as out:
             out.write(base64.b64decode(sheet_b64))
             
+            
     if test_case == "ex-l":
-        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", FormType.LIPID_CLASS, curr, 2, 156)
+        sql = "SELECT e.fields FROM TCrpQ_entries AS e INNER JOIN TCrpQ_connect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;"
+        cursor.execute(sql, (156, 2))
+        fields = [row["fields"] for row in cursor.fetchall()]
+        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", fields)
         with open("test-lipid-class.xlsx", "wb") as out:
             out.write(base64.b64decode(sheet_b64))
+        
         
     elif test_case == "im-s":
         with open("Sample-list.xlsx", "rb") as infile:
