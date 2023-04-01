@@ -10,6 +10,8 @@ import json
 import base64
 from io import BytesIO
 from FormsEnum import *
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
 
 checked, unchecked = "[X]", "[  ]"
@@ -55,20 +57,39 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
 
 
 
+class TableData:
+    def __init__(self, _name, _title):
+        self.title = _title
+        self.name = _name
+        self.column_names = ["Form ID"]
+        self.column_dict = {"Form ID": 0}
+        self.data = []
+        
+    def add_column(self, col_name):
+        self.column_dict[col_name] = len(self.column_names)
+        self.column_names.append(col_name)
+        
+    def add_row(self, f_id, row):
+        
+        tokens = row.split("|")
+        l = len(self.column_names) - 1
+        for i in range(0, len(tokens), l):
+            self.data.append([f_id] + tokens[i : i + l])
+            print(self.data[-1])
 
 
-
-def export_forms_to_worksheet(template, fields):
+def export_forms_to_worksheet(template, fields, sheet_name):
     global checked, unchecked
     
     field_template = json.loads(open(template).read())
     workbook = Workbook()
     sheet = workbook.active
-
+    sheet.title = sheet_name
 
     name_to_column, name_to_field, name_to_data_validation, choice_to_field = {}, {}, {}, {}
     name_to_condition, name_to_select, multiple_names, columns = {}, {}, set(), []
-
+    table_data = {}
+    table_data_list = []
 
     col_num = 1
     cell_id = "%s1" % gcl(col_num)
@@ -158,7 +179,12 @@ def export_forms_to_worksheet(template, fields):
                     choice_to_field[choice_name] = field_name
                     col_num += 1
 
-
+            elif field["type"] == "table":
+                td = TableData(field["name"], field["label"])
+                name_to_field[field_name] = field
+                table_data_list.append(td)
+                table_data[field["label"]] = td
+                for col_name in field["columns"].split("|"): td.add_column(col_name)
     
     row_num = 3  
     if len(fields) == 0:
@@ -230,11 +256,43 @@ def export_forms_to_worksheet(template, fields):
                                 label = choice["label"]
                                 break
                         sheet[cell_id].value = label if name in name_to_select and label in name_to_select[name] else ""
-                
+            
+            # check for table data
+            for td in table_data_list:
+                if td.name not in form_name_to_field: continue
+                field = form_name_to_field[td.name]
+                if len(field["value"]) == 0: continue
+                td.add_row(row_num, field["value"])
+            
             row_num += 1
-                    
-                    
+
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
+    
+    
+    
+    for td in table_data_list:
+        workbook.create_sheet(td.title)
+        sheet = workbook[td.title]
+        
+        # add column names
+        for c, col_name in enumerate(td.column_names):
+            cell = sheet["%s1" % gcl(c + 1)]
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.font = Font(bold = True)
+            cell.value = col_name
+            sheet.column_dimensions[gcl(c + 1)].width = len(col_name) + 4
+    
+        row_num = 2
+        for row in td.data:
+            col_num = 1
+            for val in row:
+                #print(row_num, c + 1, val)
+                cell = sheet["%s%i" % (gcl(col_num), row_num)]
+                cell.value = val
+                col_num += 1
+            row_num += 1
+            
+    
 
     with NamedTemporaryFile() as tmp:
         workbook.save(tmp.name)
@@ -509,14 +567,14 @@ if __name__ == "__main__":
         exit()
         
         
-    test_case = "im-l"
+    test_case = "ex-l"
     
     
     if test_case == "ex-s":
         sql = "SELECT e.fields FROM TCrpQ_entries AS e INNER JOIN TCrpQ_connect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;"
         cursor.execute(sql, (156, 2))
         fields = [row["fields"] for row in cursor.fetchall()]
-        sheet_b64 = export_forms_to_worksheet("workflow-templates/sample.json", fields)
+        sheet_b64 = export_forms_to_worksheet("workflow-templates/sample.json", fields, "Sample forms")
         with open("test-sample.xlsx", "wb") as out:
             out.write(base64.b64decode(sheet_b64))
             
@@ -525,7 +583,7 @@ if __name__ == "__main__":
         sql = "SELECT e.fields FROM TCrpQ_entries AS e INNER JOIN TCrpQ_connect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;"
         cursor.execute(sql, (156, 2))
         fields = [row["fields"] for row in cursor.fetchall()]
-        sheet_b64 = export_forms_to_worksheet("workflow-templates/lipid-class.json", fields)
+        sheet_b64 = export_forms_to_worksheet("workflow-templates/lipid-class.json", fields, "Lipid class forms")
         with open("test-lipid-class.xlsx", "wb") as out:
             out.write(base64.b64decode(sheet_b64))
         
