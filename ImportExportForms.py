@@ -282,7 +282,7 @@ def process_condition(conditions_text, field_types):
 
 
 
-def import_forms_from_worksheet(table_prefix, template, file_base_64, cursor, uid, main_entry_id):
+def import_forms_from_worksheet(table_prefix, template, file_base_64):
     global checked, unchecked
 
     t = base64.b64decode(file_base_64)
@@ -334,6 +334,12 @@ def import_forms_from_worksheet(table_prefix, template, file_base_64, cursor, ui
                     label_to_name["%s---%s" % (field["label"], choice["label"])] = choice_name
                     field_types[choice_name] = field["type"]
                     choice_to_field[choice_name] = field_name
+                    
+            elif field["type"] == "table":
+                print(field["label"])
+                label_to_name[field["label"]] = field_name
+                if "required" in field and field["required"] == 1: required_names.append(field_name)
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
     
     
     for name in name_to_condition:
@@ -477,6 +483,10 @@ def import_forms_from_worksheet(table_prefix, template, file_base_64, cursor, ui
                     if any_set == 0:
                         is_complete = False
                         break
+                    
+                elif field["type"] == "table":
+                    is_complete = False
+                    #TODO: implement
             
             skipped_empty_rows = 0
             imported_forms.append([field_template, is_complete])
@@ -508,17 +518,30 @@ if __name__ == "__main__":
         print("Error in dbconnect", e)
         exit()
         
-       
-    sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", FormType.LIPID_CLASS, curr, 2, 156)
-    with open("text.xlsx", "wb") as out:
-        out.write(base64.b64decode(sheet_b64))
-    
         
-    """
-    with open("Sample-list.xlsx", "rb") as infile:
-        file_base_64 = base64.b64encode(infile.read())
-    imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64, curr, 2, 156)
+    test_case = "im-l"
     
-    for form in imp_forms: print(form[1])
-    """
+    if test_case == "ex-s":
+        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", FormType.SAMPLE, curr, 2, 156)
+        with open("test-sample.xlsx", "wb") as out:
+            out.write(base64.b64decode(sheet_b64))
+            
+    if test_case == "ex-l":
+        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", FormType.LIPID_CLASS, curr, 2, 156)
+        with open("test-lipid-class.xlsx", "wb") as out:
+            out.write(base64.b64decode(sheet_b64))
+        
+    elif test_case == "im-s":
+        with open("Sample-list.xlsx", "rb") as infile:
+            file_base_64 = base64.b64encode(infile.read())
+        imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64)
+        
+        
+    elif test_case == "im-l":
+        with open("Lipid-class-list.xlsx", "rb") as infile:
+            file_base_64 = base64.b64encode(infile.read())
+        imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", file_base_64)
+        
+        for form in imp_forms: print(form[1])
+    
 
