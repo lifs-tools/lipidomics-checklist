@@ -7,7 +7,6 @@ from openpyxl.utils.cell import get_column_letter as gcl
 from openpyxl.worksheet.datavalidation import DataValidation
 from tempfile import NamedTemporaryFile
 import json
-import sqlite3
 import base64
 from io import BytesIO
 from FormsEnum import *
@@ -59,7 +58,7 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
 
 
 
-def export_forms_to_worksheet(table_prefix, template, fields):
+def export_forms_to_worksheet(template, fields):
     global checked, unchecked
     
     field_template = json.loads(open(template).read())
@@ -273,7 +272,7 @@ def process_condition(conditions_text, field_types):
 
 
 
-def import_forms_from_worksheet(table_prefix, template, file_base_64):
+def import_forms_from_worksheet(template, file_base_64):
     global checked, unchecked
 
     t = base64.b64decode(file_base_64)
@@ -327,7 +326,6 @@ def import_forms_from_worksheet(table_prefix, template, file_base_64):
                     choice_to_field[choice_name] = field_name
                     
             elif field["type"] == "table":
-                print(field["label"])
                 label_to_name[field["label"]] = field_name
                 if "required" in field and field["required"] == 1: required_names.append(field_name)
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
@@ -466,7 +464,6 @@ def import_forms_from_worksheet(table_prefix, template, file_base_64):
                 elif field["type"] == "number":
                     if field["value"] == "" or field["value"] == None:
                         field["value"] = 0
-                        print(row_num, field["name"])
                         break
                 
                 elif field["type"] == "multiple":
@@ -495,11 +492,13 @@ def import_forms_from_worksheet(table_prefix, template, file_base_64):
 
 
 if __name__ == "__main__":
+    import sqlite3
+    
     def dict_factory(cursor, row):
         d = {}
         for idx, col in enumerate(cursor.description):
             d[col[0]] = row[idx]
-        return d
+        return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
     try:
         conn = sqlite3.connect("db/checklist.sqlite")
@@ -510,14 +509,14 @@ if __name__ == "__main__":
         exit()
         
         
-    test_case = "ex-l"
+    test_case = "im-l"
     
     
     if test_case == "ex-s":
         sql = "SELECT e.fields FROM TCrpQ_entries AS e INNER JOIN TCrpQ_connect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;"
         cursor.execute(sql, (156, 2))
         fields = [row["fields"] for row in cursor.fetchall()]
-        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/sample.json", fields)
+        sheet_b64 = export_forms_to_worksheet("workflow-templates/sample.json", fields)
         with open("test-sample.xlsx", "wb") as out:
             out.write(base64.b64decode(sheet_b64))
             
@@ -526,7 +525,7 @@ if __name__ == "__main__":
         sql = "SELECT e.fields FROM TCrpQ_entries AS e INNER JOIN TCrpQ_connect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;"
         cursor.execute(sql, (156, 2))
         fields = [row["fields"] for row in cursor.fetchall()]
-        sheet_b64 = export_forms_to_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", fields)
+        sheet_b64 = export_forms_to_worksheet("workflow-templates/lipid-class.json", fields)
         with open("test-lipid-class.xlsx", "wb") as out:
             out.write(base64.b64decode(sheet_b64))
         
@@ -534,14 +533,14 @@ if __name__ == "__main__":
     elif test_case == "im-s":
         with open("Sample-list.xlsx", "rb") as infile:
             file_base_64 = base64.b64encode(infile.read())
-        imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/sample.json", file_base_64)
+        imp_forms = import_forms_from_worksheet("workflow-templates/sample.json", file_base_64)
         
         
     elif test_case == "im-l":
         with open("Lipid-class-list.xlsx", "rb") as infile:
             file_base_64 = base64.b64encode(infile.read())
-        imp_forms = import_forms_from_worksheet("TCrpQ_", "workflow-templates/lipid-class.json", file_base_64)
+        imp_forms = import_forms_from_worksheet("workflow-templates/lipid-class.json", file_base_64)
         
-        for form in imp_forms: print(form[1])
+        for form in imp_forms: print(form[1], form[0]["pages"][0]["content"][0]["choice"][0])
     
 
