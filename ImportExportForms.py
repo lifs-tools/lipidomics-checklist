@@ -13,12 +13,12 @@ from FormsEnum import *
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
-
+outgrey = "DDDDDD"
 checked, unchecked = "[X]", "[  ]"
 fake_comma = chr(11794)
 
 def create_condition_formula(condition, name_to_column, name_to_field, choice_to_field, row_num):
-    global checked, unchecked
+    global checked, unchecked, outgrey
     
     conditions_split = condition.split("|")
     conditions_split = [condition_split.split("&") for condition_split in conditions_split]
@@ -57,6 +57,51 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
 
 
 
+
+def create_table_condition_formula(condition, name_to_column, name_to_field, choice_to_field, row_num, sheet_name, lookup_field):
+    global checked, unchecked, outgrey
+    
+    conditions_split = condition.split("|")
+    conditions_split = [condition_split.split("&") for condition_split in conditions_split]
+    
+    formatted_conditions = []
+    for condition_or in conditions_split:
+        formatted_conditions_or = []
+        for condition in condition_or:
+            split_val = "=" if condition.find("=") > -1 else "~"
+            key, value = condition.split(split_val)
+            field_type = None
+            if "type" in name_to_field[key]:
+                field_type = name_to_field[key]["type"]
+                
+            else:
+                field_key = choice_to_field[key]
+                field_type = name_to_field[field_key]["type"]
+            
+            if field_type == "text":
+                value = value.strip('"')
+                
+            elif field_type == "number":
+                value = str(value)
+                
+            elif field_type == "select":
+                value = name_to_field[key]["label"]
+                
+            elif field_type == "multiple":
+                value = checked
+                
+            key = "VLOOKUP(A%i, '%s'!%s, %i, FALSE)" % (row_num, sheet_name, lookup_field, name_to_column[key])
+                
+            #key = "%i%i" % (name_to_column[key], row_num)
+            formatted_conditions_or.append('%s%s"%s"' % (key, "<>" if split_val == "=" else "=", value))
+        formatted_conditions.append("OR(%s)" % ", ".join(formatted_conditions_or) if len(formatted_conditions_or) > 1 else formatted_conditions_or[0])
+    formula = "AND(%s)" % ", ".join(formatted_conditions) if len(formatted_conditions) > 1 else formatted_conditions[0]
+    formula = "IF(ISBLANK(A%i), TRUE, %s)" % (row_num, formula)
+    return formula
+
+
+
+
 class TableData:
     def __init__(self, _name, _title):
         self.title = _title
@@ -64,6 +109,7 @@ class TableData:
         self.column_names = ["Form ID"]
         self.column_dict = {"Form ID": 0}
         self.data = []
+        self.condition = None
         
     def add_column(self, col_name):
         self.column_dict[col_name] = len(self.column_names)
@@ -75,11 +121,10 @@ class TableData:
         l = len(self.column_names) - 1
         for i in range(0, len(tokens), l):
             self.data.append([f_id] + tokens[i : i + l])
-            print(self.data[-1])
 
 
 def export_forms_to_worksheet(template, fields, sheet_name):
-    global checked, unchecked
+    global checked, unchecked, outgrey
     
     field_template = json.loads(open(template).read())
     workbook = Workbook()
@@ -87,6 +132,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
     sheet.title = sheet_name
 
     name_to_column, name_to_field, name_to_data_validation, choice_to_field = {}, {}, {}, {}
+    name_to_column_number = {}
     name_to_condition, name_to_select, multiple_names, columns = {}, {}, set(), []
     table_data = {}
     table_data_list = []
@@ -110,9 +156,10 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
-                sheet[cell_id] = field["label"]
+                cell.value = field["label"]
                 sheet.column_dimensions[gcl(col_num)].width = len(field["label"]) + 4
                 name_to_column[field_name] = gcl(col_num)
+                name_to_column_number[field_name] = col_num
                 name_to_field[field_name] = field
                 columns.append(field_name)
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
@@ -124,9 +171,10 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
-                sheet[cell_id] = field["label"]
+                cell.value = field["label"]
                 sheet.column_dimensions[gcl(col_num)].width = len(field["label"]) + 4
                 name_to_column[field_name] = gcl(col_num)
+                name_to_column_number[field_name] = col_num
                 name_to_field[field_name] = field
                 columns.append(field_name)
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
@@ -138,18 +186,20 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
-                sheet[cell_id] = field["label"]
+                cell.value = field["label"]
                 sheet.column_dimensions[gcl(col_num)].width = len(field["label"]) + 4
                 formula = ",".join(choice["label"].replace(",", fake_comma) for choice in field["choice"])
                 dv = DataValidation(type="list", formula1='"%s"' % formula, allow_blank = False)
                 name_to_data_validation[field_name] = dv
                 name_to_column[field_name] = gcl(col_num)
+                name_to_column_number[field_name] = col_num
                 name_to_select[field_name] = {choice["label"] for choice in field["choice"]}
                 name_to_field[field_name] = field
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
                 columns.append(field_name)
                 for choice in field["choice"]:
                     name_to_column[choice["name"]] = gcl(col_num)
+                    name_to_column_number[choice["name"]] = col_num
                     name_to_field[choice["name"]] = choice
                     choice_to_field[choice["name"]] = field_name
                 col_num += 1
@@ -161,16 +211,22 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
-                sheet[cell_id] = field["label"]
+                cell.value = field["label"]
                 name_to_field[field_name] = field
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
+                ml = len(field["label"]) + 4
+                scl = sum(len(choice["label"]) + 4 for choice in field["choice"])
+                if ml > scl:
+                    scl = -1
+                    ml = int(ml / len(field["choice"]))
                 for choice in field["choice"]:
                     choice_name = choice["name"]
-                    sheet.column_dimensions[gcl(col_num)].width = len(choice["label"]) + 4
+                    sheet.column_dimensions[gcl(col_num)].width = len(choice["label"]) + 4 if scl > -1 else ml
                     cell_id = "%s2" % gcl(col_num)
                     sheet[cell_id] = choice["label"]
                     sheet[cell_id].font = Font(bold = True)
                     name_to_column[choice_name] = gcl(col_num)
+                    name_to_column_number[choice_name] = col_num
                     dv = DataValidation(type="list", formula1='"%s,%s"' % (checked, unchecked), allow_blank = False)
                     name_to_data_validation[choice_name] = dv
                     name_to_field[choice_name] = choice
@@ -179,12 +235,24 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                     choice_to_field[choice_name] = field_name
                     col_num += 1
 
+
             elif field["type"] == "table":
+                columns.append(field_name)
+                name_to_column[field_name] = gcl(col_num)
+                name_to_column_number[field_name] = col_num
+                sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+                cell = sheet[cell_id]
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+                cell.font = Font(bold = True)
+                cell.value = field["label"] + "\n" + "Data in other sheet"
+                sheet.column_dimensions[gcl(col_num)].width = len(field["label"]) + 4
                 td = TableData(field["name"], field["label"])
                 name_to_field[field_name] = field
                 table_data_list.append(td)
                 table_data[field["label"]] = td
                 for col_name in field["columns"].split("|"): td.add_column(col_name)
+                if "condition" in field: td.condition = field["condition"]
+                col_num += 1
     
     row_num = 3  
     if len(fields) == 0:
@@ -199,9 +267,9 @@ def export_forms_to_worksheet(template, fields, sheet_name):
             
             # add conditional formatting
             if name in name_to_condition:
-                dxf = DifferentialStyle(fill = PatternFill(bgColor="DDDDDD"))
-                r = Rule(type="expression", dxf = dxf)
-                r.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
+                dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
+                rule = Rule(type="expression", dxf = dxf)
+                rule.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
                 sheet.conditional_formatting.add(cell_id, r)
         
         
@@ -229,10 +297,10 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 
                 # add conditional formatting
                 if name in name_to_condition:
-                    dxf = DifferentialStyle(fill = PatternFill(bgColor="DDDDDD"))
-                    r = Rule(type="expression", dxf = dxf)
-                    r.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
-                    sheet.conditional_formatting.add(cell_id, r)
+                    dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
+                    rule = Rule(type="expression", dxf = dxf)
+                    rule.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
+                    sheet.conditional_formatting.add(cell_id, rule)
                 
                 
                 # fill column with values
@@ -256,23 +324,28 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                                 label = choice["label"]
                                 break
                         sheet[cell_id].value = label if name in name_to_select and label in name_to_select[name] else ""
+                        
+                    elif field["type"] == "table":
+                        sheet[cell_id].fill = PatternFill(start_color=outgrey, end_color=outgrey, fill_type='solid')
             
             # check for table data
             for td in table_data_list:
                 if td.name not in form_name_to_field: continue
                 field = form_name_to_field[td.name]
                 if len(field["value"]) == 0: continue
-                td.add_row(row_num, field["value"])
+                td.add_row(row_num - 2, field["value"])
             
             row_num += 1
 
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
     
     
-    
+    lookup_field = "$A$3:$%s$10000" % gcl(len(columns))
     for td in table_data_list:
         workbook.create_sheet(td.title)
         sheet = workbook[td.title]
+        dv = DataValidation(type="list", formula1="'%s'!$A$3:$A$10000" % (sheet_name), allow_blank = False)
+        sheet.add_data_validation(dv)
         
         # add column names
         for c, col_name in enumerate(td.column_names):
@@ -283,16 +356,36 @@ def export_forms_to_worksheet(template, fields, sheet_name):
             sheet.column_dimensions[gcl(c + 1)].width = len(col_name) + 4
     
         row_num = 2
-        for row in td.data:
-            col_num = 1
-            for val in row:
-                #print(row_num, c + 1, val)
-                cell = sheet["%s%i" % (gcl(col_num), row_num)]
-                cell.value = val
-                col_num += 1
-            row_num += 1
+        if len(td.data) > 0:
+            for row in td.data:
+                col_num = 1
+                for val in row:
+                    cell_id = "%s%i" % (gcl(col_num), row_num)
+                    cell = sheet[cell_id]
+                    cell.value = val
+                    
+                    if col_num > 1:
+                        dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
+                        rule = Rule(type="expression", dxf = dxf)
+                        rule.formula = [create_table_condition_formula(td.condition, name_to_column_number, name_to_field, choice_to_field, row_num, sheet_name, lookup_field)]
+                        sheet.conditional_formatting.add(cell_id, rule)
+                    
+                    col_num += 1
+                    
+                dv.add("A%i" % row_num)
+                row_num += 1
+                
+        else:
+            dv.add("A%i" % row_num)
             
-    
+            for col_num in range(2, len(td.column_names) + 1):
+                cell_id = "%s%i" % (gcl(col_num), row_num)
+                dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
+                rule = Rule(type="expression", dxf = dxf)
+                rule.formula = [create_table_condition_formula(td.condition, name_to_column_number, name_to_field, choice_to_field, row_num, sheet_name, lookup_field)]
+                sheet.conditional_formatting.add(cell_id, rule)
+            
+        
 
     with NamedTemporaryFile() as tmp:
         workbook.save(tmp.name)
@@ -331,7 +424,7 @@ def process_condition(conditions_text, field_types):
 
 
 def import_forms_from_worksheet(template, file_base_64):
-    global checked, unchecked
+    global checked, unchecked, outgrey
 
     t = base64.b64decode(file_base_64)
     wb = load_workbook(filename=BytesIO(t))
