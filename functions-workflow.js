@@ -67,7 +67,7 @@ function update_main_forms(){
                     var img_continue = document.createElement("img");
                     trb.push(img_continue);
                     img_continue.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
-                    img_continue.src = connector_path + "/pencil.png";
+                    img_continue.src = connector_path + "/images/pencil.png";
                     img_continue.title = "Continue report";
                     img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
@@ -75,7 +75,7 @@ function update_main_forms(){
                     var img_del = document.createElement("img");
                     trb.push(img_del);
                     img_del.setAttribute("onclick", "delete_main_form(" + "'" + row["title"] + "', '" + row["entry_id"] + "');");
-                    img_del.src = connector_path + "/trashbin.png";
+                    img_del.src = connector_path + "/images/trashbin.png";
                     img_del.title = "Delete report";
                     img_del.style = "cursor: pointer; height: 20px;";
                 }
@@ -83,7 +83,7 @@ function update_main_forms(){
                     var div_doi = document.createElement("div");
                     trb.push(div_doi);
                     div_doi.setAttribute("class", "lipidomics-forms-tooltip-frame");
-                    div_doi.innerHTML = "<img src=\"" + connector_path + "/globe.png\" style=\"cursor: pointer; height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
+                    div_doi.innerHTML = "<img src=\"" + connector_path + "/images/globe.png\" style=\"cursor: pointer; height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
                     tt_id++;
                     
                     var div_sep = document.createElement("div");
@@ -94,7 +94,7 @@ function update_main_forms(){
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
                     img_copy.setAttribute("onclick", "copy_main_form('" + row["entry_id"] + "');");
-                    img_copy.src = connector_path + "/recycle.png";
+                    img_copy.src = connector_path + "/images/recycle.png";
                     img_copy.title = "Copy report";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
@@ -102,7 +102,7 @@ function update_main_forms(){
                     var img_download = document.createElement("img");
                     trb.push(img_download);
                     img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
-                    img_download.src = connector_path + "/pdf.png";
+                    img_download.src = connector_path + "/images/pdf.png";
                     img_download.title = "Download report";
                     img_download.style = "cursor: pointer; height: 20px;";
                 }
@@ -110,7 +110,7 @@ function update_main_forms(){
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
                     img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
-                    img_copy.src = connector_path + "/check.png";
+                    img_copy.src = connector_path + "/images/check.png";
                     img_copy.title = "Publish report, click here for more information";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
@@ -118,7 +118,7 @@ function update_main_forms(){
                     var img_update = document.createElement("img");
                     trb.push(img_update);
                     img_update.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
-                    img_update.src = connector_path + "/pencil.png";
+                    img_update.src = connector_path + "/images/pencil.png";
                     img_update.title = "Update report";
                     img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
@@ -126,7 +126,7 @@ function update_main_forms(){
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
                     img_copy.setAttribute("onclick", "copy_main_form('" + row["entry_id"] + "');");
-                    img_copy.src = connector_path + "/recycle.png";
+                    img_copy.src = connector_path + "/images/recycle.png";
                     img_copy.title = "Copy report";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
@@ -135,7 +135,7 @@ function update_main_forms(){
                     trb.push(img_download);
                     img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
                     //img_download.setAttribute("onclick", "export_samples('" + row["entry_id"] + "');");
-                    img_download.src = connector_path + "/pdf.png";
+                    img_download.src = connector_path + "/images/pdf.png";
                     img_download.title = "Download report";
                     img_download.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
@@ -143,7 +143,7 @@ function update_main_forms(){
                     var img_del = document.createElement("img");
                     trb.push(img_del);
                     img_del.setAttribute("onclick", "delete_main_form('" + row["title"] + "', '" + row["entry_id"] + "');");
-                    img_del.src = connector_path + "/trashbin.png";
+                    img_del.src = connector_path + "/images/trashbin.png";
                     img_del.title = "Delete report";
                     img_del.style = "cursor: pointer; height: 20px;";
                 }

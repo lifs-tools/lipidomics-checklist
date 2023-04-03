@@ -267,7 +267,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
 \\begin{document}
 \\begingroup\\fontsize{8pt}{10pt}\\selectfont
 
-\\hfill\\includegraphics[width=50pt]{ILS_standalone_logo.pdf}\\\\
+\\hfill\\includegraphics[width=50pt]{images/ILS_standalone_logo.pdf}\\\\
 \\begin{flushright}\\vskip-15pt{\\tiny Created by \\href{https://lipidomicstandards.org}{https://lipidomicstandards.org}, version """ 
     tex_preamble += version
     tex_preamble += """}\\end{flushright}
