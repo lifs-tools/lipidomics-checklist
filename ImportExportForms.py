@@ -532,7 +532,7 @@ def import_forms_from_worksheet(template, file_base_64):
                     row[col_to_index[col_name]] = value
                     found_entry = False
     
-                td.data.append(row)
+            td.data.append(row)
     
     for label in tables:
         tables[label] = tables[label].get_content()
@@ -549,6 +549,7 @@ def import_forms_from_worksheet(template, file_base_64):
     col_num = 1
     previous_label = None
     imported_forms = []
+    unset_columns = {v for k, v in label_to_name.items()}
     while col_num < 10000:
         if skipped_empty_cols >= 5: break
         
@@ -571,25 +572,19 @@ def import_forms_from_worksheet(template, file_base_64):
             
         label = label.split("\n")[0]
         if label in label_to_name:
-            column_labels.append([gcl(col_num), label])
+            column_labels.append([col_num - 1, label])
+            unset_columns.remove(label_to_name[label])
         col_num += 1
         
         
-    print(tables)
-        
     # go through rows
-    row_num = 3
-    skipped_empty_rows = 0
-    while row_num < 10000:
-        if skipped_empty_rows >= 5: break
+    for row_num, sheet_row in enumerate(sheet.iter_rows(min_row = 3, values_only = True)):
         found_entry = False
-        
-        form_id = row_num - 2
-        
-        
+    
+        form_id = row_num + 1
         name_to_field = {}
         is_complete = True
-        unset_names = []
+        unset_names = list(unset_columns)
         
         # load fresh template
         field_template = json.loads(open(template).read())
@@ -604,7 +599,7 @@ def import_forms_from_worksheet(template, file_base_64):
         # add all information from row into fields
         for col_id, label in column_labels:
             name = label_to_name[label]
-            value = sheet["%s%i" % (col_id, row_num)].value
+            value = sheet_row[col_id]
             
             if name in table_names:
                 if name not in name_to_field: continue
@@ -620,6 +615,7 @@ def import_forms_from_worksheet(template, file_base_64):
             if value == None:
                 unset_names.append(name)
                 continue
+            
             
             if name in multiple_names:
                 if name not in name_to_field: continue
@@ -703,13 +699,8 @@ def import_forms_from_worksheet(template, file_base_64):
                         field["value"] = ""
                         break
                 
-            
-            skipped_empty_rows = 0
             imported_forms.append([field_template, is_complete])
             
-        else: skipped_empty_rows += 1
-        row_num += 1
-        
     return imported_forms
         
         
