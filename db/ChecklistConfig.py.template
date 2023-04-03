@@ -5,6 +5,7 @@
 encryption_key = "..."
 db_file = "db/checklist.sqlite"
 machine = "home"    # can be 'home' or 'server'
+version = "v2.0.0"
 
 #################################################################
 ## Zenodo sandbox config data

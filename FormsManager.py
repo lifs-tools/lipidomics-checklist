@@ -38,7 +38,7 @@ try:
                     "export_lipid_class", "import_lipid_class"}
     conn = None
     table_prefix = "TCrpQ_"
-    version = "v2.0.0"
+    version = cfg.version
 
     path_name = "lipidomics-checklist"
 
