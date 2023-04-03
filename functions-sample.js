@@ -157,6 +157,13 @@ function update_sample_forms() {
                     img_update.title = "Update sample type";
                     img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
+                    var img_preview = document.createElement("img");
+                    trb.push(img_preview);
+                    img_preview.setAttribute("onclick", "preview_sample_form('" + row["entry_id"] + "');");
+                    img_preview.src = connector_path + "/images/eye.png";
+                    img_preview.title = "Preview";
+                    img_preview.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
                     img_copy.setAttribute("onclick", "copy_sample_form('" + row["entry_id"] + "');");
@@ -192,6 +199,57 @@ function update_sample_forms() {
 function refresh_sample_view(){
     if (sample_field_object != null) update_tableview(sample_field_object);
 }
+
+
+
+
+
+function preview_sample_form(entry_id){
+    if (entry_id == undefined || entry_id.length == 0) return;
+    var xmlhttp_request = new XMLHttpRequest();
+    document.getElementById("grey_background").style.display = "block";
+    document.getElementById("waiting_field").style.display = "block";
+    
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            response_text = xmlhttp_request.responseText;
+            document.getElementById("waiting_field").style.display = "none";
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                document.getElementById("grey_background").style.display = "none";
+                return;
+            }
+            document.getElementById("preview_sample").style.display = "block";
+            
+            titles = [];
+            report_fields = [];
+            create_preview(JSON.parse(response_text), titles, report_fields);
+            titles = ["Sample"];
+            
+            var sample_set = "";
+            var sample_origin = "";
+            var sample_type = "";
+            
+            for (var row of report_fields[0]){
+                if (row[0] == "Sample set name") sample_set = row[1];
+                else if (row[0] == "Sample origin") sample_origin = row[1];
+                else if (row[0] == "Sample type") sample_type = row[1];
+            }
+            if (sample_set.length > 0 && sample_origin.length > 0 && sample_type.length > 0){
+                titles[0] = sample_set + " / " + sample_origin + " / " + sample_type;
+                report_fields[0] = report_fields[0].slice(3, report_fields[0].length);
+            }
+            
+            document.getElementById("preview_sample_content").innerHTML = "";
+            document.getElementById("preview_sample_content").appendChild(create_preview_table(titles, report_fields));
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=get_form_content&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
 
 
 

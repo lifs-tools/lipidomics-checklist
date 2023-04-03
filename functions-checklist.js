@@ -13,6 +13,7 @@ var form_enabled = true;
 var entry_id = null;
 var workflow_type = null;
 var choice_to_field = {};
+var ILSGreen = "#7EBA28";
 
 function load_data(content){
     lipidomics_forms_content = content;
@@ -806,6 +807,239 @@ function request_form_content(){
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
+
+
+function create_preview(result, titles, report_fields){
+    visible = {};
+    conditions = {};
+    choice_to_field = {};
+    field_map = {};
+    
+    for (var page of result["pages"]){
+        for (var field of page["content"]){
+            var field_name = field["name"];
+            visible[field_name] = true;
+            
+            field_map[field_name] = field;
+            if ((field["type"] == "select" || field["type"] == "multiple") && ("choice" in field)){
+                for (var choice of field["choice"]){
+                    if ("name" in choice){
+                        field_map[choice["name"]] = choice;
+                        choice_to_field[choice["name"]] = field_name;
+                    }
+                }
+            }
+            else {
+                choice_to_field[field_name] = field_name
+            }
+            
+            if (!("condition" in field) || field["condition"].length == 0) continue
+            
+            condition = [];
+            for (var condition_and of field["condition"].split("|")){
+                conjunction = [];
+                for (var con of condition_and.split("&")){
+                    var single_condition = null;
+                    var operator = "=";
+                    if (con.indexOf("~") != -1){
+                        single_condition = con.split("~");
+                        operator = "~";
+                    }
+                    else {
+                        single_condition = con.split("=");
+                    }
+                    
+                    if (single_condition.length != 2) continue;
+                        
+                    var key = single_condition[0];
+                    var value = single_condition[1];
+                    var l = value.length;
+                    
+                    if (value[0] == "'" && value[-1] == "'"){
+                        value = value.split(1, value.length - 1);
+                    }
+                    else {
+                        value = parseFloat(value);
+                    }
+                    conjunction.push([key, operator, value]);
+                }
+                condition.push(conjunction);
+            }
+            conditions[field_name] = condition;
+        }
+    }
+    
+    for (var page of result["pages"]){
+        for (var field of page["content"]){
+            if (!("condition" in field) || field["condition"].length == 0) continue;
+            field_name = field["name"];
+            visible[field_name] = false;
+            for (var condition_and of conditions[field_name]){
+                condition_met = true;
+                for (var single_condition of condition_and){
+                    key = single_condition[0];
+                    operator = single_condition[1];
+                    value = single_condition[2];
+                    conditional_field = choice_to_field[key];
+                    condition_met &= (conditional_field in visible && visible[conditional_field]) && ((operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value));
+                }
+                visible[field_name] |= condition_met;
+            }
+        }
+    }
+    
+    
+    for (var page of result["pages"]){
+        titles.push(page["title"]);
+        report_fields.push([]);
+        values = {};
+        for (field of page["content"]){
+            if (!("type" in field) || !("name" in field) || !("label" in field)) continue;
+            if (field["name"] in visible && !visible[field["name"]]) continue;
+            
+            if (field["type"] == "text"){
+                if (field["label"].substring(0, 5).toLowerCase() == "other"){
+                    var val = field["label"].substring(6, field["label"].length).toLowerCase();
+                    if (val in values){
+                        values[val][values[val].length - 1] = field["value"];
+                    }
+                }
+                else {
+                    values[field["label"].toLowerCase()] = [field["value"]];
+                    report_fields[report_fields.length - 1].push([field["label"], ""]);
+                }
+            }
+            else if (field["type"] == "number"){
+                values[field["label"].toLowerCase()] = [field["value"].toString()];
+                report_fields[report_fields.length - 1].push([field["label"], ""]);
+            }
+                
+            else if (field["type"] == "select" || field["type"] == "multiple"){
+                choice_values = [];
+                for (var choice of field["choice"]){
+                    if (choice["value"] == 1){
+                        choice_values.push(choice["label"]);
+                    }
+                }
+                values[field["label"].toLowerCase()] = choice_values;
+                report_fields[report_fields.length - 1].push([field["label"], ""]);
+            }
+            else if (field["type"] == "table"){
+                values[field["label"].toLowerCase()] = ["!!!TABLE!!!" + field["columns"] + "!!!CONTENT!!!" + field["value"]]
+                report_fields[report_fields.length - 1].push([field["label"], ""]);
+            }
+        }
+        
+        for (var i = 0; i < report_fields[report_fields.length - 1].length; ++i){
+            key = report_fields[report_fields.length - 1][i][0].toLowerCase();
+            if (key in values){
+                report_fields[report_fields.length - 1][i][1] = values[key].join(", ");
+            }
+        }
+    }
+}
+
+
+
+
+function create_table_in_table(a, b){
+    return "";
+}
+
+
+
+
+function create_preview_table(titles, report_fields){
+    var table_element = document.createElement("table");
+    table_element.style.padding = "50px 100px 50px 100px";
+    table_element.setAttribute("cellspacing", "0px");
+    for (var i = 0; i < titles.length; ++i){
+        
+        var tr_element = document.createElement("tr");
+        table_element.appendChild(tr_element);
+        var td_element = document.createElement("td");
+        tr_element.appendChild(td_element);
+        td_element.setAttribute("colspan", "5");
+        td_element.innerHTML = "<font size='+2' color='#999999'><b>" + titles[i] + "</b></font>";
+        
+        var tr_element = document.createElement("tr");
+        table_element.appendChild(tr_element);
+        var td_element = document.createElement("td");
+        tr_element.appendChild(td_element);
+        td_element.setAttribute("colspan", "5");
+        td_element.innerHTML = "&nbsp";
+        td_element.setAttribute("bgcolor", "#E0E0E0");
+        td_element.style.borderTop = "3px solid " + ILSGreen;
+        
+        var n = report_fields[i].length;
+        var h = (n + 1) >> 1;
+        for (var ci = 0; ci < h; ++ci){
+        
+            var tr_element = document.createElement("tr");
+            table_element.appendChild(tr_element);
+            
+                
+            if (report_fields[i][ci][1].substring(0, 11) == "!!!TABLE!!!"){
+                first_col = create_table_in_table(report_fields[i][ci][0], report_fields[i][ci][1])
+            }
+            else {
+                var td_element_key = document.createElement("td");
+                tr_element.appendChild(td_element_key);
+                td_element_key.innerHTML = report_fields[i][ci][0];
+                td_element_key.style.width = "29%";
+                td_element_key.style.padding = "10px 5px 10px 5px";
+                if (ci + h < n - 1) td_element_key.style.borderBottom = "1px solid black";
+                
+                var td_element_value = document.createElement("td");
+                tr_element.appendChild(td_element_value);
+                td_element_value.innerHTML = report_fields[i][ci][1];
+                td_element_value.style.width = "20%";
+                td_element_value.style.padding = "10px 5px 10px 5px";
+                if (ci + h < n - 1) td_element_value.style.borderBottom = "1px solid black";
+            }
+                
+                
+            if (ci + h < n){
+                var td_element_space = document.createElement("td");
+                tr_element.appendChild(td_element_space);
+                td_element_space.innerHTML = "&nbsp;";
+                td_element_space.style.width = "2%";
+                if (ci + h < n - 1) td_element_space.style.borderBottom = "1px solid black";
+                    
+                if (report_fields[i][ci + h][1].substring(0, 11) == "!!!TABLE!!!"){
+                    second_col = create_table_in_table(report_fields[i][ci + h][0], report_fields[i][ci + h][1]);
+                }
+                else {
+                    var td_element_key = document.createElement("td");
+                    tr_element.appendChild(td_element_key);
+                    td_element_key.innerHTML = report_fields[i][ci + h][0];
+                    td_element_key.style.width = "29%";
+                    td_element_key.style.padding = "10px 5px 10px 5px";
+                    if (ci + h < n - 1) td_element_key.style.borderBottom = "1px solid black";
+                    
+                    var td_element_value = document.createElement("td");
+                    tr_element.appendChild(td_element_value);
+                    td_element_value.innerHTML = report_fields[i][ci + h][1];
+                    td_element_value.style.width = "20%";
+                    td_element_value.style.padding = "10px 5px 10px 5px";
+                    if (ci + h < n - 1) td_element_value.style.borderBottom = "1px solid black";
+                }
+            }
+        }
+        
+        var tr_element = document.createElement("tr");
+        table_element.appendChild(tr_element);
+        var td_element = document.createElement("td");
+        tr_element.appendChild(td_element);
+        td_element.setAttribute("colspan", "5");
+        td_element.innerHTML = "&nbsp";
+        td_element.style.borderTop = "3px solid " + ILSGreen;
+    }
+    
+    return table_element;
+}
+
+
 
 var checklist_content = "<button class=\"submit-button\" id=\"back_button\" onclick=\"go_back();\">Back to Report Overview</button><p /> \
 <div id=\"form-viewer\"></div>";

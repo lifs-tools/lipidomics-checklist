@@ -78,7 +78,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 for single_condition in condition_and:
                     key, operator, value = single_condition
                     conditional_field = choice_to_field[key]
-                    condition_met &= (conditional_field in visible and visible[conditional_field]) and (operator == "=" and field_map[key]["value"] == value) or (operator == "~" and field_map[key]["value"] != value)
+                    condition_met &= (conditional_field in visible and visible[conditional_field]) and ((operator == "=" and field_map[key]["value"] == value) or (operator == "~" and field_map[key]["value"] != value))
                 visible[field_name] |= condition_met
     
     
