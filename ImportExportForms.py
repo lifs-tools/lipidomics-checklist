@@ -107,28 +107,34 @@ class TableData:
         self.title = _title
         self.name = _name
         self.column_names = ["Form ID"]
-        self.column_dict = {"Form ID": 0}
         self.data = []
         self.condition = None
         
-    def add_column(self, col_name):
-        self.column_dict[col_name] = len(self.column_names)
-        self.column_names.append(col_name)
-        
     def add_row(self, f_id, row):
-        
         tokens = row.split("|")
         l = len(self.column_names) - 1
         for i in range(0, len(tokens), l):
             self.data.append([f_id] + tokens[i : i + l])
 
 
+    def get_content(self):
+        content = {}
+        for row in self.data:
+            if row[0] not in content: content[row[0]] = []
+            content[row[0]] += row[1:]
+            
+        for i in content:
+            content[i] = "|".join(content[i])
+        return content
+        
+        
+
 def export_forms_to_worksheet(template, fields, sheet_name):
     global checked, unchecked, outgrey
     
     field_template = json.loads(open(template).read())
     workbook = Workbook()
-    sheet = workbook.active
+    sheet = workbook[workbook.sheetnames[0]]
     sheet.title = sheet_name
 
     name_to_column, name_to_field, name_to_data_validation, choice_to_field = {}, {}, {}, {}
@@ -250,7 +256,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 name_to_field[field_name] = field
                 table_data_list.append(td)
                 table_data[field["label"]] = td
-                for col_name in field["columns"].split("|"): td.add_column(col_name)
+                for col_name in field["columns"].split("|"): td.column_names.append(col_name)
                 if "condition" in field: td.condition = field["condition"]
                 col_num += 1
     
@@ -385,7 +391,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 rule.formula = [create_table_condition_formula(td.condition, name_to_column_number, name_to_field, choice_to_field, row_num, sheet_name, lookup_field)]
                 sheet.conditional_formatting.add(cell_id, rule)
             
-        
+            
 
     with NamedTemporaryFile() as tmp:
         workbook.save(tmp.name)
@@ -427,14 +433,16 @@ def import_forms_from_worksheet(template, file_base_64):
     global checked, unchecked, outgrey
 
     t = base64.b64decode(file_base_64)
-    wb = load_workbook(filename=BytesIO(t))
-    sheet = wb.active
+    workbook = load_workbook(filename=BytesIO(t))
+    sheet = workbook[workbook.sheetnames[0]]
 
     
     name_to_data_validation, label_to_name = {}, {}
     name_to_condition, multiple_names = {}, set()
     field_types, required_names = {}, []
     field_visible, choice_to_field, names_list = {}, {}, []
+    table_fields, tables, table_names = {}, {}, set()
+    
 
     field_template = json.loads(open(template).read())
     for page in field_template["pages"]:
@@ -480,14 +488,61 @@ def import_forms_from_worksheet(template, file_base_64):
                 label_to_name[field["label"]] = field_name
                 if "required" in field and field["required"] == 1: required_names.append(field_name)
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
+                table_fields[field["label"]] = field
+                td = TableData(field_name, field["label"])
+                td.column_names += field["columns"].split("|")
+                tables[field["label"]] = td
+                table_names.add(field_name)
     
     
     for name in name_to_condition:
         name_to_condition[name] = process_condition(name_to_condition[name], field_types)
     
     
+    # load all table data
+    for sht in workbook.sheetnames[1:]:
+        if sht not in tables: continue
+        
+        sheet_table = workbook[sht]
+        td = tables[sht]
+        
+        col_num = 2
+        col_to_index = {}
+        column_names = []
+        while sheet_table["%s1" % gcl(col_num)].value != None:
+            col_to_index[sheet_table["%s1" % gcl(col_num)].value] = -1
+            column_names.append(sheet_table["%s1" % gcl(col_num)].value)
+            col_num += 1
+        
+        for i, col_name in enumerate(td.column_names):
+            if col_name in col_to_index: col_to_index[col_name] = i
+        
+        
+        for sheet_row in sheet_table.iter_rows(values_only = True):
+            form_id = sheet_row[0]
+            try: form_id = int(form_id)
+            except: continue
+            if form_id == None:
+                continue
+            
+            row = [form_id] + [""] * len(col_to_index)
+            for col_num, col_name in enumerate(column_names):
+                value = sheet_row[col_num + 1]
+                if col_name in col_to_index:
+                    row[col_to_index[col_name]] = value
+                    found_entry = False
+    
+                td.data.append(row)
+    
+    for label in tables:
+        tables[label] = tables[label].get_content()
     
     
+    
+    
+    
+    
+    # load main data
     # determine column_id / label pair
     column_labels = []
     skipped_empty_cols = 0
@@ -514,9 +569,13 @@ def import_forms_from_worksheet(template, file_base_64):
         else:
             label = sheet["%s1" % gcl(col_num)].value
             
-        if label in label_to_name: column_labels.append([gcl(col_num), label])
+        label = label.split("\n")[0]
+        if label in label_to_name:
+            column_labels.append([gcl(col_num), label])
         col_num += 1
         
+        
+    print(tables)
         
     # go through rows
     row_num = 3
@@ -524,6 +583,9 @@ def import_forms_from_worksheet(template, file_base_64):
     while row_num < 10000:
         if skipped_empty_rows >= 5: break
         found_entry = False
+        
+        form_id = row_num - 2
+        
         
         name_to_field = {}
         is_complete = True
@@ -543,6 +605,18 @@ def import_forms_from_worksheet(template, file_base_64):
         for col_id, label in column_labels:
             name = label_to_name[label]
             value = sheet["%s%i" % (col_id, row_num)].value
+            
+            if name in table_names:
+                if name not in name_to_field: continue
+                field = name_to_field[name]
+                
+                if field["type"] == "table":
+                    if field["label"] in tables and form_id in tables[field["label"]]:
+                        field["value"] = tables[field["label"]][form_id]
+                        found_entry = True
+                continue
+            
+            
             if value == None:
                 unset_names.append(name)
                 continue
@@ -580,7 +654,7 @@ def import_forms_from_worksheet(template, file_base_64):
                     if not found_choice and len(field["choice"]) > 0:
                         field["choice"][0]["value"] = 1
                         unset_names.append(name)
-                    
+                
     
     
         if found_entry:
@@ -622,10 +696,13 @@ def import_forms_from_worksheet(template, file_base_64):
                     if any_set == 0:
                         is_complete = False
                         break
-                    
+                
                 elif field["type"] == "table":
-                    is_complete = False
-                    #TODO: implement
+                    if field["value"] == "" or field["value"] == None:
+                        is_complete = False
+                        field["value"] = ""
+                        break
+                
             
             skipped_empty_rows = 0
             imported_forms.append([field_template, is_complete])
@@ -660,7 +737,7 @@ if __name__ == "__main__":
         exit()
         
         
-    test_case = "ex-l"
+    test_case = "im-l"
     
     
     if test_case == "ex-s":
@@ -692,6 +769,8 @@ if __name__ == "__main__":
             file_base_64 = base64.b64encode(infile.read())
         imp_forms = import_forms_from_worksheet("workflow-templates/lipid-class.json", file_base_64)
         
-        for form in imp_forms: print(form[1], form[0]["pages"][0]["content"][0]["choice"][0])
+        for form in imp_forms: print(form[1])
     
-
+    
+    else:
+        raise Exception("no such test case")
