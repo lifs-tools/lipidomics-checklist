@@ -144,7 +144,7 @@ function update_sample_forms() {
                     var img_continue = document.createElement("img");
                     trb.push(img_continue);
                     img_continue.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
-                    img_continue.src = connector_path + "/pencil.png";
+                    img_continue.src = connector_path + "/images/pencil.png";
                     img_continue.title = "Continue sample type";
                     img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                 }
@@ -153,14 +153,14 @@ function update_sample_forms() {
                     var img_update = document.createElement("img");
                     trb.push(img_update);
                     img_update.setAttribute("onclick", "refresh_sample_view(); show_samplelist('" + row["entry_id"] + "');");
-                    img_update.src = connector_path + "/pencil.png";
+                    img_update.src = connector_path + "/images/pencil.png";
                     img_update.title = "Update sample type";
                     img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                     
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
                     img_copy.setAttribute("onclick", "copy_sample_form('" + row["entry_id"] + "');");
-                    img_copy.src = connector_path + "/recycle.png";
+                    img_copy.src = connector_path + "/images/recycle.png";
                     img_copy.title = "Copy sample type";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                 }
@@ -169,7 +169,7 @@ function update_sample_forms() {
                 var img_delete = document.createElement("img");
                 trb.push(img_delete);
                 img_delete.setAttribute("onclick", "refresh_sample_view(); delete_sample_form('" + row["title"] + "', '" + row["entry_id"] + "');");
-                img_delete.src = connector_path + "/trashbin.png";
+                img_delete.src = connector_path + "/images/trashbin.png";
                 img_delete.title = "Delete sample type";
                 img_delete.style = "cursor: pointer; height: 20px;";
                 

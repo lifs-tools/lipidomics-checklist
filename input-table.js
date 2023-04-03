@@ -100,7 +100,7 @@ class InputTable extends HTMLElement {
             var img_obj = document.createElement("img");
             td_obj_del.append(img_obj);
             td_obj_del.style = "padding: 0px;";
-            img_obj.src = "/lipidomics-checklist/trashbin.png";
+            img_obj.src = "/lipidomics-checklist/images/trashbin.png";
             img_obj.style = "cursor: pointer; height: 20px";
             img_obj.obj = this;
             img_obj.row_num = row_num;
@@ -118,7 +118,7 @@ class InputTable extends HTMLElement {
         
         var img_add = document.createElement("img");
         td_add.append(img_add);
-        img_add.src = "/lipidomics-checklist/plus.png";
+        img_add.src = "/lipidomics-checklist/images/plus.png";
         img_add.style = "cursor: pointer; height: 20px";
         img_add.obj = this;
         img_add.onclick = this.addRow;
