@@ -100,6 +100,11 @@ function load_data(content){
             // check for any logical conditions
             if (!("condition" in field) || field["condition"].length == 0) continue;
             
+            // check for excel limitations on sheet name length
+            if (field["type"] == "table" && field["label"].length > 30){
+                alert("Warning: Label length of table entry '" + field["label"] + "' is bigger than 30. Might cause trouble when exporting to spreadsheet file.");
+            }
+            
             check_fields[field_name] = [];
             var condition = [];
             for (condition_and of field["condition"].split("|")){
