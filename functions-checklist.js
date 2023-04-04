@@ -814,7 +814,7 @@ function request_form_content(){
 function create_preview(result, titles, report_fields){
     visible = {};
     conditions = {};
-    choice_to_field = {};
+    choice_to_field_preview = {};
     field_map_preview = {};
     
     for (var page of result["pages"]){
@@ -827,12 +827,12 @@ function create_preview(result, titles, report_fields){
                 for (var choice of field["choice"]){
                     if ("name" in choice){
                         field_map_preview[choice["name"]] = choice;
-                        choice_to_field[choice["name"]] = field_name;
+                        choice_to_field_preview[choice["name"]] = field_name;
                     }
                 }
             }
             else {
-                choice_to_field[field_name] = field_name
+                choice_to_field_preview[field_name] = field_name
             }
             
             if (!("condition" in field) || field["condition"].length == 0) continue
@@ -882,7 +882,7 @@ function create_preview(result, titles, report_fields){
                     key = single_condition[0];
                     operator = single_condition[1];
                     value = single_condition[2];
-                    conditional_field = choice_to_field[key];
+                    conditional_field = choice_to_field_preview[key];
                     condition_met &= (conditional_field in visible && visible[conditional_field]) && ((operator == "=" && field_map_preview[key]["value"] == value) || (operator == "~" && field_map_preview[key]["value"] != value));
                 }
                 visible[field_name] |= condition_met;
@@ -1034,7 +1034,6 @@ function create_preview_table(titles, report_fields){
         
             var tr_element = document.createElement("tr");
             table_element.appendChild(tr_element);
-            
                 
             if (report_fields[i][ci][1].substring(0, 11) == "!!!TABLE!!!"){
                 var td_element = document.createElement("td");

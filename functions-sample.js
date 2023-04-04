@@ -210,6 +210,16 @@ function preview_sample_form(entry_id){
     document.getElementById("grey_background").style.display = "block";
     document.getElementById("waiting_field").style.display = "block";
     
+    window.addEventListener('resize', function(event) {
+        document.getElementById("preview_sample").style.top = "calc(50% - " + Math.floor(window.innerHeight * 0.4).toString() + "px)";
+        document.getElementById("preview_sample").style.height = Math.floor(window.innerHeight * 0.8) + "px";
+        document.getElementById("preview_sample_content").style.height = Math.floor(window.innerHeight * 0.8 - 100) + "px";
+    }, true);
+    
+    document.getElementById("preview_sample").style.top = "calc(50% - " + Math.floor(window.innerHeight * 0.4).toString() + "px)";
+    document.getElementById("preview_sample").style.height = Math.floor(window.innerHeight * 0.8) + "px";
+    document.getElementById("preview_sample_content").style.height = Math.floor(window.innerHeight * 0.8 - 100) + "px";
+    
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
