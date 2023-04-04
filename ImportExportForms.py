@@ -5,6 +5,7 @@ from openpyxl.styles import PatternFill, Font, Border, Side
 from openpyxl.formatting.rule import FormulaRule, DifferentialStyle, Rule
 from openpyxl.utils.cell import get_column_letter as gcl
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.comments import Comment
 from tempfile import NamedTemporaryFile
 import json
 import base64
@@ -144,21 +145,25 @@ def export_forms_to_worksheet(template, fields, sheet_name):
     table_data_list = []
 
     col_num = 1
-    cell_id = "%s1" % gcl(col_num)
-    sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+    sheet["A1"].value = "form_id"
+    cell_id = "%s2" % gcl(col_num)
+    sheet.merge_cells("%s2:%s3" % (gcl(col_num), gcl(col_num)))
     cell = sheet[cell_id]
     cell.alignment = Alignment(horizontal="center", vertical="center")
     cell.font = Font(bold = True)
     sheet[cell_id] = "ID"
     col_num = 2
+    sheet.row_dimensions[1].hidden = True
+    
     for page in field_template["pages"]:
         for field in page["content"]:
             if "name" not in field or "type" not in field: continue
             field_name = field["name"]
-            cell_id = "%s1" % gcl(col_num)
+            cell_id = "%s2" % gcl(col_num)
         
             if field["type"] == "text":
-                sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+                sheet["%s1" % gcl(col_num)].value = field_name
+                sheet.merge_cells("%s2:%s3" % (gcl(col_num), gcl(col_num)))
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
@@ -173,7 +178,8 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 
         
             elif field["type"] == "number":
-                sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+                sheet["%s1" % gcl(col_num)].value = field_name
+                sheet.merge_cells("%s2:%s3" % (gcl(col_num), gcl(col_num)))
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
@@ -188,7 +194,8 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 
                 
             elif field["type"] == "select":
-                sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+                sheet["%s1" % gcl(col_num)].value = field_name
+                sheet.merge_cells("%s2:%s3" % (gcl(col_num), gcl(col_num)))
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
@@ -213,7 +220,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 
             elif field["type"] == "multiple":
                 num_choice = len(field["choice"])
-                sheet.merge_cells("%s1:%s1" % (gcl(col_num), gcl(col_num + num_choice - 1)))
+                sheet.merge_cells("%s2:%s2" % (gcl(col_num), gcl(col_num + num_choice - 1)))
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
@@ -227,8 +234,9 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                     ml = int(ml / len(field["choice"]))
                 for choice in field["choice"]:
                     choice_name = choice["name"]
+                    sheet["%s1" % gcl(col_num)].value = choice_name
                     sheet.column_dimensions[gcl(col_num)].width = len(choice["label"]) + 4 if scl > -1 else ml
-                    cell_id = "%s2" % gcl(col_num)
+                    cell_id = "%s3" % gcl(col_num)
                     sheet[cell_id] = choice["label"]
                     sheet[cell_id].font = Font(bold = True)
                     name_to_column[choice_name] = gcl(col_num)
@@ -246,7 +254,8 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 columns.append(field_name)
                 name_to_column[field_name] = gcl(col_num)
                 name_to_column_number[field_name] = col_num
-                sheet.merge_cells("%s1:%s2" % (gcl(col_num), gcl(col_num)))
+                sheet["%s1" % gcl(col_num)].value = field_name
+                sheet.merge_cells("%s2:%s3" % (gcl(col_num), gcl(col_num)))
                 cell = sheet[cell_id]
                 cell.alignment = Alignment(horizontal="center", vertical="center")
                 cell.font = Font(bold = True)
@@ -260,9 +269,9 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 if "condition" in field: td.condition = field["condition"]
                 col_num += 1
     
-    row_num = 3  
+    row_num = 4
     if len(fields) == 0:
-        sheet["A%i" % row_num].value = "=ROW() - 2"
+        sheet["A%i" % row_num].value = "=ROW() - 3"
         for name in columns:
             col_name = name_to_column[name]
             cell_id = "%s%i" % (col_name, row_num)
@@ -292,7 +301,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                             form_name_to_field[choice["name"]] = choice
                             
               
-            sheet["A%i" % row_num].value = "=ROW() - 2"              
+            sheet["A%i" % row_num].value = "=ROW() - 3"              
             for name in columns:
                 col_name = name_to_column[name]
                 cell_id = "%s%i" % (col_name, row_num)
@@ -339,29 +348,38 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 if td.name not in form_name_to_field: continue
                 field = form_name_to_field[td.name]
                 if len(field["value"]) == 0: continue
-                td.add_row(row_num - 2, field["value"])
+                td.add_row(row_num - 3, field["value"])
             
             row_num += 1
 
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
+    for selection in sheet.views.sheetView[0].selection:
+        selection.activeCell = "A2"
+        selection.sqref = "A2"
+
     
     
-    lookup_field = "$A$3:$%s$10000" % gcl(len(columns))
+    lookup_field = "$A$4:$%s$10000" % gcl(len(columns))
     for td in table_data_list:
         workbook.create_sheet(td.title)
         sheet = workbook[td.title]
-        dv = DataValidation(type="list", formula1="'%s'!$A$3:$A$10000" % (sheet_name), allow_blank = False)
+        sheet.row_dimensions[1].hidden = True
+        sheet["A1"].value = td.name
+        for selection in sheet.views.sheetView[0].selection:
+            selection.activeCell = "A2"
+            selection.sqref = "A2"
+        dv = DataValidation(type="list", formula1="'%s'!$A$4:$A$10000" % (sheet_name), allow_blank = False)
         sheet.add_data_validation(dv)
         
         # add column names
         for c, col_name in enumerate(td.column_names):
-            cell = sheet["%s1" % gcl(c + 1)]
+            cell = sheet["%s2" % gcl(c + 1)]
             cell.alignment = Alignment(horizontal="center", vertical="center")
             cell.font = Font(bold = True)
             cell.value = col_name
             sheet.column_dimensions[gcl(c + 1)].width = len(col_name) + 4
     
-        row_num = 2
+        row_num = 3
         if len(td.data) > 0:
             for row in td.data:
                 col_num = 1
@@ -491,7 +509,7 @@ def import_forms_from_worksheet(template, file_base_64):
                 table_fields[field["label"]] = field
                 td = TableData(field_name, field["label"])
                 td.column_names += field["columns"].split("|")
-                tables[field["label"]] = td
+                tables[field_name] = td
                 table_names.add(field_name)
     
     
@@ -501,24 +519,25 @@ def import_forms_from_worksheet(template, file_base_64):
     
     # load all table data
     for sht in workbook.sheetnames[1:]:
-        if sht not in tables: continue
-        
+        name = workbook[sht]["A1"].value
+        if name not in tables: continue
+    
         sheet_table = workbook[sht]
-        td = tables[sht]
+        td = tables[name]
         
         col_num = 2
         col_to_index = {}
         column_names = []
-        while sheet_table["%s1" % gcl(col_num)].value != None:
-            col_to_index[sheet_table["%s1" % gcl(col_num)].value] = -1
-            column_names.append(sheet_table["%s1" % gcl(col_num)].value)
+        while sheet_table["%s2" % gcl(col_num)].value != None:
+            col_to_index[sheet_table["%s2" % gcl(col_num)].value] = -1
+            column_names.append(sheet_table["%s2" % gcl(col_num)].value)
             col_num += 1
         
         for i, col_name in enumerate(td.column_names):
             if col_name in col_to_index: col_to_index[col_name] = i
         
         
-        for sheet_row in sheet_table.iter_rows(values_only = True):
+        for sheet_row in sheet_table.iter_rows(min_row = 2, values_only = True):
             form_id = sheet_row[0]
             try: form_id = int(form_id)
             except: continue
@@ -529,16 +548,13 @@ def import_forms_from_worksheet(template, file_base_64):
             for col_num, col_name in enumerate(column_names):
                 value = sheet_row[col_num + 1]
                 if col_name in col_to_index:
-                    row[col_to_index[col_name]] = value
+                    row[col_to_index[col_name]] = value if value != None else ""
                     found_entry = False
     
             td.data.append(row)
     
-    for label in tables:
-        tables[label] = tables[label].get_content()
-    
-    
-    
+    for name in tables:
+        tables[name] = tables[name].get_content()
     
     
     
@@ -560,25 +576,16 @@ def import_forms_from_worksheet(template, file_base_64):
         
         skipped_empty_cols = 0
         
-        if sheet["%s2" % gcl(col_num)].value != None:
-            if sheet["%s1" % gcl(col_num)].value != None:
-                label = sheet["%s1" % gcl(col_num)].value + "---" + sheet["%s2" % gcl(col_num)].value
-                previous_label = sheet["%s1" % gcl(col_num)].value
-            else:
-                label = previous_label + "---" + sheet["%s2" % gcl(col_num)].value
-        
-        else:
-            label = sheet["%s1" % gcl(col_num)].value
+        name = sheet["%s1" % gcl(col_num)].value
+        if name in field_types:
+            column_labels.append([col_num - 1, name])
+            unset_columns.remove(name)
             
-        label = label.split("\n")[0]
-        if label in label_to_name:
-            column_labels.append([col_num - 1, label])
-            unset_columns.remove(label_to_name[label])
         col_num += 1
         
         
     # go through rows
-    for row_num, sheet_row in enumerate(sheet.iter_rows(min_row = 3, values_only = True)):
+    for row_num, sheet_row in enumerate(sheet.iter_rows(min_row = 4, values_only = True)):
         found_entry = False
     
         form_id = row_num + 1
@@ -597,8 +604,8 @@ def import_forms_from_worksheet(template, file_base_64):
                     for choice in field["choice"]: name_to_field[choice["name"]] = choice
         
         # add all information from row into fields
-        for col_id, label in column_labels:
-            name = label_to_name[label]
+        for col_id, name in column_labels:
+            #name = label_to_name[label]
             value = sheet_row[col_id]
             
             if name in table_names:
@@ -606,8 +613,8 @@ def import_forms_from_worksheet(template, file_base_64):
                 field = name_to_field[name]
                 
                 if field["type"] == "table":
-                    if field["label"] in tables and form_id in tables[field["label"]]:
-                        field["value"] = tables[field["label"]][form_id]
+                    if field["name"] in tables and form_id in tables[field["name"]]:
+                        field["value"] = tables[field["name"]][form_id]
                         found_entry = True
                 continue
             
@@ -756,7 +763,7 @@ if __name__ == "__main__":
         
         
     elif test_case == "im-l":
-        with open("Lipid-class-list.xlsx", "rb") as infile:
+        with open("test-lipid-class.xlsx", "rb") as infile:
             file_base_64 = base64.b64encode(infile.read())
         imp_forms = import_forms_from_worksheet("workflow-templates/lipid-class.json", file_base_64)
         
