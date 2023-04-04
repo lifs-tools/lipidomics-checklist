@@ -1,24 +1,17 @@
 
 
-try:
+try:    
     import sys
     import os
-    import time
-    import subprocess
-    import json
+    from json import loads as json_loads
+    from json import dumps as json_dumps
     import pysodium
-    import base64
+    from base64 import b64decode, b64encode
     from datetime import datetime
-    from urllib import parse
-    from urllib.parse import unquote, unquote_plus
-    import hashlib
-    import CreateReport
-    import sqlite3
+    from urllib.parse import unquote
     from random import randint
-    import requests
     import db.ChecklistConfig as cfg
     from FormsEnum import *
-
         
         
     def dict_factory(cursor, row):
@@ -36,6 +29,7 @@ try:
                     "get_form_content", "update_form_content",
                     "export_samples", "import_samples",
                     "export_lipid_class", "import_lipid_class"}
+    
     conn = None
     table_prefix = "TCrpQ_"
     version = cfg.version
@@ -62,7 +56,8 @@ try:
 
     def dbconnect():
         try:
-            conn = sqlite3.connect(cfg.db_file)
+            from sqlite3 import connect as sqlite3_connect
+            conn = sqlite3_connect(cfg.db_file)
             conn.row_factory = dict_factory
             curr = conn.cursor()
         except Exception as e:
@@ -112,11 +107,11 @@ try:
         try:
             message = bytes(str(entry_id), 'utf-8')
             nonce = pysodium.randombytes(pysodium.crypto_stream_NONCEBYTES)
-            key = base64.b64decode(cfg.encryption_key)
+            key = b64decode(cfg.encryption_key)
             
             
             cipher = nonce + pysodium.crypto_secretbox(message, nonce, key)
-            return str(base64.b64encode(cipher), "utf-8")
+            return str(b64encode(cipher), "utf-8")
 
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in get_encrypted_entry", e)
@@ -132,8 +127,8 @@ try:
         conn, db_cursor = dbconnect()
         try:
             message = bytes(str(entry_id), 'utf-8')
-            key = base64.b64decode(cfg.encryption_key)
-            decoded_entry_id = base64.b64decode(entry_id)
+            key = b64decode(cfg.encryption_key)
+            decoded_entry_id = b64decode(entry_id)
             
             nonce = decoded_entry_id[:pysodium.crypto_stream_NONCEBYTES]
             return str(pysodium.crypto_secretbox_open(decoded_entry_id[pysodium.crypto_stream_NONCEBYTES:], nonce, key), "utf-8")
@@ -229,7 +224,7 @@ try:
                 title = ""
                 entry["type"] = ""
                 if len(entry["fields"]) > 0:
-                    field_data = json.loads(entry["fields"])
+                    field_data = json_loads(entry["fields"])
                     del entry["fields"]
                     
                     if len(field_data) > 0:
@@ -244,7 +239,7 @@ try:
                 if len(title) == 0: entry["title"] = "Untitled %s report" % (type_to_name[entry["type"]] if entry["type"] in type_to_name else "")
                 else: entry["title"] = title
                 entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
-            print(json.dumps(request))
+            print(json_dumps(request))
             
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
@@ -294,14 +289,10 @@ try:
                 entry["entry_id"] = get_encrypted_entry(entry["id"])
                 
                 if len(entry["fields"]) > 0:
-                    field_data = json.loads(entry["fields"].replace("'", '"'))
+                    field_data = json_loads(entry["fields"].replace("'", '"'))
                     del entry["fields"]
                     
-                    lipid_class = ""
-                    other_lipid_class = ""
-                    ion_type = ""
-                    pos_ion = ""
-                    neg_ion = ""
+                    lipid_class, other_lipid_class, ion_type, pos_ion, neg_ion = "", "", "", "", ""
                     
                     if len(field_data) > 0:
                         for field in field_data["pages"][0]["content"]:
@@ -316,7 +307,7 @@ try:
                     if lipid_class[:5] == "other": lipid_class = other_lipid_class
                     ion = pos_ion if ion_type.lower() == "positive" else neg_ion
                 entry["title"] = "%s%s" % (lipid_class, ion)
-            print(json.dumps(request))
+            print(json_dumps(request))
 
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_GETTING_CLASS_FORMS) + " in %s" % content["command"], e)
@@ -365,7 +356,7 @@ try:
                 entry["title"] = "Unspecified sample"
                 sample_type, sample_set = "", ""
                 if len(entry["fields"]) > 0:
-                    field_data = json.loads(entry["fields"])
+                    field_data = json_loads(entry["fields"])
                     del entry["fields"]
                     
                     if len(field_data) > 0:
@@ -376,7 +367,7 @@ try:
                             sample_type = get_select_value(field, "Sample type", sample_type)
                 if len(sample_type) > 0 and len(sample_set) > 0:
                     entry["title"] = "%s / %s" % (sample_set, sample_type)
-            print(json.dumps(request))
+            print(json_dumps(request))
 
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_GETTING_SAMPLE_FORMS) + " in %s" % content["command"], e)
@@ -427,7 +418,7 @@ try:
                 
                 entry["main_title"] = "Untitled report"
                 if "main_fields" in entry and len(entry["main_fields"]) > 0:
-                    field_data = json.loads(entry["main_fields"])
+                    field_data = json_loads(entry["main_fields"])
                     if len(field_data) > 0:
                         for field in field_data["pages"][0]["content"]:
                             if "label" in field and field["label"] == "Title of the study" and len(field["value"]) > 0:
@@ -436,7 +427,7 @@ try:
                 
                 title = ["Unspecified class", "[M]", "No Instrument"]
                 if len(entry["fields"]) > 0:
-                    field_data = json.loads(entry["fields"])
+                    field_data = json_loads(entry["fields"])
                     
                     lipid_class = ""
                     other_lipid_class = ""
@@ -465,7 +456,7 @@ try:
         finally:
             if conn is not None: conn.close()
             
-        print(json.dumps(request))
+        print(json_dumps(request))
 
 
 
@@ -492,7 +483,7 @@ try:
                 
                 entry["main_title"], entry["title"] = "Untitled report", "Unspecified sample"
                 if "main_fields" in entry and len(entry["main_fields"]) > 0:
-                    field_data = json.loads(entry["main_fields"])
+                    field_data = json_loads(entry["main_fields"])
                     
                     if len(field_data) > 0:
                         for field in field_data["pages"][0]["content"]:
@@ -502,7 +493,7 @@ try:
                 del entry["main_fields"]
                 
                 if len(entry["fields"]) > 0:
-                    field_data = json.loads(entry["fields"])
+                    field_data = json_loads(entry["fields"])
                     del entry["fields"]
                     
                     sample_set_name = ""
@@ -519,7 +510,7 @@ try:
                     
                     if len(sample_set_name) > 0 and len(sample_origin) > 0 and len(sample_type) > 0:
                         entry["title"] = "%s / %s / %s" % (sample_set_name, sample_origin, sample_type)
-            print(json.dumps(request))
+            print(json_dumps(request))
             
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
@@ -571,14 +562,14 @@ try:
         try:
             conn, db_cursor = dbconnect()
             
-            field_template = json.loads(open("workflow-templates/checklist.json").read())
+            field_template = json_loads(open("workflow-templates/checklist.json").read())
             if "pages" in field_template and len(field_template["pages"]) > 0:
                 for field in field_template["pages"][0]["content"]:
                     if field["type"] == "hidden":
                         field["value"] = workflow_type
                         break
                 field_template["version"] = version
-            field_template = json.dumps(field_template)
+            field_template = json_dumps(field_template)
             
             
             # add main form entry
@@ -636,14 +627,14 @@ try:
             status, request = check_status(main_entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
                 
                 
-            field_data = json.loads(request["fields"])
+            field_data = json_loads(request["fields"])
             workflow_type = ""
             for field in field_data["pages"][0]["content"]:
                 if "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
                     workflow_type = field["value"]
             
             
-            field_template = json.loads(open("workflow-templates/lipid-class.json").read())
+            field_template = json_loads(open("workflow-templates/lipid-class.json").read())
             if "pages" in field_template and len(field_template["pages"]) > 0:
                 for field in field_template["pages"][0]["content"]:
                     if field["type"] == "hidden":
@@ -651,7 +642,7 @@ try:
                         break
                 field_template["version"] = version
                 field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            field_template = json.dumps(field_template)
+            field_template = json_dumps(field_template)
             
             
             
@@ -728,10 +719,10 @@ try:
             # checking if main form is partial or completed
             status, request = check_status(main_entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
                 
-            field_template = json.loads(open("workflow-templates/sample.json").read())
+            field_template = json_loads(open("workflow-templates/sample.json").read())
             field_template["version"] = version
             field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            field_template = json.dumps(field_template)
+            field_template = json_dumps(field_template)
             
             # add main form entry
             sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, DATETIME('now'), ?);" % table_prefix
@@ -835,8 +826,6 @@ try:
                 
                 if request == 0:
                     while True:
-                        #hash_value = "%i-%i-%s" % (entry_id, uid, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                        #hash_value = hashlib.md5(hash_value.encode()).hexdigest()
                         hash_value = chr(randint(97, 122)) + chr(randint(97, 122)) + "".join(str(randint(0, 9)) for i in range(8))
                         
                         sql = "SELECT COUNT(*) AS cnt FROM %sreports WHERE hash = ?;" % table_prefix
@@ -907,10 +896,10 @@ try:
             sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
             db_cursor.execute(sql, (uid, main_entry_id))
             request = db_cursor.fetchone()
-            fields = json.loads(request["fields"])
+            fields = json_loads(request["fields"])
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            fields = json.dumps(fields)
+            fields = json_dumps(fields)
             
             
             # copy content assigned to entry id
@@ -937,9 +926,9 @@ try:
                 sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
                 db_cursor.execute(sql, (uid, sample_entry_id))
                 request = db_cursor.fetchone()
-                fields = json.loads(request["fields"])
+                fields = json_loads(request["fields"])
                 fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                fields = json.dumps(fields)
+                fields = json_dumps(fields)
                     
                     
                 # copy content assigned to entry id
@@ -973,9 +962,9 @@ try:
                 sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
                 db_cursor.execute(sql, (uid, class_entry_id))
                 request = db_cursor.fetchone()
-                fields = json.loads(request["fields"])
+                fields = json_loads(request["fields"])
                 fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                fields = json.dumps(fields)
+                fields = json_dumps(fields)
                     
                     
                 # copy content assigned to entry id
@@ -1060,10 +1049,10 @@ try:
             sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
             db_cursor.execute(sql, (uid, class_entry_id))
             request = db_cursor.fetchone()
-            fields = json.loads(request["fields"])
+            fields = json_loads(request["fields"])
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            fields = json.dumps(fields)
+            fields = json_dumps(fields)
                 
             
             # copy content assigned to entry id
@@ -1151,10 +1140,10 @@ try:
             sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
             db_cursor.execute(sql, (uid, sample_entry_id))
             request = db_cursor.fetchone()
-            fields = json.loads(request["fields"])
+            fields = json_loads(request["fields"])
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            fields = json.dumps(fields)
+            fields = json_dumps(fields)
                 
                 
             # copy content assigned to entry id
@@ -1642,11 +1631,14 @@ try:
             
             if not os.path.exists(pdf_file):
                 
+                import subprocess
+                import CreateReport
+                
                 # creating the tex and pdf file
                 report_file = "completed_documents/report-%s.tex" % hash_value
                 
                 CreateReport.create_report(db_cursor, table_prefix, uid, entry_id, report_file, version)
-                p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents %s" % report_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
+                p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents %s" % report_file, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, close_fds = True)
                 
                 output = p.stdout.read() # execution
                 
@@ -1706,13 +1698,14 @@ try:
                 print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
                 exit()
                 
+            import requests
                 
                 
             # checking if main form is partial or completed
             status, request = check_status(entry_id, uid, db_cursor, is_in = {partial_label, published_label})
             
             
-            fields = json.loads(request["fields"])
+            fields = json_loads(request["fields"])
             report_title, report_author,report_affiliation = "-", "-", "-"
             
             for field in fields["pages"][0]["content"]:
@@ -1743,7 +1736,7 @@ try:
                 r = requests.post('https://%s/api/deposit/depositions' % cfg.zenodo_link, params = params, json = {}, headers = headers, timeout = 15)
 
                 if r.status_code != 201:
-                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
+                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json_dumps(r.json())))
                     exit()
             except:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
@@ -1760,7 +1753,7 @@ try:
                     r = requests.put("%s/%s" % (bucket_url, pdf_file), data = fp, params = params, timeout = 15)
 
                 if r.status_code != 200:
-                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
+                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json_dumps(r.json())))
                     exit()
             except:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
@@ -1781,10 +1774,10 @@ try:
                         'communities': [{'identifier': 'ils'}]
                     }
                 }
-                r = requests.put('https://%s/api/deposit/depositions/%s' % (cfg.zenodo_link, record_id), params = params, data=json.dumps(data), headers=headers, timeout = 15)
+                r = requests.put('https://%s/api/deposit/depositions/%s' % (cfg.zenodo_link, record_id), params = params, data=json_dumps(data), headers=headers, timeout = 15)
                 
                 if r.status_code != 200:
-                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
+                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json_dumps(r.json())))
                     exit()
                 
             except:
@@ -1797,7 +1790,7 @@ try:
                 r = requests.post('https://%s/api/deposit/depositions/%s/actions/publish' % (cfg.zenodo_link, record_id), params = params, timeout = 15)
                 
                 if r.status_code != 202:
-                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json.dumps(r.json())))
+                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json_dumps(r.json())))
                     exit()
                     
                 doi = r.json()["doi"]
@@ -1931,7 +1924,7 @@ try:
         user_uuid = content["user_uuid"]
         uid = int(content["uid"])
         try:
-            form_content = unquote(base64.b64decode(content["content"]).decode("utf-8"))
+            form_content = unquote(b64decode(content["content"]).decode("utf-8"))
             
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_DECODING_FORM) + " in %s" % content["command"], e)
@@ -2169,7 +2162,7 @@ try:
                 for field_template, is_complete in imported_forms:
                     field_template["version"] = version
                     field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    field_template = json.dumps(field_template)
+                    field_template = json_dumps(field_template)
                     
                     status_label = completed_label if is_complete else partial_label
                     
@@ -2259,7 +2252,7 @@ try:
             status, request = check_status(main_entry_id, uid, db_cursor, is_in = {published_label})
             
             workflow_type = ""
-            field_data = json.loads(request["fields"])
+            field_data = json_loads(request["fields"])
             for field in field_data["pages"][0]["content"]:
                 if "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
                     workflow_type = field["value"]
@@ -2278,7 +2271,7 @@ try:
                                 break
                         field_template["version"] = version
                         field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    field_template = json.dumps(field_template)
+                    field_template = json_dumps(field_template)
                     
                     status_label = completed_label if is_complete else partial_label
                     

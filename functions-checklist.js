@@ -937,7 +937,7 @@ function create_preview(result, titles, report_fields){
         for (var i = 0; i < report_fields[report_fields.length - 1].length; ++i){
             key = report_fields[report_fields.length - 1][i][0].toLowerCase();
             if (key in values){
-                report_fields[report_fields.length - 1][i][1] = values[key].join(", ");
+                report_fields[report_fields.length - 1][i][1] = decodeURIComponent(values[key].join(", "));
                 if (report_fields[report_fields.length - 1][i][1].length == 0){
                     report_fields[report_fields.length - 1][i][1] = "-";
                 }
