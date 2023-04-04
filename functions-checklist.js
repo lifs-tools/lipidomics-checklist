@@ -103,10 +103,12 @@ function load_data(content){
             // check for any logical conditions
             if (!("condition" in field) || field["condition"].length == 0) continue;
             
+            /*
             // check for excel limitations on sheet name length
             if (field["type"] == "table" && field["label"].length > 30){
                 alert("Warning: Label length of table entry '" + field["label"] + "' is bigger than 30. Might cause trouble when exporting to spreadsheet file.");
             }
+            */
             
             check_fields[field_name] = [];
             var condition = [];
@@ -1041,7 +1043,7 @@ function create_preview_table(titles, report_fields){
                 var td_element = document.createElement("td");
                 tr_element.appendChild(td_element);
                 td_element.setAttribute("colspan", "2");
-                td_element.style.width = "49%";
+                td_element.style.width = "50%";
                 td_element.style.padding = "10px 5px 10px 5px";
                 td_element.setAttribute("valign", "top");
                 create_table_in_table(report_fields[i][ci][0], report_fields[i][ci][1], td_element);
@@ -1051,7 +1053,7 @@ function create_preview_table(titles, report_fields){
                 var td_element_key = document.createElement("td");
                 tr_element.appendChild(td_element_key);
                 td_element_key.innerHTML = report_fields[i][ci][0];
-                td_element_key.style.width = "29%";
+                td_element_key.style.width = "30%";
                 td_element_key.style.padding = "10px 5px 10px 5px";
                 td_element_key.setAttribute("valign", "top");
                 if (ci + h < end_val) td_element_key.style.borderBottom = "1px solid black";
@@ -1070,8 +1072,7 @@ function create_preview_table(titles, report_fields){
                 var td_element_space = document.createElement("td");
                 tr_element.appendChild(td_element_space);
                 td_element_space.innerHTML = "&nbsp;";
-                td_element_space.style.width = "2%";
-                if (ci + h < end_val) td_element_space.style.borderBottom = "1px solid black";
+                td_element_space.style.width = "1%";
                     
                 if (report_fields[i][ci + h][1].substring(0, 11) == "!!!TABLE!!!"){
                     second_col = create_table_in_table(report_fields[i][ci + h][0], report_fields[i][ci + h][1]);

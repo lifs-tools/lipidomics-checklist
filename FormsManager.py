@@ -2197,7 +2197,7 @@ try:
                 print(0)
                 
             else:
-                print("Warning: the following rows are incomplete: %s" % ", ".join(str(i + 3) for i, form in enumerate(imported_forms) if not form[1]))
+                print("Warning: the entries with following IDs are incomplete: %s" % ", ".join(str(i + 1) for i, form in enumerate(imported_forms) if not form[1]))
                     
             
             
@@ -2307,7 +2307,7 @@ try:
                 print(0)
                 
             else:
-                print("Warning: the following rows are incomplete: %s" % ", ".join(str(i + 3) for i, form in enumerate(imported_forms) if not form[1]))
+                print("Warning: the entries with following IDs are incomplete: %s" % ", ".join(str(i + 1) for i, form in enumerate(imported_forms) if not form[1]))
                     
             
             
