@@ -222,26 +222,35 @@ function preview_lipid_class_form(entry_id){
             }
             document.getElementById("preview_lipid_class").style.display = "block";
             
-            titles = [];
-            report_fields = [];
-            create_preview(JSON.parse(response_text), titles, report_fields);
-            /*
-            titles = ["Sample"];
+            var tmp_titles = [];
+            var titles = [];
+            var report_fields = [];
+            create_preview(JSON.parse(response_text), tmp_titles, report_fields);
             
-            var sample_set = "";
-            var sample_origin = "";
-            var sample_type = "";
+            var lipid_class_prefix = "Lipid class";
             
-            for (var row of report_fields[0]){
-                if (row[0] == "Sample set name") sample_set = row[1];
-                else if (row[0] == "Sample origin") sample_origin = row[1];
-                else if (row[0] == "Sample type") sample_type = row[1];
+            for (var i = 0; i < tmp_titles.length; ++i){
+                var tmp_report_field = report_fields[i];
+                var tmp_title = tmp_titles[i];
+    
+                
+                var lipid_class = "";
+                var polarity = "negative";
+                var adduct_pos = "";
+                var adduct_neg = "";
+                for (var tmp_rep_field of tmp_report_field){
+                    if (tmp_rep_field[0] == "Lipid class") lipid_class = tmp_rep_field[1];
+                    else if (tmp_rep_field[0] == "Polarity mode") polarity = tmp_rep_field[1].toLowerCase();
+                    else if (tmp_rep_field[0] == "Type of positive (precursor)ion") adduct_pos = tmp_rep_field[1];
+                    else if (tmp_rep_field[0] == "Type of negative (precursor)ion") adduct_neg = tmp_rep_field[1];
+                }
+                
+                if (lipid_class.length > 0 && (adduct_pos.length > 0 || adduct_neg.length > 0)){
+                    lipid_class_prefix = lipid_class + ((polarity == "positive") ? adduct_pos : adduct_neg);
+                }
+                
+                titles.push(lipid_class_prefix + " / " + tmp_title);
             }
-            if (sample_set.length > 0 && sample_origin.length > 0 && sample_type.length > 0){
-                titles[0] = sample_set + " / " + sample_origin + " / " + sample_type;
-                report_fields[0] = report_fields[0].slice(3, report_fields[0].length);
-            }
-            */
             
             document.getElementById("preview_lipid_class_content").innerHTML = "";
             document.getElementById("preview_lipid_class_content").appendChild(create_preview_table(titles, report_fields));

@@ -1001,29 +1001,6 @@ function create_table_in_table(title, report_fields, cell){
         }
         row_num += 1;
     }
-    /*
-    result_text.append("\\centering \\begin{tabular}{%s}\\rowcolor{ILSgreen!60}" % (("P{%0.3f\\hsize}" % (0.93 / num_cols)) * num_cols))
-    
-    result_text.append(" & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \n")
-    
-    
-    row_cnt = 0
-    for i, cell in enumerate(content):
-        if i % num_cols == 0:
-            result_text.append("\\rowcolor{%s}" % ("ILSgreen!20" if row_cnt % 2 == 1 else "white"))
-        else:
-            result_text.append(" & ")
-            
-        result_text.append(unicoding(unquote(cell)))
-        
-        if i % num_cols == num_cols - 1:
-            result_text.append("\\\\")
-            row_cnt += 1
-            
-    if i % num_cols < num_cols - 1: result_text.append("\\\\")
-    result_text.append("\\hline  \\end{tabular} \\vskip-7px}")
-    
-    */
 }
 
 
