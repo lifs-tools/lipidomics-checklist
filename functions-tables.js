@@ -329,12 +329,12 @@ var sample_table_view = "<div id=\"sample_selector_wrapper\" style=\"top: 0px; l
     </div> \
 </div> \
 <div id='preview_sample' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
-<div style='width: 100%; text-align: right;'><img src='images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
+<div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
 </div> \
 <div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); position:fixed; overflow: auto;'></div> \
 </div> \
 <div id='import_samples_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
-<table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px;' align='center' valign='middle'> \
+<table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
 Select a spreadsheet file for upload: <p /> \
 <input type='file' id='sample_file_upload' accept='.xlsx'></input><p /> \
 <button onclick='upload_samples(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_samples_importer();'>Cancel</button> \
@@ -367,12 +367,12 @@ var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0p
         </div> \
     </div> \
 <div id='preview_lipid_class' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
-<div style='width: 100%; text-align: right;'><img src='images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
+<div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
 </div> \
 <div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); overflow: auto;'></div> \
 </div> \
 <div id='import_lipid_class_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
-<table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px;' align='center' valign='middle'> \
+<table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
 Select a spreadsheet file for upload: <p /> \
 <input type='file' id='lipid_class_file_upload' accept='.xlsx'></input><p /> \
 <button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
