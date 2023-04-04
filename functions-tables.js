@@ -313,14 +313,14 @@ customElements.define("view-table", TableView);
 
 
 var sample_table_view = "<div id=\"sample_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
-    <div id=\"sample_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
+    <div id=\"sample_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px; border: 1px solid black;\"> \
         <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
-            <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
-                <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Select sample types from other reports for import</b></td></tr> \
-                <tr><td style=\"width: 100%; height: 80%;\" id='sample_selector_inner' valign=\"top\" align=\"center\"> \
+            <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
+                <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select sample types from other reports for import</b></td></tr> \
+                <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='sample_selector_inner' valign=\"top\" align=\"center\"> \
                     <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' align='l|c' fixedHeight ></view-table> \
                 </td></tr> \
-                <tr><td align=\"right\" valign=\"bottom\"> \
+                <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
                     <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_sample_selector();\">Cancel</div> \
                 </td></tr> \
@@ -340,10 +340,10 @@ Select a spreadsheet file for upload: <p /> \
 <button onclick='upload_samples(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_samples_importer();'>Cancel</button> \
 </td></tr></table></div> \
 <div style=\"display: inline-block;\"> \
-    <a id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"import_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"export_sample_forms\" title=\"You can export sample entries into a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"export_samples(entry_id);\">Export samples to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"upload_sample_forms\" title=\"You can import sample entries from a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_samples_importer();\">Import samples from file</a> \
+    <a id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"import_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"export_sample_forms\" title=\"You can export sample entries into a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"export_samples(entry_id);\">Export samples to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"upload_sample_forms\" title=\"You can import sample entries from a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_samples_importer();\">Import samples from file</a> \
 </div> \
 <view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
@@ -351,14 +351,14 @@ Select a spreadsheet file for upload: <p /> \
 
 
 var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
-        <div id=\"class_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px;\"> \
+        <div id=\"class_selector_wrapper\" style=\"top: 15%; left: 25%; width: 50%; height: 70%; position: fixed; background: white; border-radius: 5px; border: 1px solid black;\"> \
             <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
-                <table style=\"width: 100%; margin: 0px; height: 100%; border: 1px solid black;\" cellpadding=\"10px\"> \
-                    <tr><td style=\"width: 100%;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
-                    <tr><td style=\"width: 100%; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
-                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='45|30|20|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
+                <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
+                    <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
+                    <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
+                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='35|35|25|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
                     </td></tr> \
-                    <tr><td align=\"right\" valign=\"bottom\"> \
+                    <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_class_selector();\">Cancel</div> \
                     </td></tr> \
@@ -378,10 +378,10 @@ Select a spreadsheet file for upload: <p /> \
 <button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
 </td></tr></table></div> \
 <div style=\"display: inline-block;\"> \
-    <a id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"export_lipid_class_forms\" title=\"You can export lipid class entries into a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"export_lipid_class(entry_id);\">Export lipid classes to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"upload_lipid_class_forms\" title=\"You can import lipid_class entries from a spreadsheet file\" style=\"cursor: pointer; color: #0000ff; display: inline-block;\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</a> \
+    <a id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"export_lipid_class_forms\" title=\"You can export lipid class entries into a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"export_lipid_class(entry_id);\">Export lipid classes to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
+    <a id=\"upload_lipid_class_forms\" title=\"You can import lipid_class entries from a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</a> \
 </div> \
 <div id=\"result_box\"></div>\
 <view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
