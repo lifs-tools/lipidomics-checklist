@@ -962,10 +962,16 @@ function create_table_in_table(title, report_fields, cell){
     num_cols = column_labels.length;
 
     
+    var div_element = document.createElement("div");
+    cell.appendChild(div_element);
+    div_element.style.width = "auto";
+    div_element.style.padding = "10px 15px";
+    
     var table_element = document.createElement("table");
-    cell.appendChild(table_element);
+    div_element.appendChild(table_element);
+    table_element.style.border = "0px";
     table_element.style.width = "100%";
-    table_element.style.padding = "5px 20px 5px 20px";
+    table_element.style.margin = "0px";
     table_element.setAttribute("cellspacing", "0px");
     
     var tr_element = document.createElement("tr");
@@ -976,6 +982,7 @@ function create_table_in_table(title, report_fields, cell){
         tr_element.appendChild(td_col);
         td_col.setAttribute("bgcolor", ILSGreenLight);
         td_col.style.borderBottom = "1px solid black";
+        td_col.style.borderTop = "0px";
         td_col.style.color = "white";
         td_col.style.fontWeight = "bold";
         td_col.style.padding = "5px 1px 5px 1px";
@@ -1000,6 +1007,7 @@ function create_table_in_table(title, report_fields, cell){
             td_element.setAttribute("bgcolor", (row_num % 2 == 1) ? ILSGreenCell : "white");
             td_element.innerHTML = (value.length > 0) ? value : "-";
             td_element.style.padding = "5px 1px 5px 1px";
+            td_element.style.borderTop = "0px";
             if (row_num == table_content.length - 1) td_element.style.borderBottom = "1px solid black";
         }
         row_num += 1;
@@ -1011,8 +1019,10 @@ function create_table_in_table(title, report_fields, cell){
 
 function create_preview_table(titles, report_fields){
     var table_element = document.createElement("table");
-    table_element.style.padding = "50px 100px 50px 100px";
     table_element.setAttribute("cellspacing", "0px");
+    table_element.style.margin = "50px";
+    table_element.style.border = "0px";
+    table_element.style.width = "auto";
     for (var i = 0; i < titles.length; ++i){
         
         var tr_element = document.createElement("tr");
@@ -1021,6 +1031,8 @@ function create_preview_table(titles, report_fields){
         tr_element.appendChild(td_element);
         td_element.setAttribute("colspan", "5");
         td_element.innerHTML = "<font size='+2' color='#999999'><b>" + titles[i] + "</b></font>";
+        td_element.setAttribute("bgcolor", "white");
+        td_element.style.borderTop = "0px";
         
         var tr_element = document.createElement("tr");
         table_element.appendChild(tr_element);
@@ -1046,6 +1058,7 @@ function create_preview_table(titles, report_fields){
                 td_element.style.width = "50%";
                 td_element.style.padding = "10px 5px 10px 5px";
                 td_element.setAttribute("valign", "top");
+                td_element.style.borderTop = "0px";
                 create_table_in_table(report_fields[i][ci][0], report_fields[i][ci][1], td_element);
                 if (ci + h < end_val) td_element.style.borderBottom = "1px solid black";
             }
@@ -1056,6 +1069,7 @@ function create_preview_table(titles, report_fields){
                 td_element_key.style.width = "30%";
                 td_element_key.style.padding = "10px 5px 10px 5px";
                 td_element_key.setAttribute("valign", "top");
+                td_element_key.style.borderTop = "0px";
                 if (ci + h < end_val) td_element_key.style.borderBottom = "1px solid black";
                 
                 var td_element_value = document.createElement("td");
@@ -1064,6 +1078,7 @@ function create_preview_table(titles, report_fields){
                 td_element_value.style.width = "20%";
                 td_element_value.style.padding = "10px 5px 10px 5px";
                 td_element_value.setAttribute("valign", "top");
+                td_element_value.style.borderTop = "0px";
                 if (ci + h < end_val) td_element_value.style.borderBottom = "1px solid black";
             }
                 
@@ -1073,6 +1088,8 @@ function create_preview_table(titles, report_fields){
                 tr_element.appendChild(td_element_space);
                 td_element_space.innerHTML = "&nbsp;";
                 td_element_space.style.width = "1%";
+                td_element_space.style.borderTop = "0px";
+                td_element_space.style.padding = "0px";
                     
                 if (report_fields[i][ci + h][1].substring(0, 11) == "!!!TABLE!!!"){
                     second_col = create_table_in_table(report_fields[i][ci + h][0], report_fields[i][ci + h][1]);
@@ -1084,6 +1101,7 @@ function create_preview_table(titles, report_fields){
                     td_element_key.style.width = "29%";
                     td_element_key.style.padding = "10px 5px 10px 5px";
                     td_element_key.setAttribute("valign", "top");
+                    td_element_key.style.borderTop = "0px";
                     if (ci + h < end_val) td_element_key.style.borderBottom = "1px solid black";
                     
                     var td_element_value = document.createElement("td");
@@ -1092,6 +1110,7 @@ function create_preview_table(titles, report_fields){
                     td_element_value.style.width = "20%";
                     td_element_value.style.padding = "10px 5px 10px 5px";
                     td_element_value.setAttribute("valign", "top");
+                    td_element_value.style.borderTop = "0px";
                     if (ci + h < end_val) td_element_value.style.borderBottom = "1px solid black";
                 }
             }
