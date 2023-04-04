@@ -331,7 +331,7 @@ var sample_table_view = "<div id=\"sample_selector_wrapper\" style=\"top: 0px; l
 <div id='preview_sample' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <div style='width: 100%; text-align: right;'><img src='images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
 </div> \
-<div id='preview_sample_content' style='width: 100%; height: 100px; position:fixed; overflow: auto;'></div> \
+<div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); position:fixed; overflow: auto;'></div> \
 </div> \
 <div id='import_samples_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px;' align='center' valign='middle'> \
