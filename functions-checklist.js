@@ -1020,9 +1020,9 @@ function create_table_in_table(title, report_fields, cell){
 function create_preview_table(titles, report_fields){
     var table_element = document.createElement("table");
     table_element.setAttribute("cellspacing", "0px");
-    table_element.style.margin = "50px";
+    table_element.style.margin = "0px";
     table_element.style.border = "0px";
-    table_element.style.width = "auto";
+    table_element.style.width = "100%";
     for (var i = 0; i < titles.length; ++i){
         
         var tr_element = document.createElement("tr");

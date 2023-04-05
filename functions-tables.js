@@ -1,3 +1,6 @@
+var ILSGreenHeader = "#7EBA28";
+var ILSGreenRow = "#E5F1D4";
+var ArrowInactiveColor = "#ccc";
 
 class TableView extends HTMLElement {
     constructor() {
@@ -88,13 +91,17 @@ class TableView extends HTMLElement {
             th_obj.setAttribute("align", "center");
             if (col < this.column_sizes.length) th_obj.style.width = this.column_sizes[col] + "%";
             th_obj.innerHTML = col_name;
-            if (enable_sort[col]) th_obj.innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;";
+            th_obj.style.color = "white";
+            th_obj.style.fontSize = "18px";
+            th_obj.style.backgroundColor = ILSGreenHeader;
+            if (enable_sort[col]) th_obj.innerHTML += "&nbsp;&nbsp;";
             
             var div_asc = document.createElement("div");
             if (enable_sort[col]) th_obj.append(div_asc);
             div_asc.style.display = "inline";
-            div_asc.style.color = "#ccc";
+            div_asc.style.color = ArrowInactiveColor;
             div_asc.style.cursor = "pointer";
+            div_asc.style.fontSize = "14px";
             div_asc.col = col;
             div_asc.content = this;
             div_asc.setAttribute("onclick", "this.content.sortASC(" + col + ");");
@@ -103,8 +110,10 @@ class TableView extends HTMLElement {
             var div_desc = document.createElement("div");
             if (enable_sort[col]) th_obj.append(div_desc);
             div_desc.style.display = "inline";
-            div_desc.style.color = "#ccc";
+            div_desc.style.color = ArrowInactiveColor;
             div_desc.style.cursor = "pointer";
+            div_desc.style.fontSize = "14px";
+            div_desc.style.margin = "0px 0px 0px -3px";
             div_desc.col = col;
             div_desc.content = this;
             div_desc.setAttribute("onclick", "this.content.sortDESC(" + col + ");");
@@ -122,13 +131,14 @@ class TableView extends HTMLElement {
             var td_filter_obj = document.createElement("td");
             tr_filter_obj.append(td_filter_obj);
             td_filter_obj.style.padding = "0px";
+            td_filter_obj.style.backgroundColor = ILSGreenHeader;
             
             if (enable_sort[col]) {
                 var input_filter_obj = document.createElement("input");
                 td_filter_obj.append(input_filter_obj);
                 input_filter_obj.type = "text";
                 input_filter_obj.style.width = "100%";
-                input_filter_obj.style.padding = "0px";
+                input_filter_obj.style.padding = "2px 0px";
                 input_filter_obj.value = filter_val;
                 input_filter_obj.content = this;
                 input_filter_obj.col = col++;
@@ -181,8 +191,8 @@ class TableView extends HTMLElement {
     sortASC(col){
         var s = this.sorting[col];
         for (var i = 0; i < this.sort_arrows.length; ++i){
-            this.sort_arrows[i][0].style.color = "#ccc";
-            this.sort_arrows[i][1].style.color = "#ccc";
+            this.sort_arrows[i][0].style.color = ArrowInactiveColor;
+            this.sort_arrows[i][1].style.color = ArrowInactiveColor;
             this.sorting[i] = 0;
         }
         
@@ -200,8 +210,8 @@ class TableView extends HTMLElement {
     sortDESC(col){
         var s = this.sorting[col];
         for (var i = 0; i < this.sort_arrows.length; ++i){
-            this.sort_arrows[i][0].style.color = "#ccc";
-            this.sort_arrows[i][1].style.color = "#ccc";
+            this.sort_arrows[i][0].style.color = ArrowInactiveColor;
+            this.sort_arrows[i][1].style.color = ArrowInactiveColor;
             this.sorting[i] = 0;
         }
         
@@ -293,7 +303,8 @@ class TableView extends HTMLElement {
             tr_obj.style.backgroundColor = "red";
             this.tbody.append(tr_obj);
             tr_obj.style.fontWeight = "normal";
-            var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
+            //var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
+            var bg_color = ((++col) & 1) ? "white" : ILSGreenRow;
             for (var cell of row){
                 tr_obj.append(cell);
                 cell.style.backgroundColor = bg_color;
@@ -331,7 +342,7 @@ var sample_table_view = "<div id=\"sample_selector_wrapper\" style=\"top: 0px; l
 <div id='preview_sample' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
 </div> \
-<div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); position:fixed; overflow: auto;'></div> \
+<div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); padding: 50px; overflow-y: auto;'></div> \
 </div> \
 <div id='import_samples_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
@@ -356,7 +367,7 @@ var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0p
                 <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
                     <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
                     <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
-                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='35|35|25|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
+                        <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='35|30|30|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
                     </td></tr> \
                     <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
                         <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
@@ -369,7 +380,7 @@ var lipid_class_table_view = "<div id=\"class_selector_wrapper\" style=\"top: 0p
 <div id='preview_lipid_class' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
 </div> \
-<div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); overflow: auto;'></div> \
+<div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); padding: 50px; overflow-y: auto;'></div> \
 </div> \
 <div id='import_lipid_class_from_file_form' style=\"top: calc(50% - 100px); left: 35%; width: 30%; height: 200px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
 <table width='100%' style='border: 0px; margin: 0px;' height='100%'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
