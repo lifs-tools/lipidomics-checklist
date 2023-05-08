@@ -148,6 +148,7 @@ li.lipidomics-forms-publishing-li {
 .submit-button {
     background-color: #ddd;
     border: 1px solid #ccc;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 0.9em;
     font-weight: 400;
