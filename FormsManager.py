@@ -301,10 +301,10 @@ try:
                             neg_ion = get_select_value(field, "Type of negative (precursor)ion", neg_ion)
                             ion_type = get_select_value(field, "Polarity mode", ion_type)
                             
-                            if "label" in field and field["label"] == "Other Lipid class" and "value" in field and len(field["value"]) > 0:
+                            if "name" in field and field["name"] == "other_lipid_class" and "value" in field and len(field["value"]) > 0:
                                 other_lipid_class = field["value"]
                                     
-                    if lipid_class[:5] == "other": lipid_class = other_lipid_class
+                    if lipid_class[:5].lower() == "other": lipid_class = other_lipid_class
                     ion = pos_ion if ion_type.lower() == "positive" else neg_ion
                 entry["title"] = "%s%s" % (lipid_class, ion)
             print(json_dumps(request))
