@@ -547,6 +547,10 @@ function load_data(content){
     if (workflow_type == "lipid-class"){
         if ("lipid_class" in dom_select_fields) dom_select_fields["lipid_class"].addEventListener("change", change_fragment_suggestions);
         if ("polarity_mode" in dom_select_fields) dom_select_fields["polarity_mode"].addEventListener("change", change_fragment_suggestions);
+        if ("type_pos_ion" in dom_select_fields) dom_select_fields["type_pos_ion"].addEventListener("change", change_fragment_suggestions);
+        if ("type_neg_ion" in dom_select_fields) dom_select_fields["type_neg_ion"].addEventListener("change", change_fragment_suggestions);
+        if ("other_pos_ion" in dom_text_fields) dom_text_fields["other_pos_ion"].addEventListener("change", change_fragment_suggestions);
+        if ("other_neg_ion" in dom_text_fields) dom_text_fields["other_neg_ion"].addEventListener("change", change_fragment_suggestions);
     }
     
     change_fragment_suggestions();
@@ -560,6 +564,29 @@ function change_fragment_suggestions(){
     
     var lipid_class_name = lipid_class_select[lipid_class_select.selectedIndex].value;
     var polarity = polarity_select[polarity_select.selectedIndex].value;
+    var adduct = "";
+    if (polarity == "Positive" && ("type_pos_ion" in dom_select_fields)){
+        adduct = dom_select_fields["type_pos_ion"][dom_select_fields["type_pos_ion"].selectedIndex].value;
+        if (adduct == "Other"){
+            if ("other_pos_ion" in dom_text_fields){
+                adduct = dom_text_fields["other_pos_ion"].value;
+            }
+            else {
+                adduct = "";
+            }
+        }
+    }
+    else if (polarity == "Negative" && ("type_neg_ion" in dom_select_fields)){
+        adduct = dom_select_fields["type_neg_ion"][dom_select_fields["type_neg_ion"].selectedIndex].value;
+        if (adduct == "Other"){
+            if ("other_neg_ion" in dom_text_fields){
+                adduct = dom_text_fields["other_neg_ion"].value;
+            }
+            else {
+                adduct = "";
+            }
+        }
+    }
     
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
@@ -573,7 +600,8 @@ function change_fragment_suggestions(){
             dom_input_table_fields["frag_used"].addSuggestions(0, JSON.parse(xmlhttp_request.responseText));
         }
     }
-    var request_url = connector_path + "/connector.php?command=get_fragment_suggestions&lipid_class_name=" + encodeURIComponent(lipid_class_name) + "&polarity=" + encodeURIComponent(polarity);
+    var request_url = connector_path + "/connector.php?command=get_fragment_suggestions&lipid_class_name=" + encodeURIComponent(lipid_class_name) + "&polarity=" + encodeURIComponent(polarity) + (adduct.length > 0 ? ("&adduct=" + encodeURIComponent(adduct)): "");
+    console.log(request_url);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
