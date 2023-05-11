@@ -1,0 +1,711 @@
+class,charge,fragmentname
+BMP,1,"HG(GP,155)"
+BMP,1,"HG(GPG,211)"
+BMP,1,"-(NH3,17)"
+BMP,1,"-(2H2O,36)"
+BMP,1,"-HG(GP,172)"
+BMP,1,FA2(+C3H4O) + HG(GP)
+BMP,1,FA1(+C3H4O) + HG(GP)
+BMP,1,FA1(+C3H5O4P)
+BMP,1,FA2(+C3H5O4P)
+BMP,1,FA1(+C3H6O2)
+BMP,1,FA2(+C3H6O2)
+BMP,1,FA1(+C3H4O)
+BMP,1,FA2(+C3H4O)
+BMP,1,FA1
+BMP,1,FA2
+BMP,-1,GP(153)
+BMP,-1,"HG(GPG,209)"
+BMP,-1,"HG(GPG,227)"
+BMP,-1,P(79)
+BMP,-1,P(97)
+BMP,-1,-([adduct])
+BMP,-1,FA1(+O)
+BMP,-1,FA2(+O)
+BMP,-1,"FA1(+O) + HG(GP,155)"
+BMP,-1,"FA2(+O) + HG(GP,155)"
+BMP,-1,"FA1(+O) + HG(GP,137)"
+BMP,-1,"FA2(+O) + HG(GP,137)"
+BMP,-1,"FA1(+O) + HG(GPG,229)"
+BMP,-1,"FA2(+O) + HG(GPG,229)"
+BMP,-1,"FA1(+O) + HG(GPG,211)"
+BMP,-1,"FA2(+O) + HG(GPG,211)"
+CDPDAG,1,"HG(CDP,404)"
+CDPDAG,1,"HG(CDP,386)"
+CDPDAG,1,"HG(CP,324)"
+CDPDAG,1,"HG(CP,306)"
+CDPDAG,1,"HG(C,208)"
+CDPDAG,1,"HG(C,112)"
+CDPDAG,1,"-HG(CDP,403)"
+CDPDAG,1,FA2(+C3H6O2) + HG(CDP)
+CDPDAG,1,FA1(+C3H6O2) + HG(CDP)
+CDPDAG,-1,"HG(CDP,402)"
+CDPDAG,-1,"HG(CDP,384)"
+CDPDAG,-1,"HG(CP,322)"
+CDPDAG,-1,"HG(CP,304)"
+CDPDAG,-1,"HG(C,110)"
+CDPDAG,-1,"HG(C,272)"
+CDPDAG,-1,P(79)
+CDPDAG,-1,P(97)
+CDPDAG,-1,2P(159)
+CDPDAG,-1,"-HG(C,243)"
+CDPDAG,-1,FA1(+O)
+CDPDAG,-1,FA2(+O)
+CDPDAG,-1,-FA1(+HO)
+CDPDAG,-1,-FA2(+HO)
+CDPDAG,-1,-FA1(-H)
+CDPDAG,-1,-FA2(-H)
+CDPDAG,-1,"-FA1(+HO)-HG(C,225)"
+CDPDAG,-1,"-FA2(+HO)-HG(C,225)"
+CDPDAG,-1,"-FA1(+HO)-HG(C,243)"
+CDPDAG,-1,"-FA2(+HO)-HG(C,243)"
+CDPDAG,-1,"-FA1(+HO)-HG(C,305)"
+CDPDAG,-1,"-FA2(+HO)-HG(C,305)"
+Cer,1,"-(H2O,18)"
+Cer,1,LCB(-HO)
+Cer,1,LCB(-H3O2)
+Cer,1,LCB(-CH3O2)
+Cer,-1,-([adduct])
+Cer,-1,LCB(-H6NO)
+Cer,-1,LCB(-CH3O)
+Cer,-1,LCB(-C2H8NO)
+Cer,-1,FA1(+C2H3N)
+Cer,-1,FA1(-CH2O)
+Cer,-1,FA1(+HN)
+Cer,-1,FA1(+C2H3NO)
+CerP,1,"-(H3PO4,98)"
+CerP,1,"-HG(CerP,116)"
+CerP,1,LCB(-H3O2)
+CerP,-1,-([adduct])
+CerP,-1,P(79)
+CerP,-1,P(97)
+EPC,1,"-HG(PE,141)"
+EPC,1,LCB(-HO)
+EPC,1,LCB(-H3O2)
+IPC,-1,P(79)
+IPC,-1,"HG(PI,241)"
+IPC,-1,"HG(PI,259)"
+IPC,-1,"-HG(I,180)"
+IPC,-1,LCB(-H6NO)
+IPC,-1,LCB(-C2H10NO)
+ST,1,-Cholesterol(35)
+CE,1,-FA1(+HO)-Cholesterol(35)
+ST 27:2;1,1,-Desmosterol(35)
+SE 27:2,1,-FA1(+HO)-Desmosterol(35)
+ST 29:2;1,1,-Stigmasterol(35)
+SE 29:2,1,-FA1(+HO)-Stigmasterol(35)
+ST 28:3;1,1,-Ergosterol(35)
+SE 28:3,1,-FA1(+HO)-Ergosterol(35)
+ST 30:2;1,1,-Lanosterol(35)
+SE 30:2,1,-FA1(+HO)-Lanosterol(35)
+ST 28:2;1,1,-Ergostadienol(35)
+SE 28:2,1,-FA1(+HO)-Ergostadienol(35)
+CL,-1,FA1(+O)
+CL,-1,FA2(+O)
+CL,-1,FA3(+O)
+CL,-1,FA4(+O)
+CL,-1,-FA1(+HO) [-1]
+CL,-1,-FA2(+HO) [-1]
+CL,-1,-FA3(+HO) [-1]
+CL,-1,-FA4(+HO) [-1]
+CL,-2,-FA1(+HO) [-2]
+CL,-2,-FA2(+HO) [-2]
+CL,-2,-FA3(+HO) [-2]
+CL,-2,-FA4(+HO) [-2]
+CL,-1,-FA1(-H) [-1]
+CL,-1,-FA2(-H) [-1]
+CL,-1,-FA3(-H) [-1]
+CL,-1,-FA4(-H) [-1]
+CL,-2,-FA1(-H) [-2]
+CL,-2,-FA2(-H) [-2]
+CL,-2,-FA3(-H) [-2]
+CL,-2,-FA4(-H) [-2]
+CL,-1,-FA1(-H)-FA2(+HO) [-1]
+CL,-1,-FA1(-H)-FA3(+HO) [-1]
+CL,-1,-FA1(-H)-FA4(+HO) [-1]
+CL,-1,-FA2(-H)-FA3(+HO) [-1]
+CL,-1,-FA2(-H)-FA4(+HO) [-1]
+CL,-1,-FA3(-H)-FA4(+HO) [-1]
+CL,-2,-FA1(-H)-FA2(+HO) [-2]
+CL,-2,-FA1(-H)-FA3(+HO) [-2]
+CL,-2,-FA1(-H)-FA4(+HO) [-2]
+CL,-2,-FA2(-H)-FA3(+HO) [-2]
+CL,-2,-FA2(-H)-FA4(+HO) [-2]
+CL,-2,-FA3(-H)-FA4(+HO) [-2]
+CL,-1,-FA1(-H)-FA2(-H) [-1]
+CL,-1,-FA1(-H)-FA3(-H) [-1]
+CL,-1,-FA1(-H)-FA4(-H) [-1]
+CL,-1,-FA2(-H)-FA3(-H) [-1]
+CL,-1,-FA2(-H)-FA4(-H) [-1]
+CL,-1,-FA3(-H)-FA4(-H) [-1]
+CL,-2,-FA1(-H)-FA2(-H) [-2]
+CL,-2,-FA1(-H)-FA3(-H) [-2]
+CL,-2,-FA1(-H)-FA4(-H) [-2]
+CL,-2,-FA2(-H)-FA3(-H) [-2]
+CL,-2,-FA2(-H)-FA4(-H) [-2]
+CL,-2,-FA3(-H)-FA4(-H) [-2]
+CL,-1,FA1(+O) + FA2(+O) + HG(GP)
+CL,-1,FA3(+O) + FA4(+O) + HG(GP)
+CL,-1,FA1(+O) + FA2(+O) + HG(GPG)
+CL,-1,FA3(+O) + FA4(+O) + HG(GPG)
+CL,-1,FA1(+O) + FA2(+O) + HG(PA)
+CL,-1,FA3(+O) + FA4(+O) + HG(PA)
+CL,-1,FA1(+O) + HG(PA)
+CL,-1,FA2(+O) + HG(PA)
+CL,-1,FA3(+O) + HG(PA)
+CL,-1,FA4(+O) + HG(PA)
+DG,1,"-(H2O+NH3,35)"
+DG,1,-FA1(-H)-(H2O+NH3)
+DG,1,-FA2(-H)-(H2O+NH3)
+DGDG,1,"-(NH3,17)"
+DGDG,1,"-HG(Hex2,324)"
+DGDG,1,"-HG(Hex,162)"
+DGDG,1,"-HG(Hex2,342)"
+DGDG,1,FA2(+C3H6O2)
+DGDG,1,FA1(+C3H6O2)
+DGDG,-1,"HG(DGDG,415)"
+DGDG,-1,"HG(DGDG,397)"
+DGDG,-1,"HG(DGDG,379)"
+DGDG,-1,-([adduct])
+DGDG,-1,FA1(+O)
+DGDG,-1,FA2(+O)
+DGDG,-1,-FA1(+HO)
+DGDG,-1,-FA2(+HO)
+DGDG,-1,-FA1(-H)
+DGDG,-1,-FA2(-H)
+DMPE,1,"HG(DMPE,170)"
+DMPE,1,"-HG(DMPE,169)"
+DMPE,1,FA1
+DMPE,1,FA2
+DMPE,1,FA2(+C3H4O) + HG(DMPE)
+DMPE,1,FA1(+C3H4O) + HG(DMPE)
+DMPE,1,FA2(+C3H6O2) + HG(DMPE)
+DMPE,1,FA1(+C3H6O2) + HG(DMPE)
+DMPE,1,FA1(+C3H6O2)
+DMPE,1,FA2(+C3H6O2)
+DMPE,1,FA1(+C3H4O)
+DMPE,1,FA2(+C3H4O)
+DMPE,-1,P(79)
+DMPE,-1,"HG(DMPE,168)"
+DMPE,-1,"HG(DMPE,224)"
+DMPE,-1,FA1(+O)
+DMPE,-1,FA2(+O)
+DMPE,-1,-FA1(+HO)
+DMPE,-1,-FA2(+HO)
+DMPE,-1,-FA1(-H)
+DMPE,-1,-FA2(-H)
+LPC O,1,"HG(PC,184)"
+LPC O,1,"(C5H13NO,104)"
+LPC O,-1,-(CH3[adduct])
+PC O,-1,HG(PC)-(CH3[adduct])
+PC O,-1,-(CH3[adduct])
+PC O,-1,FA O-[xx:x]
+PC O,-1,FA2(+O)
+PC O,-1,-FA2(+HO)
+PC O,-1,-FA2(-H)
+PC O,-1,FA2 -(CO)
+PC O,1,"HG(PC,184)"
+LPE O,-1,-FA1(-H)
+LPE O,-1,GP(153)
+LPE O,1,"-HG(PE,141)"
+PE O,-1,GP(153)
+PE O,-1,GP(135)
+PE O,-1,FA2(+O)
+PE O,-1,-FA2(+HO)
+PE O,-1,-FA2(-H)
+PE O,-1,FA2 -(CO)
+PE O,1,"-HG(PE,141)"
+PE O,1,FA2+(C3H6O2)
+Hex3Cer,1,"-(H2O,18)"
+Hex3Cer,1,LCB(-HO)
+Hex3Cer,1,LCB(-H3O2)
+Hex3Cer,1,LCB(-CH3O2)
+Hex3Cer,1,"-HG(Hex3,504)"
+Hex3Cer,1,"-HG(Hex3,522)"
+Hex3Cer,1,"-HG(Hex3,534)"
+Hex3Cer,1,"-HG(Hex2,342)"
+Hex3Cer,1,"-HG(Hex,180)"
+GB4,1,"HG(NHex,204)"
+GB4,1,"HG(NHex2,366)"
+GB4,1,"HG(NHex3,528)"
+GB4,1,"-(H2O,18)"
+GB4,1,LCB(-HO)
+GB4,1,LCB(-H3O2)
+GB4,1,LCB(-CH3O2)
+GB4,1,"-HG(NHex4,707)"
+GB4,1,"-HG(NHex4,725)"
+GB4,1,"-HG(NHex3,545)"
+GB4,1,"-HG(NHex2,383)"
+GB4,1,"-HG(NHex,221)"
+GB4,1,"-HG(NHex4,689)"
+GD3,-1,"HG(NHex,290)"
+GD3,-1,"HG(NHex2,581)"
+GD3,-1,"HG(NHex,308)"
+GD3,-1,"HG(NHex2,599)"
+GD3,-1,"-HG(N2Hex4,906)"
+GD3,-1,"-HG(N2Hex3,744)"
+GD3,-1,"-HG(N2Hex2,582)"
+GD3,-1,"-HG(NHex,291)"
+GM1,1,LCB(-HO)
+GM1,1,LCB(-H3O2)
+GM1,1,LCB(-CH3O2)
+GM1,1,"-HG(N2Hex3,674)"
+GM1,1,"-HG(N2Hex4,836)"
+GM1,1,"-HG(N2Hex5,998)"
+GM1,1,"-HG(N2Hex5,1016)"
+GM1,1,"-HG(N2Hex5,1028)"
+GM1,1,"HG(NHex2, 366)"
+GM1,-1,"HG(NHex, 290)"
+GM1,-1,"-HG(CO2, 44)"
+GM1,-1,"-HG(NHex,291)"
+GM1,-1,"-HG(NHex2,365)"
+GM1,-1,"-HG(NHex2,409)"
+GM1,-1,"-HG(N2Hex3,656)"
+GM1,-1,"-HG(N2Hex4,818)"
+GM1,-1,"-HG(N2Hex5,980)"
+GM3,-1,"HG(NHex,290)"
+GM3,-1,"-HG(NHex3,615)"
+GM3,-1,"-HG(NHex2,453)"
+GM3,-1,"-HG(NHex,291)"
+GM3,-1,"-HG(NHex3,633)"
+GM3,-1,"-HG(NHex2,471)"
+GM4,-1,"HG(NHex,290)"
+GM4,-1,"-HG(NHex2,453)"
+GM4,-1,"-HG(NHex,291)"
+GM4,-1,"-HG(NHex2,471)"
+HexCer,1,"-(H2O,18)"
+HexCer,1,LCB(-HO)
+HexCer,1,LCB(-H3O2)
+HexCer,1,LCB(-CH3O2)
+HexCer,1,"-HG(Hex,180)"
+HexCer,1,"-HG(Hex,198)"
+HexCer,1,"-HG(Hex,162)"
+HexCer,-1,-([adduct])
+HexCer,-1,"-HG(Hex,162)"
+HexCer,-1,"-HG(Hex,180)"
+HexCer,-1,LCB(-H6NO)
+HexCer,-1,LCB(-CH3O)
+HexCer,-1,LCB(-C2H8NO)
+HexCer,-1,FA1(+C2H3N)
+HexCer,-1,FA1(+HN)
+HexCer,-1,FA1(+C2H3NO)
+SHexCer,1,"-HG(SHex,98)"
+SHexCer,1,LCB(-HO)
+SHexCer,1,LCB(-H3O2)
+SHexCer,1,LCB(-CH3O2)
+SHexCer,1,"-HG(SHex,260)"
+SHexCer,1,"-HG(SHex,278)"
+SHexCer,1,"-HG(SHex,242)"
+SHexCer,-1,"HG(S,97)"
+SHexCer,-1,"HG(SHexCer,241)"
+SHexCer,-1,HG(SHexCer)+(C2H5NO)
+SHexCer,-1,"-HG(SHexCer,242)"
+SHexCer,-1,LCB(-CH3O)
+SHexCer,-1,LCB(-C2H8NO)
+SHexCer,-1,FA1(+C2H3N)
+SHexCer,-1,FA1(+HN)
+SHexCer,-1,FA1(+C2H3NO)
+LHexCer,1,-(H2O[adduct])
+LHexCer,1,LCB(-HO)
+LHexCer,1,LCB(-H3O2)
+LHexCer,1,LCB(-CH3O2)
+LHexCer,1,"-HG(Hex,162)"
+LHexCer,-1,-([adduct])
+LHexCer,-1,"-HG(Hex,162)"
+LHexCer,-1,"-HG(Hex,180)"
+LHexCer,-1,LCB(-CH3O)
+LHexCer,-1,LCB(-C2H8NO)
+LHexCer,-1,LCB(-H6NO)
+Hex2Cer,1,"-(H2O,18)"
+Hex2Cer,1,LCB(-HO)
+Hex2Cer,1,LCB(-H3O2)
+Hex2Cer,1,LCB(-CH3O2)
+Hex2Cer,1,"-HG(Hex2,342)"
+Hex2Cer,1,"-HG(Hex2,360)"
+Hex2Cer,1,"-HG(Hex2,324)"
+Hex2Cer,-1,-([adduct])
+Hex2Cer,-1,"-HG(Hex2,324)"
+Hex2Cer,-1,"-HG(Hex,162)"
+Hex2Cer,-1,"-HG(Hex2,342)"
+Hex2Cer,-1,"-HG(Hex,180)"
+Hex2Cer,-1,LCB(-CH3O)
+Hex2Cer,-1,LCB(-C2H8NO)
+Hex2Cer,-1,FA1(+C2H3N)
+Hex2Cer,-1,FA1(+HN)
+Hex2Cer,-1,FA1(+C2H3NO)
+LPA,-1,-([adduct])
+LPA,-1,GP(153)
+LPA,-1,P(79)
+LPA,-1,P(97)
+LPA,-1,FA1(+O)
+LPA,-1,-FA1(-H)
+LPA,1,"-(H2O,18)"
+LPA,1,"-(HPO4,98)"
+LPA,1,FA1
+LPA,1,GP(155)
+LPC,1,"HG(PC,184)"
+LPC,1,"(C5H13NO,104)"
+LPC,-1,"HG(PC,224)"
+LPC,-1,-(CH3[adduct])
+LPC,-1,FA1(+O)
+LPE,-1,-FA1(-H)-(H2O)
+LPE,-1,-FA1(-H)
+LPE,-1,GP(153)
+LPE,-1,FA1(+O)
+LPE,1,"-HG(PE,141)"
+LPG,-1,GP(153)
+LPG,-1,-FA1(-H)
+LPG,-1,-FA1(+HO)
+LPG,-1,P(79)
+LPG,-1,FA1(+O)
+LPG,1,"-HG(PG,172)"
+LPI,-1,"-(C6H12O6, 180)"
+LPI,-1,GP(153)
+LPI,-1,"HG(PI,241)"
+LPI,-1,-FA1(+HO)
+LPI,-1,P(79)
+LPI,-1,FA1(+O)
+LPI,1,"-(H2O,18)"
+LPI,1,"-(2*H2O,36)"
+LPI,1,GP(155)
+LPI,1,GPI(335)
+LPI,1,GPI(317)
+LPI,1,"-HG(PI,260)"
+LPI,1,FA1
+LPS,-1,GP(153)
+LPS,-1,P(79)
+LPS,-1,P(97)
+LPS,-1,FA1(+O)
+LPS,-1,"-(C3H5NO2,87)"
+LPS,1,"-(H2O,18)"
+LPS,1,FA1
+LPS,1,"-(C3H7NO3,105)"
+MG,1,"-(H2O+NH3,35)"
+MG,1,FA1
+MG,1,FA1(+O)
+M(IP)2C,-1,"HG(M(IP)2,663) [-1]"
+M(IP)2C,-2,"HG(M(IP)2,331) [-2]"
+M(IP)2C,-1,"HG(MIP,421)"
+M(IP)2C,-1,"HG(MIP,403)"
+M(IP)2C,-1,"HG(IP,241)"
+M(IP)2C,-1,"-HG(I3P,566)"
+M(IP)2C,-1,"-HG(I3P,584)"
+M(IP)2C,-1,"-HG(I2P,404)"
+M(IP)2C,-1,"-HG(IP,242)"
+M(IP)2C,-1,LCB(-H6NO)
+MIPC,-1,P(79)
+MIPC,-1,P(97)
+MIPC,-1,"HG(MIP,421)"
+MIPC,-1,"HG(MIP,403)"
+MIPC,-1,"HG(IP,241)"
+MIPC,-1,"-HG(I2,324)"
+MIPC,-1,"-HG(I2,342)"
+MIPC,-1,LCB(-H6NO)
+MGDG,1,"-(NH3,17)"
+MGDG,1,"-HG(Hex,162)"
+MGDG,1,"-HG(Hex,180)"
+MGDG,1,FA2(+C3H6O2)
+MGDG,1,FA1(+C3H6O2)
+MGDG,-1,"HG(MGDG,253)"
+MGDG,-1,-([adduct])
+MGDG,-1,FA1(+O)
+MGDG,-1,FA2(+O)
+MGDG,-1,-FA1(+HO)
+MGDG,-1,-FA2(+HO)
+MGDG,-1,-FA1(-H)
+MGDG,-1,-FA2(-H)
+LCL,-1,FA1(+O)
+LCL,-1,FA2(+O)
+LCL,-1,FA3(+O)
+LCL,-1,-FA1(+HO) [-1]
+LCL,-1,-FA2(+HO) [-1]
+LCL,-1,-FA3(+HO) [-1]
+LCL,-2,-FA1(+HO) [-2]
+LCL,-2,-FA2(+HO) [-2]
+LCL,-2,-FA3(+HO) [-2]
+LCL,-1,-FA1(-H) [-1]
+LCL,-1,-FA2(-H) [-1]
+LCL,-1,-FA3(-H) [-1]
+LCL,-2,-FA1(-H) [-2]
+LCL,-2,-FA2(-H) [-2]
+LCL,-2,-FA3(-H) [-2]
+LCL,-1,-FA1(-H)-FA2(+HO) [-1]
+LCL,-1,-FA1(-H)-FA3(+HO) [-1]
+LCL,-1,-FA2(-H)-FA3(+HO) [-1]
+LCL,-2,-FA1(-H)-FA2(+HO) [-2]
+LCL,-2,-FA1(-H)-FA3(+HO) [-2]
+LCL,-2,-FA2(-H)-FA3(+HO) [-2]
+LCL,-1,-FA1(-H)-FA2(-H) [-1]
+LCL,-1,-FA1(-H)-FA3(-H) [-1]
+LCL,-1,-FA2(-H)-FA3(-H) [-1]
+LCL,-2,-FA1(-H)-FA2(-H) [-2]
+LCL,-2,-FA1(-H)-FA3(-H) [-2]
+LCL,-2,-FA2(-H)-FA3(-H) [-2]
+LCL,-1,FA1(+O) + FA2(+O) + HG(GP)
+LCL,-1,FA3(+O) + HG(GP)
+LCL,-1,FA1(+O) + FA2(+O) + HG(GPG)
+LCL,-1,FA3(+O) + HG(GPG)
+LCL,-1,FA1(+O) + FA2(+O) + HG(PA)
+LCL,-1,FA1(+O) + HG(PA)
+LCL,-1,FA2(+O) + HG(PA)
+LCL,-1,FA3(+O) + HG(PA)
+MMPE,1,"HG(MMPE,156)"
+MMPE,1,"-HG(MMPE,155)"
+MMPE,1,FA1
+MMPE,1,FA2
+MMPE,1,FA2(+C3H4O) + HG(MMPE)
+MMPE,1,FA1(+C3H4O) + HG(MMPE)
+MMPE,1,FA2(+C3H6O2) + HG(MMPE)
+MMPE,1,FA1(+C3H6O2) + HG(MMPE)
+MMPE,1,FA1(+C3H6O2)
+MMPE,1,FA2(+C3H6O2)
+MMPE,1,FA1(+C3H4O)
+MMPE,1,FA2(+C3H4O)
+MMPE,-1,P(79)
+MMPE,-1,"HG(MMPE,154)"
+MMPE,-1,"HG(MMPE,210)"
+MMPE,-1,FA1(+O)
+MMPE,-1,FA2(+O)
+MMPE,-1,-FA1(+HO)
+MMPE,-1,-FA2(+HO)
+MMPE,-1,-FA1(-H)
+MMPE,-1,-FA2(-H)
+PA,-1,P(79)
+PA,-1,GP(153)
+PA,-1,FA1(+O)
+PA,-1,FA2(+O)
+PA,-1,-FA1(+HO)
+PA,-1,-FA2(+HO)
+PA,-1,-FA1(-H)
+PA,-1,-FA2(-H)
+PC,1,"HG(PC,184)"
+PC,-1,-(CH3[adduct])
+PC,-1,FA1(+O)
+PC,-1,FA2(+O)
+PC,-1,-FA1(+HO)-(CH3[adduct])
+PC,-1,-FA2(+HO)-(CH3[adduct])
+PC,-1,-FA1(-H)-(CH3[adduct])
+PC,-1,-FA2(-H)-(CH3[adduct])
+PE,-1,"HG(PE,196)"
+PE,-1,GP(153)
+PE,-1,FA1(+O)
+PE,-1,FA2(+O)
+PE,-1,-FA1(+HO)
+PE,-1,-FA2(+HO)
+PE,-1,-FA1(-H)
+PE,-1,-FA2(-H)
+PE,1,"-HG(PE,141)"
+PEt,-1,GP(153)
+PEt,-1,-([adduct])
+PEt,-1,FA1(+O)
+PEt,-1,FA2(+O)
+PEt,-1,-FA1(+HO)
+PEt,-1,-FA2(+HO)
+PEt,-1,-FA1(-H)
+PEt,-1,-FA2(-H)
+PEt,1,"HG(PEt,183)"
+PEt,1,"-HG(PEt,126)"
+PEt,1,FA1
+PEt,1,FA2
+PEt,1,FA2(+C3H6O2)
+PEt,1,FA1(+C3H6O2)
+PEt,1,FA2(+C3H4O) + HG(PEt)
+PEt,1,FA1(+C3H4O) + HG(PEt)
+PG,-1,FA1(+O)
+PG,-1,-FA1(+HO)
+PG,1,"-HG(PG,172)"
+PG,-1,-FA1(-H)
+PG,-1,FA2(+O)
+PG,-1,-FA2(+HO)
+PG,-1,-FA2(-H)
+PG,-1,GP(153)
+PG,-1,"HG(PG,171)"
+PG,-1,"HG(PG,227)"
+PI,-1,-FA1(-H)
+PI,-1,FA1(+O)
+PI,-1,-FA1(+HO)
+PI,-1,-FA2(-H)
+PI,-1,FA2(+O)
+PI,-1,-FA2(+HO)
+PI,-1,GP(153)
+PI,-1,"HG(PI,241)"
+PI,-1,P(79)
+PI,1,"-HG(PI,260)"
+PIP,-1,P(79)
+PIP,-1,P(97)
+PIP,-1,"HG(PIP,321)"
+PIP,-1,"HG(PIP,303)"
+PIP,-1,"HG(PI,241)"
+PIP,-1,"HG(PI,223)"
+PIP,-1,"HG(PI,205)"
+PIP,-1,"HG(PI,187)"
+PIP,-1,"-(H2O,18)"
+PIP,-1,"-(HPO3,80)"
+PIP,-1,"-(H3PO4,98)"
+PIP,-1,"-HG(PI,242)"
+PIP,-1,FA1(+O)
+PIP,-1,FA2(+O)
+PIP,-1,-FA1(+HO)
+PIP,-1,-FA2(+HO)
+PIP,-1,-FA1(-H)
+PIP,-1,-FA2(-H)
+PIP,-1,"-FA1(-H)-HG(PI,242)"
+PIP,-1,"-FA2(-H)-HG(PI,242)"
+PIP,-1,"-FA1(+HO)-HG(PI,242)"
+PIP,-1,"-FA2(+HO)-HG(PI,242)"
+PIP,-1,-FA1(+HO)-(HPO3)
+PIP,-1,-FA2(+HO)-(HPO3)
+PIP,-1,-FA1(-H)-(HPO3)
+PIP,-1,-FA2(-H)-(HPO3)
+PIP2,-1,P(79)
+PIP2,-1,P(97)
+PIP2,-1,"HG(PIP2,401)"
+PIP2,-1,"HG(PIP2,383)"
+PIP2,-1,"HG(PIP,321)"
+PIP2,-1,"HG(PIP,303)"
+PIP2,-1,"HG(PI,241)"
+PIP2,-1,"HG(PI,223)"
+PIP2,-1,"HG(PI,205)"
+PIP2,-1,"HG(PI,187)"
+PIP2,-1,"-(HPO3,80)"
+PIP2,-1,"-(H3PO4,98)"
+PIP2,-1,"-(H3PO4+H2O,116)"
+PIP2,-1,"-(2*H3PO4,196)"
+PIP2,-1,"-(2*H3PO4+H2O,214)"
+PIP2,-1,"-HG(IP2,322)"
+PIP2,-1,FA1(+O)
+PIP2,-1,FA2(+O)
+PIP2,-1,-FA1(+HO)
+PIP2,-1,-FA2(+HO)
+PIP2,-1,-FA1(-H)
+PIP2,-1,-FA2(-H)
+PIP2,-1,"-FA1(-H)-HG(IP2,322)"
+PIP2,-1,"-FA2(-H)-HG(IP2,322)"
+PIP2,-1,"-FA1(+HO)-HG(IP2,322)"
+PIP2,-1,"-FA2(+HO)-HG(IP2,322)"
+PIP2,-1,-FA1(+HO)-(HPO3)
+PIP2,-1,-FA2(+HO)-(HPO3)
+PIP2,-1,-FA1(-H)-(HPO3)
+PIP2,-1,-FA2(-H)-(HPO3)
+PIP2,-1,-FA1(+HO)-(2*HPO3)
+PIP2,-1,-FA2(+HO)-(2*HPO3)
+PIP2,-1,-FA1(-H)-(2*HPO3)
+PIP2,-1,-FA2(-H)-(2*HPO3)
+PIP3,-1,P(79)
+PIP3,-1,P(97)
+PIP3,-1,"HG(PIP3,499)"
+PIP3,-1,"HG(PIP3,481)"
+PIP3,-1,"HG(PIP3,463)"
+PIP3,-1,"HG(PIP2,401)"
+PIP3,-1,"HG(PIP2,383)"
+PIP3,-1,"HG(PIP,321)"
+PIP3,-1,"HG(PIP,303)"
+PIP3,-1,"HG(PI,241)"
+PIP3,-1,"HG(PI,223)"
+PIP3,-1,"HG(PI,205)"
+PIP3,-1,"HG(PI,187)"
+PIP3,-1,"-(HPO3,80)"
+PIP3,-1,"-(H3PO4,98)"
+PIP3,-1,"-(H3PO4+H2O,116)"
+PIP3,-1,"-(H3PO4+2*H2O,134)"
+PIP3,-1,"-(2*HPO3,160)"
+PIP3,-1,"-(2*HPO3+H2O,178)"
+PIP3,-1,"-(2*H3PO4,196)"
+PIP3,-1,"-(2*H3PO4+H2O,214)"
+PIP3,-1,"-(3*H3PO4,294)"
+PIP3,-1,"-(IP3,402)"
+PIP3,-1,FA1(+O)
+PIP3,-1,FA2(+O)
+PIP3,-1,-FA1(+HO)-(H3PO4)
+PIP3,-1,-FA2(+HO)-(H3PO4)
+PIP3,-1,-FA1(+HO)-(H5O5P)
+PIP3,-1,-FA2(+HO)-(H5O5P)
+PIP3,-1,-FA1(-H)-(2*HPO3)
+PIP3,-1,-FA2(-H)-(2*HPO3)
+PIP3,-1,-FA1(+HO)-(2*HPO3)
+PIP3,-1,-FA2(+HO)-(2*HPO3)
+PIP3,-1,-FA1(+HO)-(2*H3PO4)
+PIP3,-1,-FA2(+HO)-(2*H3PO4)
+PIP3,-1,-FA1(-H)-(3*H3PO4)
+PIP3,-1,-FA2(-H)-(3*H3PO4)
+PIP3,-1,-FA1(+HO)-(3*H3PO4)
+PIP3,-1,-FA2(+HO)-(3*H3PO4)
+PIP3,-1,"-FA1(-H)-HG(IP3,402)"
+PIP3,-1,"-FA2(-H)-HG(IP3,402)"
+PIP3,-1,"-FA1(+HO)-HG(IP3,402)"
+PIP3,-1,"-FA2(+HO)-HG(IP3,402)"
+LPC P,1,"HG(PC,184)"
+LPC P,1,"(C5H13NO,104)"
+LPC P,-1,-(CH3[adduct])
+LPE P,-1,-FA1(-H)
+LPE P,-1,GP(153)
+LPE P,1,"-HG(PE,141)"
+LPE P,1,"-(H3PO4,98)"
+PC P,-1,HG(PC)-(CH3[adduct])
+PC P,-1,-(CH3[adduct])
+PC P,-1,FA O-[xx:x]
+PC P,-1,FA2(+O)
+PC P,-1,-FA2(+HO)
+PC P,-1,-FA2(-H)
+PC P,-1,FA2 -(CO)
+PC P,1,"HG(PC,184)"
+PE P,-1,"HG(PE,196)"
+PE P,-1,FA O-[xx:x]
+PE P,-1,FA2(+O)
+PE P,-1,-FA2(+HO)
+PE P,-1,-FA2(-H)
+PE P,-1,FA2 -(CO)
+PE P,1,-FA1(-H)
+PE P,1,-FA2+(C3H5O2)
+PE P,1,FA2+(C3H5O2)
+PE P,1,"-HG(PE,141)"
+PS,-1,-FA1(-H)-(C3H5NO2)
+PS,-1,FA1(+O)
+PS,-1,-FA1(+HO)-(C3H5NO2)
+PS,-1,-FA2(-H)-(C3H5NO2)
+PS,-1,FA2(+O)
+PS,-1,-FA2(+HO)-(C3H5NO2)
+PS,-1,GP(153)
+PS,1,"-HG(PS,185)"
+PS,-1,"-(C3H5NO2,87)"
+SM,1,"HG(PC,184)"
+SM,1,LCB(-H3O2)
+SM,-1,"HG(PC,168)"
+SM,-1,P(79)
+SM,-1,FA1(+O)
+LSM,1,"HG(PC,184)"
+LSM,1,LCB(-H3O2)
+LSM,-1,"HG(PC,168)"
+LSM,-1,P(79)
+SPB,1,LCB(60)
+SPB,1,"-(H2O,18)"
+SPB,1,LCB(-H3O2)
+SPB,1,LCB(-CH3O2)
+SPBP,1,"-(H3PO4,98)"
+SPBP,1,"-(H2O,18)"
+SPBP,1,LCB(-H3O2)
+SPBP,-1,P(79)
+SPBP,-1,P(97)
+SQDG,1,-([adduct])
+SQDG,1,"-HG(SHex,226)"
+SQDG,1,"-HG(SHex,244)"
+SQDG,1,"-HG(SHex,256)"
+SQDG,1,FA2(+C3H8O3)
+SQDG,1,FA1(+C3H8O3)
+SQDG,1,FA2(+C3H6O2)
+SQDG,1,FA1(+C3H6O2)
+SQDG,1,"FA1 + HG(SHex,226)"
+SQDG,1,"FA2 + HG(SHex,226)"
+SQDG,-1,"HG(SQDG,225)"
+SQDG,-1,FA1(+O)
+SQDG,-1,FA2(+O)
+SQDG,-1,-FA1(+HO)
+SQDG,-1,-FA2(+HO)
+SQDG,-1,-FA1(-H)
+SQDG,-1,-FA2(-H)
+TG,1,FA1
+TG,1,FA2
+TG,1,FA3
+TG,1,-FA1(+HO)-(NH3)
+TG,1,-FA2(+HO)-(NH3)
+TG,1,-FA3(+HO)-(NH3)
