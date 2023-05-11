@@ -6,6 +6,7 @@ class InputTable extends HTMLElement {
         this.input_fields = [];
         this.table = document.createElement("table");
         this.table.style = "margin: 0px; border-radius: 5px;";
+        this.suggestions = [];
     }
     
     connectedCallback() {
@@ -14,10 +15,12 @@ class InputTable extends HTMLElement {
         this.append(this.table);
         
         this.column_labels = this.getAttribute("columns").split("|");
+        var l = this.column_labels.length;
+        this.suggestions = new Array(l);
+        this.suggestions.fill(0, 0, l);
         
         if (this.getAttribute("value").length > 0){
             var cnt = 0;
-            var l = this.column_labels.length;
             for (var content of this.getAttribute("value").split("|")){
                 if (cnt % l == 0){
                     var arr = new Array(l);
@@ -31,6 +34,14 @@ class InputTable extends HTMLElement {
         }
         this.renderTable();
     }
+    
+    
+    addSuggestions(index, suggestion_list){
+        if (0 <= index && index < this.suggestions.length){
+            this.suggestions[index] = suggestion_list;
+        }
+    }
+    
     
     updateTable(){
         var val = [];
@@ -61,6 +72,24 @@ class InputTable extends HTMLElement {
         this.obj.updateTable();
     }
     
+    
+    showSuggestions(obj, cell){
+        /*
+        var dialog = document.createElement("display");
+        dialog.style = "border: 1px solid black; border-radius: 5px;";
+        dialog.innerHTML = "huhu";
+        obj.appendChild(dialog);
+        dialog.showModal();
+        //console.log(cell, obj.getBoundingClientRect().left);
+        */
+        
+        
+        //console.log(cell, obj.getBoundingClientRect().left);
+        //console.log(inner);
+        
+    }
+    
+    
     renderTable() {
         this.table.innerHTML = "";
         var tr_col_obj = document.createElement("tr");
@@ -82,14 +111,36 @@ class InputTable extends HTMLElement {
             for (var cell of row){
                 var td_obj = document.createElement("td");
                 tr_obj.append(td_obj);
+                var div_obj = document.createElement("div");
+                td_obj.append(div_obj);
+                div_obj.setAttribute("class", "suggestion-div");
+                
                 var input_obj = document.createElement("input");
-                td_obj.append(input_obj);
+                div_obj.append(input_obj);
                 td_obj.style = "padding: 0px;";
                 input_obj.type = "text";
                 input_obj.value = decodeURIComponent(cell);
                 input_obj.obj = this;
                 input_obj.row_num = row_num;
                 input_obj.cell_num = cell_num;
+                if (this.suggestions[cell_num] != 0){
+                    var suggestion_field = document.createElement("ul");
+                    suggestion_field.setAttribute("class", "suggestion-field");
+                    suggestion_field.style = "position: absolute; left: " + (div_obj.getBoundingClientRect().left + div_obj.getBoundingClientRect().width - 10) + "px; top: " + div_obj.getBoundingClientRect().top + "px";
+                    div_obj.appendChild(suggestion_field);
+                    
+                    for (var suggestion of this.suggestions[cell_num]){
+                        var suggestion_cell = document.createElement("li");
+                        suggestion_field.appendChild(suggestion_cell);
+                        suggestion_cell.innerHTML = suggestion;
+                        suggestion_cell.ref = input_obj;
+                        suggestion_cell.setAttribute("class", "suggestion-cell");
+                        suggestion_cell.setAttribute("onclick", "this.ref.value = this.innerHTML;");
+                    }
+                    
+                    var cell_number = cell_num;
+                    var div = div_obj;
+                }
                 input_obj.onchange = this.updateText;
                 input_obj.style = "padding: 2px 0 2px 0; border: 1px solid #ccc; border-radius: 2px; width: 98%";
                 cell_num++;

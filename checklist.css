@@ -145,6 +145,29 @@ li.lipidomics-forms-publishing-li {
     margin: 1px 0 1px 0;
 }
 
+
+.suggestion-div:hover .suggestion-field {
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestion-div .suggestion-field {
+    display: none;
+}
+
+.suggestion-cell {
+    color: white;
+    background: #7EBA28;
+    padding: 15px;
+}
+
+.suggestion-cell:hover {
+    cursor: pointer;
+    background: #bbb;
+}
+
 .submit-button {
     background-color: #ddd;
     border: 1px solid #ccc;
