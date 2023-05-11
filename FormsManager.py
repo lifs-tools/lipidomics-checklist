@@ -1,5 +1,4 @@
 
-
 try:    
     import sys
     import os
@@ -294,6 +293,7 @@ try:
                     del entry["fields"]
                     
                     lipid_class, other_lipid_class, ion_type, pos_ion, neg_ion = "", "", "", "", ""
+                    other_pos_ion, other_neg_ion = "", ""
                     
                     if len(field_data) > 0:
                         for field in field_data["pages"][0]["content"]:
@@ -304,6 +304,15 @@ try:
                             
                             if "name" in field and field["name"] == "other_lipid_class" and "value" in field and len(field["value"]) > 0:
                                 other_lipid_class = field["value"]
+                                
+                            if "name" in field and field["name"] == "other_pos_ion" and "value" in field and len(field["value"]) > 0:
+                                other_pos_ion = field["value"]
+                                
+                            if "name" in field and field["name"] == "other_neg_ion" and "value" in field and len(field["value"]) > 0:
+                                other_neg_ion = field["value"]
+                                
+                    if len(other_pos_ion) > 0: pos_ion = other_pos_ion
+                    if len(other_neg_ion) > 0: neg_ion = other_neg_ion
                                     
                     if lipid_class[:5].lower() == "other": lipid_class = other_lipid_class
                     ion = pos_ion if ion_type.lower() == "positive" else neg_ion
@@ -2326,15 +2335,24 @@ try:
     
         lipid_class_name = content["lipid_class_name"]
         polarity_positive = content["polarity"] == "Positive"
+        adduct = None if "adduct" not in content else content["adduct"]
         
         from pandas import read_csv
-        f = read_csv("db/ms2fragments.csv")
+        df = read_csv("db/ms2fragments.csv")
         
         if polarity_positive:
-            print(json_dumps(list(f[(f["class"] == lipid_class_name) & (f["charge"] > 0)]["fragmentname"])))
-        else:
-            print(json_dumps(list(f[(f["class"] == lipid_class_name) & (f["charge"] < 0)]["fragmentname"])))
+            fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] > 0)]["fragmentname"])
+        else: 
+            fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] < 0)]["fragmentname"])
             
+        if adduct and adduct[:2] == "[M" and (adduct[-2] == "]" or adduct[-3] == "]"):
+            adduct = adduct[2:]
+            if adduct[-2] == "]": adduct = adduct[:-2]
+            elif adduct[-3] == "]": adduct = adduct[:-3]
+            fragments = [fragment.replace("[adduct]", adduct) for fragment in fragments]
+            
+        print(json_dumps(fragments))
+        
             
 except Exception as e:
     print("ErrorCodes.GENERIC", e)
