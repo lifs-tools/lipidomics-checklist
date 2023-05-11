@@ -5,7 +5,7 @@ class InputTable extends HTMLElement {
         this.column_labels = [];
         this.input_fields = [];
         this.table = document.createElement("table");
-        this.table.style = "margin: 0px; border-radius: 5px;";
+        this.table.style = "margin: 0px; border-radius: 5px; border: 0px; width: 60%;";
         this.suggestions = [];
     }
     
@@ -98,16 +98,17 @@ class InputTable extends HTMLElement {
             var tr_obj = document.createElement("tr");
             this.table.append(tr_obj);
             var cell_num = 0;
+            tr_obj.style = "border: 0px;"
             for (var cell of row){
                 var td_obj = document.createElement("td");
                 tr_obj.append(td_obj);
+                td_obj.style = "border: 0px none; padding: 0px;"
                 var div_obj = document.createElement("div");
                 td_obj.append(div_obj);
                 div_obj.setAttribute("class", "suggestion-div");
                 
                 var input_obj = document.createElement("input");
                 div_obj.append(input_obj);
-                td_obj.style = "padding: 0px;";
                 input_obj.type = "text";
                 input_obj.value = decodeURIComponent(cell);
                 input_obj.obj = this;
@@ -118,7 +119,7 @@ class InputTable extends HTMLElement {
                 if (this.suggestions[cell_num] != 0){
                     var suggestion_field = document.createElement("ul");
                     suggestion_field.setAttribute("class", "suggestion-field");
-                    suggestion_field.style = "position: absolute; left: " + (div_obj.getBoundingClientRect().left + div_obj.getBoundingClientRect().width) + "px;"
+                    suggestion_field.style = "position: absolute; left: " + (input_obj.offsetLeft + input_obj.getBoundingClientRect().width) + "px;"
                     div_obj.appendChild(suggestion_field);
                     
                     for (var suggestion of this.suggestions[cell_num]){
@@ -141,7 +142,7 @@ class InputTable extends HTMLElement {
             td_obj_del.width = "0px";
             var img_obj = document.createElement("img");
             td_obj_del.append(img_obj);
-            td_obj_del.style = "padding: 0px;";
+            td_obj_del.style = "border: 0px none; padding: 0px;"
             img_obj.src = "/lipidomics-checklist/images/trashbin.png";
             img_obj.style = "cursor: pointer; height: 20px";
             img_obj.obj = this;
