@@ -9,6 +9,8 @@ var dom_form_pages = [];
 var current_page = 0;
 var required_messages = {};
 var dom_text_fields = {};
+var dom_select_fields = {};
+var dom_input_table_fields = {};
 var form_enabled = true;
 var entry_id = null;
 var workflow_type = null;
@@ -28,6 +30,7 @@ function load_data(content){
     current_page = lipidomics_forms_content["current_page"];
     required_messages = {};
     dom_text_fields = {};
+    dom_select_fields = {};
     choice_to_field = {};
     
     form_enabled = true;
@@ -294,6 +297,7 @@ function load_data(content){
                 obj_input_table.className = "lipidomics-forms-input-table";
                 obj_input_table.content = field;
                 obj_input_table.field_name = field_name;
+                dom_input_table_fields[field_name] = obj_input_table;
                 obj_input_table.setAttribute('value', field["value"]);
                 obj_input_table.setAttribute('columns', field["columns"]);
                 obj_input_table.setAttribute('onchange', "this.content['value'] = this.value; update_table(this);");
@@ -471,6 +475,7 @@ function load_data(content){
                 obj_select.className = "lipidomics-forms-select";
                 obj_select.content = field;
                 obj_select.field_name = field_name;
+                dom_select_fields[field_name] = obj_select;
                 var selectedIndex = 0;
                 var cnt = 0;
                 for (choice of field["choice"]){
@@ -537,6 +542,40 @@ function load_data(content){
     }
     check_conditions();
     change_page(0);
+    
+    
+    if (workflow_type == "lipid-class"){
+        if ("lipid_class" in dom_select_fields) dom_select_fields["lipid_class"].addEventListener("change", change_fragment_suggestions);
+        if ("polarity_mode" in dom_select_fields) dom_select_fields["polarity_mode"].addEventListener("change", change_fragment_suggestions);
+    }
+    
+    change_fragment_suggestions();
+}
+
+
+function change_fragment_suggestions(){
+    if (!("lipid_class" in dom_select_fields) || !("polarity_mode" in dom_select_fields) || !("frag_used" in dom_input_table_fields)) return;
+    var lipid_class_select = dom_select_fields["lipid_class"];
+    var polarity_select = dom_select_fields["polarity_mode"];
+    
+    var lipid_class_name = lipid_class_select[lipid_class_select.selectedIndex].value;
+    var polarity = polarity_select[polarity_select.selectedIndex].value;
+    
+    var xmlhttp_request = new XMLHttpRequest();
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+            
+            dom_input_table_fields["frag_used"].addSuggestions(0, JSON.parse(xmlhttp_request.responseText));
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=get_fragment_suggestions&lipid_class_name=" + encodeURIComponent(lipid_class_name) + "&polarity=" + encodeURIComponent(polarity);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
 }
 
 

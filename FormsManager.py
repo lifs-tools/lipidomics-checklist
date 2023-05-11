@@ -28,7 +28,8 @@ try:
                     "get_pdf", "publish", "get_public_link",
                     "get_form_content", "update_form_content",
                     "export_samples", "import_samples",
-                    "export_lipid_class", "import_lipid_class"}
+                    "export_lipid_class", "import_lipid_class",
+                    "get_fragment_suggestions"}
     
     conn = None
     table_prefix = "TCrpQ_"
@@ -2316,10 +2317,23 @@ try:
             
             
             
+    elif content["command"] == "get_fragment_suggestions":
+        
+        if "lipid_class_name" not in content or "polarity" not in content:
+            print(str(ErrorCodes.NO_CONTENT) + " in %s" % content["command"])
+            exit()
             
-            
-            
-            
+    
+        lipid_class_name = content["lipid_class_name"]
+        polarity_positive = content["polarity"] == "Positive"
+        
+        from pandas import read_csv
+        f = read_csv("db/ms2fragments.csv")
+        
+        if polarity_positive:
+            print(json_dumps(list(f[(f["class"] == lipid_class_name) & (f["charge"] > 0)]["fragmentname"])))
+        else:
+            print(json_dumps(list(f[(f["class"] == lipid_class_name) & (f["charge"] < 0)]["fragmentname"])))
             
             
 except Exception as e:
