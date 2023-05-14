@@ -72,19 +72,18 @@ if ($config["machine"] != "home"){
 ////////////////////////////////////////////////////////////////////////////
 $request = array();
 foreach($_GET as $key => $val) {
-    array_push($request, "$key=" . urlencode($val));
+    array_push($request, "$key=" . rawurlencode($val));
 }
 foreach($_POST as $key => $val) {
-    array_push($request, "$key=" . urlencode($val));
+    array_push($request, "$key=" . rawurlencode($val));
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////
 // collect all information for the request
 ////////////////////////////////////////////////////////////////////////////
-array_push($request, "ip=" . urlencode($_SERVER['REMOTE_ADDR']));
-array_push($request, "user_agent=" . urlencode($_SERVER['HTTP_USER_AGENT']));
+array_push($request, "ip=" . rawurlencode($_SERVER['REMOTE_ADDR']));
+array_push($request, "user_agent=" . rawurlencode($_SERVER['HTTP_USER_AGENT']));
 $user_id = 0;
 if ($config["machine"] != "home"){
     $user_uuid = !empty( $_COOKIE['_wpfuuid'] ) ? $_COOKIE['_wpfuuid'] : "";
@@ -93,7 +92,7 @@ if ($config["machine"] != "home"){
     $user_id = get_current_user_id();
 }
 else {
-    array_push($request, "user_uuid=" . urlencode("3e599f6d-476d-4d52-8e19-3ffe6ef7555d"));
+    array_push($request, "user_uuid=" . rawurlencode("3e599f6d-476d-4d52-8e19-3ffe6ef7555d"));
     array_push($request, "uid=2");
     $user_id = 2;
 }

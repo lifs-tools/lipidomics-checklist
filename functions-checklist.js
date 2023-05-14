@@ -561,6 +561,7 @@ function change_fragment_suggestions(){
     if (!("lipid_class" in dom_select_fields) || !("polarity_mode" in dom_select_fields) || !("frag_used" in dom_input_table_fields)) return;
     var lipid_class_select = dom_select_fields["lipid_class"];
     var polarity_select = dom_select_fields["polarity_mode"];
+    dom_input_table_fields["frag_used"].addSuggestions(0, []);
     
     var lipid_class_name = lipid_class_select[lipid_class_select.selectedIndex].value;
     var polarity = polarity_select[polarity_select.selectedIndex].value;
