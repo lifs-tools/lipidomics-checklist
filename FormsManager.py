@@ -166,7 +166,6 @@ try:
         os.remove(content["request_file"])
         content = get_content(request)
 
-
             
 
     if len(content) == 0:
@@ -2339,6 +2338,7 @@ try:
         
         from pandas import read_csv
         df = read_csv("db/ms2fragments.csv")
+    
         
         if polarity_positive:
             fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] > 0)]["fragmentname"])

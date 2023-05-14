@@ -5,16 +5,39 @@ import time
 from urllib.parse import unquote
 
 
-def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields):
+workflow_types = {"gen": "General Lipidomics", "di": "Direct Infusion", "sep": "Separation", "img": "Imaging"}
+
+
+
+def get_workflow_type(mycursor, table_prefix, uid, entry_id):
     
-    sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+    sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
     result = json.loads(mycursor.fetchone()["fields"])
+    for field in result["pages"][0]["content"]:
+        if field["name"] == "workflowtype":
+            workflow_type = field["value"] if field["value"] in workflow_types else "gen"
+    return workflow_type
+
+
+
+
+def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields):
+    
+    sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
+    mycursor.execute(sql, (uid, entry_id))
+    result = json.loads(mycursor.fetchone()["fields"])
+    workflow_type = "gen"
     
     visible = {}
     conditions = {}
     choice_to_field = {}
     field_map = {}
+    
+    
+    for field in result["pages"][0]["content"]:
+        if field["name"] == "workflowtype":
+            workflow_type = field["value"] if field["value"] in workflow_types else "gen"
     
     
     for page in result["pages"]:
@@ -173,6 +196,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
     ## fill general data
     titles = []
     report_fields = []
+    workflow_type = get_workflow_type(mycursor, table_prefix, uid, entry_id)
     fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields)
 
 
@@ -354,7 +378,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
                 if lipid_classes and ii % 2 == 1: tex.write("~\\\\\n\n\n")
                 ii += 1
                 
-        write_data("General Lipidomics Workflow", titles, report_fields, main_section = True)
+        write_data("%s Workflow" % workflow_types[workflow_type], titles, report_fields, main_section = True)
         tex.write("~\\\\~\\\\\n")
         write_data("Sample Descriptions", sample_titles, sample_report_fields)
         tex.write("~\\\\~\\\\\n")
