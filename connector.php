@@ -75,9 +75,8 @@ foreach($_GET as $key => $val) {
     array_push($request, "$key=" . rawurlencode($val));
 }
 foreach($_POST as $key => $val) {
-    array_push($request, "$key=" . rawurlencode($val));
+    array_push($request, "$key=" . urlencode($val));
 }
-
 
 ////////////////////////////////////////////////////////////////////////////
 // collect all information for the request

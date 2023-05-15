@@ -1939,7 +1939,6 @@ try:
             print(str(ErrorCodes.ERROR_ON_DECODING_FORM) + " in %s" % content["command"], e)
             exit()
         
-        
         # check if main form entry id is within the request and an integer
         if "entry_id" not in content:
             print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
