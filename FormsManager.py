@@ -288,7 +288,7 @@ try:
                 entry["entry_id"] = get_encrypted_entry(entry["id"])
                 
                 if len(entry["fields"]) > 0:
-                    field_data = json_loads(entry["fields"].replace("'", '"'))
+                    field_data = json_loads(entry["fields"])
                     del entry["fields"]
                     
                     lipid_class, other_lipid_class, ion_type, pos_ion, neg_ion = "", "", "", "", ""

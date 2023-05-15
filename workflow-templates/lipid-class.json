@@ -46,6 +46,14 @@
 
 {"label": "Additional dimension/techniques", "name": "additional_dimension", "type": "multiple", "required": 0, "choice": [{"name": "additional_dimension#ims", "label": "IMS", "value": 0}, {"name": "additional_dimension#ozid", "label": "OzID", "value": 0}, {"name": "additional_dimension#uv-pd", "label": "UV-PD", "value": 0}, {"name": "additional_dimension#paterno-buechi", "label": "Paterno-B\u00fcchi", "value": 0}, {"name": "additional_dimension#other", "label": "Other", "value": 0}], "description": "Were additional analytical dimensions applied?"},
 
+{"label": "CCS verified by standard", "name": "ccs_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "ccs_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "ccs_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check collision cross section (CCS) values?", "condition": "additional_dimension#ims=1"},
+
+{"label": "RT verified by standard", "name": "rt_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "rt_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "rt_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check retention time of lipid class(species)?", "condition": "workflowtype='sep'"},
+
+{"label": "Separation of isobaric/isomeric interferece confirmed", "name": "separation_of_isobaric", "type": "select", "required": 0, "choice": [{"name": "separation_of_isobaric#yes", "label": "Yes", "value": 1}, {"name": "separation_of_isobaric#no", "label": "No", "value": 0}], "description": "Was separation of isobaric/isomeric interferece confirmed by primary standards?", "condition": "workflowtype='sep'"},
+
+{"label": "Model for separation prediction", "name": "model_for_separation_prediction", "type": "select", "required": 0, "choice": [{"name": "model_for_separation_prediction#yes", "label": "Yes", "value": 1}, {"name": "model_for_separation_prediction#no", "label": "No", "value": 0}], "description": "Was a model used to predict lipid molecule separation?", "condition": "workflowtype='sep'"},
+
 {"label": "Other additional dimension/techniques", "name": "other_additional_dimension", "type": "text", "required": 1, "value": "", "description": "Which other additional dimension/technique was used?", "condition": "additional_dimension#other=1"},
 
 {"label": "How was/were the additional dimension(s) used?", "name": "add_dim_used", "type": "text", "required": 1, "value": "", "description": "For example: <i>For separation of isobaric/isomeric interferece</i>", "condition": "additional_dimension#ims=1|additional_dimension#ozid=1|additional_dimension#uv-pd=1|additional_dimension#paterno-buechi=1|additional_dimension#other=1"},
@@ -70,9 +78,9 @@
 
 {"label": "MS Level for quantification", "name": "ms_level_quant", "type": "multiple", "required": 1, "choice": [{"name": "ms_level_quant#ms1", "label": "MS1", "value": 0}, {"name": "ms_level_quant#ms2", "label": "MS2", "value": 0}, {"name": "ms_level_quant#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for quantification?", "condition": "quantitative#yes=1"},
 
-{"label": "Internal lipid standard(s) MS1", "name": "internal_standard_ms1", "type": "table", "columns": "Internal standard|Endogenous class", "required": 1, "value": "", "description": "Which internal standard(s) was/were used to quantify which endogenous lipid/lipid subclass? Example: <i>Cer 18:1;O2/12:0</i> for all <i>Cer 18:1;O2/XX:X</i>", "condition": "ms_level_quant#ms1=1"},
+{"label": "Internal lipid standard(s) MS1", "name": "internal_standard_ms1", "type": "table", "columns": "Internal standard|Endogenous subclass", "required": 1, "value": "", "description": "Which internal standard(s) was/were used to quantify which endogenous lipid/lipid subclass? Example: <i>Cer 18:1;O2/12:0</i> for all <i>Cer 18:1;O2/XX:X</i>", "condition": "ms_level_quant#ms1=1"},
 
-{"label": "Internal lipid standard(s) MS2", "name": "internal_standard_ms2", "type": "table", "columns": "Internal standard|Fragment(s)|Endogenous class", "required": 1, "value": "", "description": "Which internal standard(s) was/were used with which fragment(s) to quantify which endogenous lipid/lipid subclass? Example: <i>Cer 18:1;O2/12:0</i> with fragment <i>LCB-H2O3</i> for all <i>Cer 18:1;O2/XX:X</i>", "condition": "ms_level_quant#ms2=1|ms_level_quant#msn=1"},
+{"label": "Internal lipid standard(s) MS2", "name": "internal_standard_ms2", "type": "table", "columns": "Internal standard|Fragment(s)|Endogenous subclass", "required": 1, "value": "", "description": "Which internal standard(s) was/were used with which fragment(s) to quantify which endogenous lipid/lipid subclass? Example: <i>Cer 18:1;O2/12:0</i> with fragment <i>LCB-H2O3</i> for all <i>Cer 18:1;O2/XX:X</i>", "condition": "ms_level_quant#ms2=1|ms_level_quant#msn=1"},
 
 {"label": "Type of quantification", "name": "type_of_quant", "type": "select", "required": 0, "choice": [{"name": "type_of_quant#is_amount", "label": "Internal standard amount", "value": 1}, {"name": "type_of_quant#calib", "label": "Calibration line", "value": 0}], "description": "How were the samples quantified?", "condition": "quantitative#yes=1"},
 

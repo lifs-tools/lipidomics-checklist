@@ -31,6 +31,7 @@ function load_data(content){
     required_messages = {};
     dom_text_fields = {};
     dom_select_fields = {};
+    dom_input_table_fields = {};
     choice_to_field = {};
     
     form_enabled = true;
@@ -300,7 +301,7 @@ function load_data(content){
                 dom_input_table_fields[field_name] = obj_input_table;
                 obj_input_table.setAttribute('value', field["value"]);
                 obj_input_table.setAttribute('columns', field["columns"]);
-                obj_input_table.setAttribute('onchange', "this.content['value'] = this.value; update_table(this);");
+                obj_input_table.addEventListener('change', update_table);
                 obj_content.append(obj_input_table);
                 obj.append(obj_content);
                 dom_text_fields[field_name] = obj_input_table;
@@ -545,19 +546,23 @@ function load_data(content){
     
     
     if (workflow_type == "lipid-class"){
-        if ("lipid_class" in dom_select_fields) dom_select_fields["lipid_class"].addEventListener("change", change_fragment_suggestions);
-        if ("polarity_mode" in dom_select_fields) dom_select_fields["polarity_mode"].addEventListener("change", change_fragment_suggestions);
-        if ("type_pos_ion" in dom_select_fields) dom_select_fields["type_pos_ion"].addEventListener("change", change_fragment_suggestions);
-        if ("type_neg_ion" in dom_select_fields) dom_select_fields["type_neg_ion"].addEventListener("change", change_fragment_suggestions);
-        if ("other_pos_ion" in dom_text_fields) dom_text_fields["other_pos_ion"].addEventListener("change", change_fragment_suggestions);
-        if ("other_neg_ion" in dom_text_fields) dom_text_fields["other_neg_ion"].addEventListener("change", change_fragment_suggestions);
+        if ("lipid_class" in dom_select_fields) dom_select_fields["lipid_class"].addEventListener("change", change_frag_used_suggestions);
+        if ("polarity_mode" in dom_select_fields) dom_select_fields["polarity_mode"].addEventListener("change", change_frag_used_suggestions);
+        if ("type_pos_ion" in dom_select_fields) dom_select_fields["type_pos_ion"].addEventListener("change", change_frag_used_suggestions);
+        if ("type_neg_ion" in dom_select_fields) dom_select_fields["type_neg_ion"].addEventListener("change", change_frag_used_suggestions);
+        if ("other_pos_ion" in dom_text_fields) dom_text_fields["other_pos_ion"].addEventListener("change", change_frag_used_suggestions);
+        if ("other_neg_ion" in dom_text_fields) dom_text_fields["other_neg_ion"].addEventListener("change", change_frag_used_suggestions);
+        if (("frag_used" in dom_input_table_fields) && ("internal_standard_ms2" in dom_input_table_fields)){
+            dom_input_table_fields["frag_used"].addEventListener("change", change_internal_standard_ms2_suggestions);
+        }
     }
     
-    change_fragment_suggestions();
+    change_frag_used_suggestions();
+    change_internal_standard_ms2_suggestions();
 }
 
 
-function change_fragment_suggestions(){
+function change_frag_used_suggestions(){
     if (!("lipid_class" in dom_select_fields) || !("polarity_mode" in dom_select_fields) || !("frag_used" in dom_input_table_fields)) return;
     var lipid_class_select = dom_select_fields["lipid_class"];
     var polarity_select = dom_select_fields["polarity_mode"];
@@ -602,9 +607,15 @@ function change_fragment_suggestions(){
         }
     }
     var request_url = connector_path + "/connector.php?command=get_fragment_suggestions&lipid_class_name=" + encodeURIComponent(lipid_class_name) + "&polarity=" + encodeURIComponent(polarity) + (adduct.length > 0 ? ("&adduct=" + encodeURIComponent(adduct)): "");
-    console.log(request_url);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
+}
+    
+function change_internal_standard_ms2_suggestions(){
+    if (!("lipid_class" in dom_select_fields) || !("frag_used" in dom_input_table_fields) || !("internal_standard_ms2" in dom_input_table_fields)) return;
+    var suggestions = [];
+    for (var row of dom_input_table_fields["frag_used"].data) suggestions.push(decodeURIComponent(row[0]));
+    dom_input_table_fields["internal_standard_ms2"].addSuggestions(1, suggestions);
 }
 
 
@@ -633,11 +644,12 @@ function update_text(form){
 }
 
 
-function update_table(form){
+function update_table(event){
+    var form = event.currentTarget;
     if (!form_enabled) return;
     
     var field_name = form.content["name"];
-    form.content["value"] = form.value;
+    form.content["value"] = form.getAttribute("value");
     required_messages[field_name].style.display = "none";
     check_conditions();
 }

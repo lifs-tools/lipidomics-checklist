@@ -10,7 +10,15 @@
 
 {"label": "Is the workflow targeted or untargeted?", "name": "workflow_targeted", "type": "select", "required": 0, "choice": [{"name": "workflow_targeted#targeted", "label": "Targeted", "value": 1}, {"name": "workflow_targeted#untargeted", "label": "Untargeted", "value": 0}], "description": ""},
 
-{"label": "Clinical", "name": "clinical", "type": "select", "required": 0, "choice": [{"name": "clinical#yes", "label": "Yes", "value": 1}, {"name": "clinical#no", "label": "No", "value": 0}], "description": "Is it clinical lipidomics, i.e. samples were analyzed related to a clinical question using a quantitative, validated method?"}]}, {"title": "Preanalytics / Sample Material", "content": [{"name": "table_sample", "type": "tableview", "value": 0, "required": 1, "view": "sample"}]}, {"title": "Lipid extraction", "content": [{"label": "Extraction method", "name": "extraction_method", "type": "select", "required": 0, "choice": [{"name": "extraction_method#1-phase_system", "label": "1-phase system", "value": 1}, {"name": "extraction_method#2-phase_system", "label": "2-phase system", "value": 0}, {"name": "extraction_method#solid-phase_extraction", "label": "Solid-Phase Extraction", "value": 0}, {"name": "extraction_method#other", "label": "Other", "value": 0}], "description": "Which type of lipid extraction was applied?", "condition": "workflowtype~'img'"},
+{"label": "Clinical", "name": "clinical", "type": "select", "required": 0, "choice": [{"name": "clinical#yes", "label": "Yes", "value": 1}, {"name": "clinical#no", "label": "No", "value": 0}], "description": "Is it clinical lipidomics, i.e. samples were analyzed related to a clinical question using a quantitative, validated method?"}]},
+
+
+
+{"title": "Preanalytics / Sample Material", "content": [{"name": "table_sample", "type": "tableview", "value": 0, "required": 1, "view": "sample"}]},
+
+
+
+{"title": "Lipid extraction", "content": [{"label": "Extraction method", "name": "extraction_method", "type": "select", "required": 0, "choice": [{"name": "extraction_method#1-phase_system", "label": "1-phase system", "value": 1}, {"name": "extraction_method#2-phase_system", "label": "2-phase system", "value": 0}, {"name": "extraction_method#solid-phase_extraction", "label": "Solid-Phase Extraction", "value": 0}, {"name": "extraction_method#other", "label": "Other", "value": 0}], "description": "Which type of lipid extraction was applied?", "condition": "workflowtype~'img'"},
 
 {"label": "Other extraction method", "name": "other_extraction_method", "type": "text", "required": 1, "value": "", "description": "Which other extraction method was applied?", "condition": "extraction_method#other=1"},
 
@@ -30,7 +38,12 @@
 
 {"label": "Other Solid-Phase Extraction", "name": "other_solid-phase_extraction", "type": "text", "required": 1, "value": "", "description": "Which other solid-phase extraction was applied?", "condition": "solid-phase_extraction#other=1"},
 
-{"label": "Were internal standards added prior extraction?", "name": "internal_standards", "type": "select", "required": 0, "choice": [{"name": "internal_standards#yes", "label": "Yes", "value": 1}, {"name": "internal_standards#no", "label": "No", "value": 0}], "description": ""}]}, {"title": "Analytical platform", "content": [{"label": "Number of separation dimensions", "name": "number_of_separation_dimensions", "type": "select", "required": 0, "choice": [{"name": "number_of_separation_dimensions#one_dimension", "label": "One dimension", "value": 1}, {"name": "number_of_separation_dimensions#two_dimensions", "label": "Two dimensions", "value": 0}, {"name": "number_of_separation_dimensions#three_dimensions", "label": "Three dimensions", "value": 0}], "description": "How many dimensions were applied?", "condition": "workflowtype='sep'"},
+{"label": "Were internal standards added prior extraction?", "name": "internal_standards", "type": "select", "required": 0, "choice": [{"name": "internal_standards#yes", "label": "Yes", "value": 1}, {"name": "internal_standards#no", "label": "No", "value": 0}], "description": ""}]},
+
+
+
+
+{"title": "Analytical platform", "content": [{"label": "Number of separation dimensions", "name": "number_of_separation_dimensions", "type": "select", "required": 0, "choice": [{"name": "number_of_separation_dimensions#one_dimension", "label": "One dimension", "value": 1}, {"name": "number_of_separation_dimensions#two_dimensions", "label": "Two dimensions", "value": 0}, {"name": "number_of_separation_dimensions#three_dimensions", "label": "Three dimensions", "value": 0}], "description": "How many dimensions were applied?", "condition": "workflowtype='sep'"},
 
 {"label": "Separation Type 1", "name": "separation_type_1", "type": "select", "required": 0, "choice": [{"name": "separation_type_1#gc", "label": "GC", "value": 0}, {"name": "separation_type_1#lc", "label": "LC", "value": 1}, {"name": "separation_type_1#sfc", "label": "SFC", "value": 0}, {"name": "separation_type_1#tlc", "label": "TLC", "value": 0}], "description": "Which type of separation was applied?", "condition": "workflowtype='sep'"},
 
@@ -47,14 +60,6 @@
 {"label": "Separation Type 3", "name": "separation_type_3", "type": "select", "required": 0, "choice": [{"name": "separation_type_3#gc", "label": "GC", "value": 1}, {"name": "separation_type_3#lc", "label": "LC", "value": 0}, {"name": "separation_type_3#sfc", "label": "SFC", "value": 0}, {"name": "separation_type_3#tlc", "label": "TLC", "value": 0}], "description": "Which type of separation was applied?", "condition": "number_of_separation_dimensions#three_dimensions=1"},
 
 {"label": "Separation Mode 3", "name": "separation_mode_3", "type": "select", "required": 0, "choice": [{"name": "separation_mode_3#np", "label": "NP", "value": 1}, {"name": "separation_mode_3#hilic", "label": "HILIC", "value": 0}, {"name": "separation_mode_3#rp", "label": "RP", "value": 0}], "description": "Which separation mode was applied?", "condition": "number_of_separation_dimensions#three_dimensions=1"},
-
-{"label": "RT verified by standard", "name": "rt_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "rt_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "rt_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check retention time of lipid class(species)?", "condition": "workflowtype='sep'"},
-
-{"label": "CCS verified by standard", "name": "ccs_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "ccs_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "ccs_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check CCS values?", "condition": "workflowtype='sep'"},
-
-{"label": "Separation of isobaric/isomeric interferece confirmed", "name": "separation_of_isobaric", "type": "select", "required": 0, "choice": [{"name": "separation_of_isobaric#yes", "label": "Yes", "value": 1}, {"name": "separation_of_isobaric#no", "label": "No", "value": 0}], "description": "Was separation of isobaric/isomeric interferece confirmed by primary standards?", "condition": "workflowtype='sep'"},
-
-{"label": "Model for separation prediction", "name": "model_for_separation_prediction", "type": "select", "required": 0, "choice": [{"name": "model_for_separation_prediction#yes", "label": "Yes", "value": 1}, {"name": "model_for_separation_prediction#no", "label": "No", "value": 0}], "description": "Was a a model used to predict lipid molecule separation?", "condition": "workflowtype='sep'"},
 
 {"label": "MS type", "name": "ms_type", "type": "select", "required": 0, "choice": [{"name": "ms_type#q", "label": "Q", "value": 1}, {"name": "ms_type#tof", "label": "TOF", "value": 0}, {"name": "ms_type#qqq", "label": "QQQ", "value": 0}, {"name": "ms_type#qtrap", "label": "QTrap", "value": 0}, {"name": "ms_type#fticr", "label": "FTICR", "value": 0}, {"name": "ms_type#orbitrap", "label": "Orbitrap", "value": 0}, {"name": "ms_type#qtof", "label": "QTOF", "value": 0}, {"name": "ms_type#fticr2", "label": "FTICR", "value": 0}, {"name": "ms_type#icr", "label": "ICR", "value": 0}, {"name": "ms_type#other", "label": "Other", "value": 0}], "description": ""},
 
@@ -106,13 +111,25 @@
 
 {"label": "Was/Were additional dimension/techniques used", "name": "add_dimension", "type": "select", "required": 0, "choice": [{"name": "add_dimension#yes", "label": "Yes", "value": 0}, {"name": "add_dimension#no", "label": "No", "value": 1}], "description": "Were additional analytical dimensions (e.g., IMS) applied?"}
 
-]}, {"title": "Lipid identification / Additional separation method(s) / Additional analytical dimension / Lipid Quantification", "content": [{"name": "table_lipid_class", "type": "tableview", "value": 0, "required": 1, "view": "lipid-class"}]}, {"title": "Quality control", "content": [{"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?"},
+]},
+
+
+
+{"title": "Lipid identification / Additional separation method(s) / Additional analytical dimension / Lipid Quantification", "content": [{"name": "table_lipid_class", "type": "tableview", "value": 0, "required": 1, "view": "lipid-class"}]},
+
+
+
+{"title": "Quality control", "content": [{"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?"},
 
 {"label": "Type of Blanks", "name": "type_of_blanks", "type": "multiple", "required": 1, "choice": [{"name": "type_of_blanks#extraction_blank", "label": "Extraction blank", "value": 0}, {"name": "type_of_blanks#injection_blank", "label": "Injection blank", "value": 0}], "description": "Which types of blank samples were analyzed?", "condition": "blanks#yes=1"},
 
 {"label": "Quality control", "name": "quality_control", "type": "select", "required": 0, "choice": [{"name": "quality_control#yes", "label": "Yes", "value": 0}, {"name": "quality_control#no", "label": "No", "value": 1}], "description": "Were QC samples analyzed?"},
 
-{"label": "Type of QC sample", "name": "type_of_qc_sample", "type": "multiple", "required": 1, "choice": [{"name": "type_of_qc_sample#commercial_sample", "label": "Commercial sample", "value": 0}, {"name": "type_of_qc_sample#sample_pool", "label": "Sample pool", "value": 0}, {"name": "type_of_qc_sample#reference_material", "label": "Reference material", "value": 0}], "description": "Which types of QC samples were analyzed?", "condition": "quality_control#yes=1"}]}, {"title": "Method qualification and validation", "content": [{"label": "Method validation", "name": "method_validation", "type": "select", "required": 0, "choice": [{"name": "method_validation#yes", "label": "Yes", "value": 0}, {"name": "method_validation#no", "label": "No", "value": 1}], "description": "Was any method validation performed?"},
+{"label": "Type of QC sample", "name": "type_of_qc_sample", "type": "multiple", "required": 1, "choice": [{"name": "type_of_qc_sample#commercial_sample", "label": "Commercial sample", "value": 0}, {"name": "type_of_qc_sample#sample_pool", "label": "Sample pool", "value": 0}, {"name": "type_of_qc_sample#reference_material", "label": "Reference material", "value": 0}], "description": "Which types of QC samples were analyzed?", "condition": "quality_control#yes=1"}]},
+
+
+
+{"title": "Method qualification and validation", "content": [{"label": "Method validation", "name": "method_validation", "type": "select", "required": 0, "choice": [{"name": "method_validation#yes", "label": "Yes", "value": 0}, {"name": "method_validation#no", "label": "No", "value": 1}], "description": "Was any method validation performed?"},
 
 {"label": "Lipid recovery", "name": "lipid_recovery", "type": "select", "required": 0, "choice": [{"name": "lipid_recovery#yes", "label": "Yes", "value": 0}, {"name": "lipid_recovery#no", "label": "No", "value": 1}], "description": "Was the recovery of lipid extraction evaluated?", "condition": "method_validation#yes=1"},
 
@@ -126,7 +143,13 @@
 
 {"label": "Guidelines followed", "name": "guidelines_followed", "type": "select", "required": 0, "choice": [{"name": "guidelines_followed#fda", "label": "FDA", "value": 0}, {"name": "guidelines_followed#ema", "label": "EMA", "value": 0}, {"name": "guidelines_followed#none", "label": "None", "value": 1}, {"name": "guidelines_followed#other", "label": "Other", "value": 0}], "description": "Was a guideline followed for method validation?", "condition": "method_validation#yes=1"},
 
-{"label": "Other guidelines followed", "name": "other_guidelines_followed", "type": "text", "required": 1, "value": "", "description": "Which other guidelines were followed?", "condition": "guidelines_followed#other=1"}]}, {"title": "Reporting", "content": [{"label": "Are reported raw data uploaded into repository?", "name": "reported_raw_data", "type": "select", "required": 0, "choice": [{"name": "reported_raw_data#yes", "label": "Yes", "value": 0}, {"name": "reported_raw_data#no", "label": "No", "value": 1}, {"name": "reported_raw_data#available_on_request", "label": "Available on request", "value": 0}], "description": "Were reported data uploaded into repository or included as supplementary data?"},
+{"label": "Other guidelines followed", "name": "other_guidelines_followed", "type": "text", "required": 1, "value": "", "description": "Which other guidelines were followed?", "condition": "guidelines_followed#other=1"}]}, 
+
+
+
+{"title": "Reporting", "content": [{"label": "Are reported raw data uploaded into repository?", "name": "reported_raw_data", "type": "select", "required": 0, "choice": [{"name": "reported_raw_data#yes", "label": "Yes", "value": 0}, {"name": "reported_raw_data#no", "label": "No", "value": 1}, {"name": "reported_raw_data#available_on_request", "label": "Available on request", "value": 0}], "description": "Were reported data uploaded into repository or included as supplementary data?"},
+
+{"label": "Link to repository / ID to entry", "name": "repo_link", "type": "text", "required": 1, "value": "", "description": "Please provide a link / DOI / ID the repository and its entries."},
 
 {"label": "Are metadata available?", "name": "metadata_available", "type": "select", "required": 0, "choice": [{"name": "metadata_available#yes", "label": "Yes", "value": 0}, {"name": "metadata_available#no", "label": "No", "value": 1}, {"name": "metadata_available#available_on_request", "label": "Available on request", "value": 0}], "description": "", "condition": "reported_raw_data#yes=1"},
 
