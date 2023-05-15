@@ -1,3 +1,8 @@
+const onmyresize = (dom_elem, dom_elem2, callback) => {
+  const resizeObserver = new ResizeObserver(() => callback() );
+  resizeObserver.observe(dom_elem);
+};
+
 class InputTable extends HTMLElement {
     constructor() {
         super();
@@ -49,9 +54,11 @@ class InputTable extends HTMLElement {
         for (var row of this.data){
             val.push(row.join("|"));
         }
-        this.value = val.join("|");
-        if (this.hasAttribute("onchange")) this.onchange();
+        this.setAttribute("value", val.join("|"));
+        var event = new Event('change');
+        this.dispatchEvent(event);
     }
+    
     
     addRow(){
         var l = this.obj.column_labels.length;
@@ -74,7 +81,6 @@ class InputTable extends HTMLElement {
     }
     
     updateTextObj(obj, field){
-        console.log(obj);
         obj.data[field.row_num][field.cell_num] = encodeURIComponent(field.value);
         obj.updateTable();
     }
@@ -117,16 +123,21 @@ class InputTable extends HTMLElement {
                 input_obj.onchange = this.updateText;
                 input_obj.style = "padding: 2px 0 2px 0; border: 1px solid #ccc; border-radius: 2px; width: 98%";
                 if (this.suggestions[cell_num] != 0){
+                    var parent_obj = input_obj;
                     var suggestion_field = document.createElement("ul");
                     suggestion_field.setAttribute("class", "suggestion-field");
-                    suggestion_field.style = "position: absolute; left: " + (input_obj.offsetLeft + input_obj.getBoundingClientRect().width) + "px;"
+                    suggestion_field.style = "position: absolute;"
                     div_obj.appendChild(suggestion_field);
+                    
+                    onmyresize(parent_obj, suggestion_field, function () {
+                        suggestion_field.style.left  = (parent_obj.offsetWidth) + 'px';
+                    });
                     
                     for (var suggestion of this.suggestions[cell_num]){
                         var suggestion_cell = document.createElement("li");
                         suggestion_field.appendChild(suggestion_cell);
                         suggestion_cell.innerHTML = suggestion;
-                        suggestion_cell.ref = input_obj;
+                        suggestion_cell.ref = parent_obj;
                         suggestion_cell.inputTable = this;
                         suggestion_cell.setAttribute("class", "suggestion-cell");
                         suggestion_cell.setAttribute("onclick", "this.ref.value = this.innerHTML; this.inputTable.updateTextObj(this.inputTable, this.ref);");
