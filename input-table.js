@@ -1,8 +1,3 @@
-const onmyresize = (dom_elem, dom_elem2, callback) => {
-  const resizeObserver = new ResizeObserver(() => callback() );
-  resizeObserver.observe(dom_elem);
-};
-
 class InputTable extends HTMLElement {
     constructor() {
         super();
@@ -128,10 +123,6 @@ class InputTable extends HTMLElement {
                     suggestion_field.setAttribute("class", "suggestion-field");
                     suggestion_field.style = "position: absolute;"
                     div_obj.appendChild(suggestion_field);
-                    
-                    onmyresize(parent_obj, suggestion_field, function () {
-                        suggestion_field.style.left  = (parent_obj.offsetWidth) + 'px';
-                    });
                     
                     for (var suggestion of this.suggestions[cell_num]){
                         var suggestion_cell = document.createElement("li");

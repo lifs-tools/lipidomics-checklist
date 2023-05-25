@@ -3,17 +3,90 @@
     width: 100%;
 }
 
+
 .lipidomics-forms-page {
 }
+
 
 .lipidomics-forms-field {
     margin: 0 0 25px 0;
     width: 100%;
 }
 
+
+#showing {
+    position: relative;
+    opacity: 1;
+    visibility: visible;
+}
+
+#hiding {
+    position: fixed;
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+#hideMe {
+    animation: cssAnimationHide 0.4s ease-out;
+    position: fixed;
+    visibility: hidden;
+    opacity: 0;
+}
+
+#showMe {
+    animation: cssAnimationShow 0.4s ease-in;
+    position: relative;
+    visibility: visible;
+    opacity: 1;
+}
+
+@keyframes cssAnimationHide {
+    0% {
+        position: relative;
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    99% {
+        position: relative;
+        visibility: visible;
+        opacity: 0;
+    }
+    
+    100% {
+        position: fixed;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes cssAnimationShow {
+    0% {
+        position: fixed;
+        visibility: hidden;
+        opacity: 0;
+    }
+    
+    1% {
+        position: relative;
+        visibility: visible;
+        opacity: 0;
+    }
+    
+    100% {
+        position: relative;
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+
+
 .lipidomics-forms-field-title {
     margin: 1px 0 1px 0;
 }
+
 
 .lipidomics-forms-input-table {
     border-radius: 5px;
@@ -70,8 +143,10 @@
     width: 98%;
 }
 
+
 .lipidomics-forms-field-content {
 }
+
 
 .lipidomics-forms-required-message {
     color: #990000;
