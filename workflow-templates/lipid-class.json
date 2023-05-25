@@ -44,15 +44,15 @@
 
 {"label": "Check isomer overlap", "name": "check_isomer_overlap", "type": "select", "required": 0, "choice": [{"name": "check_isomer_overlap#yes", "label": "Yes", "value": 0}, {"name": "check_isomer_overlap#no", "label": "No", "value": 1}], "description": "Was interferene by isomeric lipid classes excluded (see LSI table)?"},
 
-{"label": "Additional dimension/techniques", "name": "additional_dimension", "type": "multiple", "required": 0, "choice": [{"name": "additional_dimension#ims", "label": "IMS", "value": 0}, {"name": "additional_dimension#ozid", "label": "OzID", "value": 0}, {"name": "additional_dimension#uv-pd", "label": "UV-PD", "value": 0}, {"name": "additional_dimension#paterno-buechi", "label": "Paterno-B\u00fcchi", "value": 0}, {"name": "additional_dimension#other", "label": "Other", "value": 0}], "description": "Were additional analytical dimensions applied?"},
-
-{"label": "CCS verified by standard", "name": "ccs_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "ccs_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "ccs_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check collision cross section (CCS) values?", "condition": "additional_dimension#ims=1"},
-
 {"label": "RT verified by standard", "name": "rt_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "rt_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "rt_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check retention time of lipid class(species)?", "condition": "workflowtype='sep'"},
 
 {"label": "Separation of isobaric/isomeric interferece confirmed", "name": "separation_of_isobaric", "type": "select", "required": 0, "choice": [{"name": "separation_of_isobaric#yes", "label": "Yes", "value": 1}, {"name": "separation_of_isobaric#no", "label": "No", "value": 0}], "description": "Was separation of isobaric/isomeric interferece confirmed by primary standards?", "condition": "workflowtype='sep'"},
 
 {"label": "Model for separation prediction", "name": "model_for_separation_prediction", "type": "select", "required": 0, "choice": [{"name": "model_for_separation_prediction#yes", "label": "Yes", "value": 1}, {"name": "model_for_separation_prediction#no", "label": "No", "value": 0}], "description": "Was a model used to predict lipid molecule separation?", "condition": "workflowtype='sep'"},
+
+{"label": "Additional dimension/techniques", "name": "additional_dimension", "type": "multiple", "required": 0, "choice": [{"name": "additional_dimension#ims", "label": "IMS", "value": 0}, {"name": "additional_dimension#ozid", "label": "OzID", "value": 0}, {"name": "additional_dimension#uv-pd", "label": "UV-PD", "value": 0}, {"name": "additional_dimension#paterno-buechi", "label": "Paterno-B\u00fcchi", "value": 0}, {"name": "additional_dimension#other", "label": "Other", "value": 0}], "description": "Were additional analytical dimensions applied?"},
+
+{"label": "CCS verified by standard", "name": "ccs_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "ccs_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "ccs_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check collision cross section (CCS) values?", "condition": "additional_dimension#ims=1"},
 
 {"label": "Other additional dimension/techniques", "name": "other_additional_dimension", "type": "text", "required": 1, "value": "", "description": "Which other additional dimension/technique was used?", "condition": "additional_dimension#other=1"},
 
@@ -74,7 +74,7 @@
 
 {"label": "Further identification remarks", "name": "ident_remarks", "type": "text", "required": 0, "value": "", "description": "Do you have further remarks considering the identification?"}
 
-]}, {"title": "For additional separation methods/analytical dimension", "content": [{"label": "Quantitative", "name": "quantitative", "type": "select", "required": 0, "choice": [{"name": "quantitative#yes", "label": "Yes", "value": 0}, {"name": "quantitative#no", "label": "No", "value": 1}], "description": "Is the lipid quantitatively identified, i.e. concentrations are reported?"},
+]}, {"title": "Lipid quantification", "content": [{"label": "Quantitative", "name": "quantitative", "type": "select", "required": 0, "choice": [{"name": "quantitative#yes", "label": "Yes", "value": 0}, {"name": "quantitative#no", "label": "No", "value": 1}], "description": "Is the lipid quantitatively identified, i.e. concentrations are reported?"},
 
 {"label": "MS Level for quantification", "name": "ms_level_quant", "type": "multiple", "required": 1, "choice": [{"name": "ms_level_quant#ms1", "label": "MS1", "value": 0}, {"name": "ms_level_quant#ms2", "label": "MS2", "value": 0}, {"name": "ms_level_quant#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for quantification?", "condition": "quantitative#yes=1"},
 

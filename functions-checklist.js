@@ -541,7 +541,7 @@ function load_data(content){
         
         page_cnt++;
     }
-    check_conditions();
+    check_conditions(true);
     change_page(0);
     
     
@@ -700,7 +700,7 @@ function update_tableview(field){
 }
 
 
-function check_conditions(){
+function check_conditions(immediate){
     if (!form_enabled) return;
 
     for (field_name in field_conditions){
@@ -716,7 +716,25 @@ function check_conditions(){
             }
             field_visible[field_name] |= condition_met;
         }
-        dom_field_map[field_name].style.display = field_visible[field_name] ? "block" : "none";
+        
+        
+        if (field_visible[field_name]){
+            if (immediate == true){
+                dom_field_map[field_name].id = "showing";
+            }
+            else if (dom_field_map[field_name].id == "hideMe" || dom_field_map[field_name].id == "hiding"){
+                dom_field_map[field_name].id = "showMe";
+            }
+        }
+        else {
+            if (immediate == true){
+                dom_field_map[field_name].id = "hiding";
+            }
+            else if (dom_field_map[field_name].id == "showMe" || dom_field_map[field_name].id == "showing"){
+                dom_field_map[field_name].id = "hideMe";
+            }
+        }
+        
     }
 }
 
@@ -811,6 +829,7 @@ function change_page(offset){
     for (page of dom_form_pages){
         page.style.display = (current_page == i++) ? "block" : "none";
     }
+    check_conditions(true);
 }
 
 

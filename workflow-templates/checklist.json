@@ -149,9 +149,9 @@
 
 {"title": "Reporting", "content": [{"label": "Are reported raw data uploaded into repository?", "name": "reported_raw_data", "type": "select", "required": 0, "choice": [{"name": "reported_raw_data#yes", "label": "Yes", "value": 0}, {"name": "reported_raw_data#no", "label": "No", "value": 1}, {"name": "reported_raw_data#available_on_request", "label": "Available on request", "value": 0}], "description": "Were reported data uploaded into repository or included as supplementary data?"},
 
-{"label": "Link to repository / ID to entry", "name": "repo_link", "type": "text", "required": 1, "value": "", "description": "Please provide a link / DOI / ID the repository and its entries."},
+{"label": "Link to repository / ID to entry", "name": "repo_link", "type": "text", "required": 1, "value": "", "description": "Please provide a link / DOI / ID the repository and its entries.", "condition": "reported_raw_data#yes=1"},
 
-{"label": "Are metadata available?", "name": "metadata_available", "type": "select", "required": 0, "choice": [{"name": "metadata_available#yes", "label": "Yes", "value": 0}, {"name": "metadata_available#no", "label": "No", "value": 1}, {"name": "metadata_available#available_on_request", "label": "Available on request", "value": 0}], "description": "", "condition": "reported_raw_data#yes=1"},
+{"label": "Are metadata available?", "name": "metadata_available", "type": "select", "required": 0, "choice": [{"name": "metadata_available#yes", "label": "Yes", "value": 0}, {"name": "metadata_available#no", "label": "No", "value": 1}, {"name": "metadata_available#available_on_request", "label": "Available on request", "value": 0}], "description": ""},
 
 {"label": "Summary data", "name": "summary_data", "type": "multiple", "required": 0, "choice": [{"name": "summary_data#quantification_data", "label": "Quantification data", "value": 0}, {"name": "summary_data#identification_data", "label": "Identification data", "value": 0}, {"name": "summary_data#quant_ident_data", "label": "Quantification and identification data", "value": 0}], "description": "Are summary, i.e. processed final data available?", "condition": "reported_raw_data#yes=1"},
 
