@@ -107,4 +107,4 @@
 {"label": "Other Batch correction", "name": "other_batch_corr", "type": "text", "required": 1, "value": "", "description": "Which other batch correction was applied?", "condition": "batch_corr#other=1"},
 
 {"label": "Further quantification remarks", "name": "quant_remarks", "type": "text", "required": 0, "value": "", "description": "Do you have further remarks considering the quantification?"}
-]}], "current_page": 0, "creation_date": "", "version": ""}
+]}], "current_page": 0, "max_page": 0, "creation_date": "", "version": ""}
