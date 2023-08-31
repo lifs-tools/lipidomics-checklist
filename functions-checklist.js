@@ -538,9 +538,34 @@ function load_data(content){
         obj_page.append(obj_next);
         
         form_viewer.append(obj_page);
-        
         page_cnt++;
     }
+    
+    if (!("max_page" in lipidomics_forms_content)) lipidomics_forms_content["max_page"] = lipidomics_forms_content["current_page"];
+    var max_page = lipidomics_forms_content["max_page"] + 1;
+    var obj_p = document.createElement("p");
+    var obj_goto = document.createElement("div");
+    obj_goto.innerHTML = "Or go to:";
+    obj_p.append(obj_goto);
+    
+    var obj_choose_page = document.createElement("select");
+    obj_choose_page.disabled = !form_enabled;
+    
+    for (var i = 0; i < max_page; ++i){
+        if (lipidomics_forms_content["pages"].length <= i) break;
+        
+        var obj_option = document.createElement("option");
+        obj_option.innerHTML = lipidomics_forms_content["pages"][i]["title"];
+        obj_choose_page.append(obj_option);
+    }
+    obj_choose_page.selectedIndex = lipidomics_forms_content["current_page"];
+    obj_choose_page.setAttribute('onchange','change_page(this.selectedIndex, this);');
+    obj_p.append(obj_choose_page);
+    
+    form_viewer.append(obj_p);
+    
+    
+    
     check_conditions(true);
     change_page(0);
     
@@ -816,12 +841,30 @@ function check_requirements(){
 }
 
 
-function change_page(offset){
-    if (offset != 0 && !check_requirements()) return;
+function change_page(offset, obj_select){    
+    if (typeof(obj_select) == "undefined"){
     
-    current_page = Math.min(Math.max(current_page + offset, 0), lipidomics_forms_content["pages"].length - 1);
-    if (offset != 0){
+        if (offset != 0 && !check_requirements()) return;
+        
+        current_page = Math.min(Math.max(current_page + offset, 0), lipidomics_forms_content["pages"].length - 1);
+        if (offset != 0){
+            lipidomics_forms_content["current_page"] = current_page;
+            var max_page = ("max_page" in lipidomics_forms_content) ? lipidomics_forms_content["max_page"] : 0;
+            lipidomics_forms_content["max_page"] = Math.max(max_page, current_page);
+            store_form();
+        }
+    }
+    
+    else {
+        var curr_pg = current_page;
+        if (offset == current_page || !check_requirements()){
+            obj_select.selectedIndex = current_page;
+            return;
+        }
+        current_page = Math.min(Math.max(offset, 0), lipidomics_forms_content["pages"].length - 1);
         lipidomics_forms_content["current_page"] = current_page;
+        var max_page = ("max_page" in lipidomics_forms_content) ? lipidomics_forms_content["max_page"] : 0;
+        lipidomics_forms_content["max_page"] = Math.max(max_page, current_page);
         store_form();
     }
 
