@@ -18,6 +18,7 @@ var choice_to_field = {};
 var ILSGreen = "#7EBA28";
 var ILSGreenLight = "#B2D67E";
 var ILSGreenCell = "#E5F1D4";
+var goto_select = document.createElement("select");
 
 function load_data(content){
     lipidomics_forms_content = content;
@@ -515,6 +516,11 @@ function load_data(content){
         }
         obj_page.style.display = (page_cnt == 0) ? "block" : "none";
             
+        var obj_spacer = document.createElement("p");
+        obj_spacer.innerHTML = "&nbsp;";
+        obj_page.append(obj_spacer);
+        
+        
         if (page_cnt > 0){ 
             var obj_prev = document.createElement("button");
             obj_prev.className = "submit-button";
@@ -541,30 +547,14 @@ function load_data(content){
         page_cnt++;
     }
     
-    if (!("max_page" in lipidomics_forms_content)) lipidomics_forms_content["max_page"] = lipidomics_forms_content["current_page"];
-    var max_page = lipidomics_forms_content["max_page"] + 1;
-    var obj_p = document.createElement("p");
-    var obj_goto = document.createElement("div");
-    obj_goto.innerHTML = "Or go to:";
-    obj_p.append(obj_goto);
-    
-    var obj_choose_page = document.createElement("select");
-    obj_choose_page.disabled = !form_enabled;
-    
-    for (var i = 0; i < max_page; ++i){
-        if (lipidomics_forms_content["pages"].length <= i) break;
-        
-        var obj_option = document.createElement("option");
-        obj_option.innerHTML = lipidomics_forms_content["pages"][i]["title"];
-        obj_choose_page.append(obj_option);
+    if (lipidomics_forms_content["pages"].length > 1){
+        var obj_p = document.createElement("p");
+        var obj_text_goto = document.createElement("div");
+        obj_text_goto.innerHTML = "Or go to:";
+        obj_p.append(obj_text_goto);
+        obj_p.append(goto_select);
+        form_viewer.append(obj_p);
     }
-    obj_choose_page.selectedIndex = lipidomics_forms_content["current_page"];
-    obj_choose_page.setAttribute('onchange','change_page(this.selectedIndex, this);');
-    obj_p.append(obj_choose_page);
-    
-    form_viewer.append(obj_p);
-    
-    
     
     check_conditions(true);
     change_page(0);
@@ -867,6 +857,28 @@ function change_page(offset, obj_select){
         lipidomics_forms_content["max_page"] = Math.max(max_page, current_page);
         store_form();
     }
+    
+    goto_select.disabled = !form_enabled;
+    
+    
+    if (lipidomics_forms_content["pages"].length > 1){
+        if (!("max_page" in lipidomics_forms_content)) lipidomics_forms_content["max_page"] = lipidomics_forms_content["current_page"];
+        var max_page = lipidomics_forms_content["max_page"] + 1;
+        
+        goto_select.length = 0;
+        
+        for (var i = 0; i < max_page; ++i){
+            if (lipidomics_forms_content["pages"].length <= i) break;
+            
+            var obj_option = document.createElement("option");
+            obj_option.innerHTML = lipidomics_forms_content["pages"][i]["title"];
+            goto_select.append(obj_option);
+        }
+        goto_select.selectedIndex = lipidomics_forms_content["current_page"];
+        goto_select.setAttribute('onchange','change_page(this.selectedIndex, this);');
+    }
+    
+    
 
     var i = 0;
     for (page of dom_form_pages){
