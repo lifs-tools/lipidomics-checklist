@@ -19,6 +19,7 @@ var ILSGreen = "#7EBA28";
 var ILSGreenLight = "#B2D67E";
 var ILSGreenCell = "#E5F1D4";
 var goto_select = document.createElement("select");
+goto_select.className = "lipidomics-forms-select";
 
 function load_data(content){
     lipidomics_forms_content = content;
