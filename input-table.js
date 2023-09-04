@@ -121,7 +121,7 @@ class InputTable extends HTMLElement {
                     var parent_obj = input_obj;
                     var suggestion_field = document.createElement("ul");
                     suggestion_field.setAttribute("class", "suggestion-field");
-                    suggestion_field.style = "position: absolute;"
+                    suggestion_field.style = "position: absolute; z-index: 1000;"
                     div_obj.appendChild(suggestion_field);
                     
                     for (var suggestion of this.suggestions[cell_num]){
