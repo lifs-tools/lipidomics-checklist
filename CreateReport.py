@@ -22,7 +22,7 @@ def get_workflow_type(mycursor, table_prefix, uid, entry_id):
 
 
 
-def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields):
+def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields, version):
     
     sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
@@ -34,6 +34,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
     choice_to_field = {}
     field_map = {}
     
+    version.append(result["version"] if "version" in result else "v0.9.9")
     
     for field in result["pages"][0]["content"]:
         if field["name"] == "workflowtype":
@@ -192,13 +193,12 @@ def make_table(title, text):
 
 
 
-def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
+def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     ## fill general data
-    titles = []
-    report_fields = []
+    version, titles, report_fields = [], [], []
     workflow_type = get_workflow_type(mycursor, table_prefix, uid, entry_id)
-    fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields)
-
+    fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields, version)
+    version = version[0]
 
     ## fill sample specific data
     sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = %i;" % (table_prefix, entry_id)
@@ -210,7 +210,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
     for i, sample_entry_id in enumerate(sample_entry_ids):
         tmp_titles = []
         tmp_report_fields = []
-        fill_report_fields(mycursor, table_prefix, uid, sample_entry_id, tmp_titles, tmp_report_fields)
+        fill_report_fields(mycursor, table_prefix, uid, sample_entry_id, tmp_titles, tmp_report_fields, [])
         
         sample_ids = {k: v for k, v in tmp_report_fields[0][:3]}
         if "Sample set name" in sample_ids and "Sample origin" in sample_ids and "Sample type" in sample_ids:
@@ -232,7 +232,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file, version):
         tmp_titles = []
         tmp_report_fields = []
         
-        fill_report_fields(mycursor, table_prefix, uid, class_entry_id, tmp_titles, tmp_report_fields)
+        fill_report_fields(mycursor, table_prefix, uid, class_entry_id, tmp_titles, tmp_report_fields, [])
         lipid_classes_report_fields += tmp_report_fields
         
         lipid_class_prefix = "Lipid class %i" % (i + 1)
