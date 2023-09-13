@@ -24,6 +24,7 @@ try:
                     "get_all_class_forms", "get_all_sample_forms",
                     "import_class_forms", "import_sample_forms",
                     "complete_partial_form",
+                    #"export_report", "import_report",
                     "get_pdf", "publish", "get_public_link",
                     "get_form_content", "update_form_content",
                     "export_samples", "import_samples",
@@ -2099,7 +2100,6 @@ try:
                 
             db_cursor.execute(sql, (entry_id, uid))
             fields = [row["fields"] for row in db_cursor.fetchall()]
-            
             from ImportExportForms import export_forms_to_worksheet
             worksheet_base64 = export_forms_to_worksheet(template_file, fields, sheet_name)
             print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)
@@ -2351,7 +2351,53 @@ try:
             fragments = [fragment.replace("[adduct]", adduct) for fragment in fragments]
             
         print(json_dumps(fragments))
+            
+            
+            
+            
+            
+            
+            
+            
+            
+
+    """
+    elif content["command"] == "get_pdf":
         
+        if "user_uuid" not in content or "uid" not in content:
+            print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+            exit()
+        user_uuid = content["user_uuid"]
+        uid = int(content["uid"])
+        
+        # check if main form entry id is within the request and an integer
+        if "entry_id" not in content:
+            print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        try:
+            entry_id = int(get_decrypted_entry(content["entry_id"]))
+        except:
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        if entry_id < 0:
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        
+        try:
+            # connect with the database
+            conn, db_cursor = dbconnect()
+            
+            if not check_entry_id(entry_id, uid, db_cursor, "main"):
+                print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+                exit()
+                
+                
+            sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
+            db_cursor.execute(sql, (entry_id,))
+            print(db_cursor.fetchone()["fields"])
+        
+    """
             
 except Exception as e:
     print("ErrorCodes.GENERIC", e)

@@ -147,6 +147,15 @@ function update_main_forms(){
                     img_del.title = "Delete report";
                     img_del.style = "cursor: pointer; height: 20px;";
                 }
+                
+                    
+                var img_dump = document.createElement("img");
+                trb.push(img_dump);
+                img_del.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
+                img_del.src = connector_path + "/images/floppy.png";
+                img_del.title = "Dump report in JSON format";
+                img_del.style = "cursor: pointer; height: 20px;";
+                
                 document.getElementById("viewtable").addRow(table_row);
             }
         }
@@ -231,6 +240,38 @@ function download_pdf(entry_id){
         }
     }
     var request_url = connector_path + "/connector.php?command=get_pdf&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
+
+function export_report(entry_id){
+    if (entry_id == undefined || entry_id.length == 0) return;
+    var xmlhttp_request = new XMLHttpRequest();
+    document.getElementById("grey_background").style.display = "block";
+    document.getElementById("waiting_field").style.display = "block";
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            document.getElementById("grey_background").style.display = "none";
+            document.getElementById("waiting_field").style.display = "none";
+            
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes") || response_text.substring(response_text.length - 4) != ".json"){
+                print_error(response_text);
+                return;
+            }
+            const tempLink = document.createElement('a');
+            tempLink.style.display = 'none';
+            tempLink.href = response_text;
+            tempLink.setAttribute('download', "report.json");
+            tempLink.setAttribute('target', '_blank');
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=export_report&entry_id=" + encodeURIComponent(entry_id);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
