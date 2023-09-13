@@ -25,18 +25,23 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
     conditions_split = [condition_split.split("&") for condition_split in conditions_split]
     
     formatted_conditions = []
+    
     for condition_or in conditions_split:
         formatted_conditions_or = []
         for condition in condition_or:
+            
             split_val = "=" if condition.find("=") > -1 else "~"
             key, value = condition.split(split_val)
             field_type = None
-            if "type" in name_to_field[key]:
+            if key in name_to_field and "type" in name_to_field[key]:
                 field_type = name_to_field[key]["type"]
                 
-            else:
+            elif key in choice_to_field:
                 field_key = choice_to_field[key]
                 field_type = name_to_field[field_key]["type"]
+                
+            else:
+                continue
             
             if field_type == "text":
                 value = value.strip('"')
@@ -52,9 +57,13 @@ def create_condition_formula(condition, name_to_column, name_to_field, choice_to
                 
             key = "%s%i" % (name_to_column[key], row_num)
             formatted_conditions_or.append('%s%s"%s"' % (key, "<>" if split_val == "=" else "=", value))
-        formatted_conditions.append("OR(%s)" % ", ".join(formatted_conditions_or) if len(formatted_conditions_or) > 1 else formatted_conditions_or[0])
+                
+        
+        if len(formatted_conditions_or) > 0: formatted_conditions.append("OR(%s)" % ", ".join(formatted_conditions_or) if len(formatted_conditions_or) > 1 else formatted_conditions_or[0])
+                
+    
+    if len(formatted_conditions) == 0: return ""
     return "AND(%s)" % ", ".join(formatted_conditions) if len(formatted_conditions) > 1 else formatted_conditions[0]
-
 
 
 
@@ -72,12 +81,15 @@ def create_table_condition_formula(condition, name_to_column, name_to_field, cho
             split_val = "=" if condition.find("=") > -1 else "~"
             key, value = condition.split(split_val)
             field_type = None
-            if "type" in name_to_field[key]:
+            if key in name_to_field and "type" in name_to_field[key]:
                 field_type = name_to_field[key]["type"]
                 
-            else:
+            elif key in choice_to_field:
                 field_key = choice_to_field[key]
                 field_type = name_to_field[field_key]["type"]
+            
+            else:
+                continue
             
             if field_type == "text":
                 value = value.strip('"')
@@ -95,8 +107,14 @@ def create_table_condition_formula(condition, name_to_column, name_to_field, cho
                 
             #key = "%i%i" % (name_to_column[key], row_num)
             formatted_conditions_or.append('%s%s"%s"' % (key, "<>" if split_val == "=" else "=", value))
-        formatted_conditions.append("OR(%s)" % ", ".join(formatted_conditions_or) if len(formatted_conditions_or) > 1 else formatted_conditions_or[0])
-    formula = "AND(%s)" % ", ".join(formatted_conditions) if len(formatted_conditions) > 1 else formatted_conditions[0]
+            
+        if len(formatted_conditions_or) > 0: formatted_conditions.append("OR(%s)" % ", ".join(formatted_conditions_or) if len(formatted_conditions_or) > 1 else formatted_conditions_or[0])
+        
+    if len(formatted_conditions) > 0:
+        formula = "AND(%s)" % ", ".join(formatted_conditions) if len(formatted_conditions) > 1 else formatted_conditions[0]
+    else:
+        formula = ""
+        
     formula = "IF(ISBLANK(A%i), TRUE, %s)" % (row_num, formula)
     return formula
 
@@ -268,28 +286,27 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 for col_name in field["columns"].split("|"): td.column_names.append(col_name)
                 if "condition" in field: td.condition = field["condition"]
                 col_num += 1
-    
+                
     row_num = 4
     if len(fields) == 0:
         sheet["A%i" % row_num].value = "=ROW() - 3"
         for name in columns:
+            
             col_name = name_to_column[name]
             cell_id = "%s%i" % (col_name, row_num)
             # add validations
             if name in name_to_data_validation: name_to_data_validation[name].add(cell_id)
-            
-            
-            
+                
             # add conditional formatting
             if name in name_to_condition:
                 dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
                 rule = Rule(type="expression", dxf = dxf)
                 rule.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
-                sheet.conditional_formatting.add(cell_id, r)
-        
+                sheet.conditional_formatting.add(cell_id, rule)
         
     else:
         for form in fields:
+            
             form_name_to_field = {}
             
             for page in json.loads(form)["pages"]:
@@ -299,24 +316,24 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                     if "choice" in field:
                         for choice in field["choice"]:
                             form_name_to_field[choice["name"]] = choice
-                            
-              
-            sheet["A%i" % row_num].value = "=ROW() - 3"              
-            for name in columns:
+                                
+                sheet["A%i" % row_num].value = "=ROW() - 3"  
+                
+            for name in columns:       
                 col_name = name_to_column[name]
                 cell_id = "%s%i" % (col_name, row_num)
                 # add validations
                 if name in name_to_data_validation: name_to_data_validation[name].add(cell_id)
-                
-                
-                
+                       
+                    
                 # add conditional formatting
                 if name in name_to_condition:
-                    dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
-                    rule = Rule(type="expression", dxf = dxf)
-                    rule.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
-                    sheet.conditional_formatting.add(cell_id, rule)
+                        dxf = DifferentialStyle(fill = PatternFill(bgColor=outgrey))
+                        rule = Rule(type="expression", dxf = dxf)
+                        rule.formula = [create_condition_formula(name_to_condition[name], name_to_column, name_to_field, choice_to_field, row_num)]
+                        sheet.conditional_formatting.add(cell_id, rule)
                 
+                    
                 
                 # fill column with values
                 if name not in form_name_to_field: continue
@@ -342,7 +359,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                         
                     elif field["type"] == "table":
                         sheet[cell_id].fill = PatternFill(start_color=outgrey, end_color=outgrey, fill_type='solid')
-            
+                
             # check for table data
             for td in table_data_list:
                 if td.name not in form_name_to_field: continue
@@ -351,6 +368,8 @@ def export_forms_to_worksheet(template, fields, sheet_name):
                 td.add_row(row_num - 3, field["value"])
             
             row_num += 1
+                
+            
 
     for _, dv in name_to_data_validation.items(): sheet.add_data_validation(dv)
     for selection in sheet.views.sheetView[0].selection:
@@ -417,8 +436,9 @@ def export_forms_to_worksheet(template, fields, sheet_name):
         
     output_stream = base64.b64encode(output_stream.getvalue())
     output_stream = str(output_stream, "utf-8")
-    
+
     return output_stream
+    
 
 
 
@@ -429,7 +449,9 @@ def export_forms_to_worksheet(template, fields, sheet_name):
 def process_condition(conditions_text, field_types):
     conditions = conditions_text.split("|")
     conditions = [condition.split("&") for condition in conditions]
+    
     for i, condition_and in enumerate(conditions):
+        remove_and = []
         for j, condition in enumerate(condition_and):
             split_sign = "=" if condition.find("=") > -1 else "~"
             key, value = condition.split(split_sign)
@@ -442,6 +464,7 @@ def process_condition(conditions_text, field_types):
                 value = int(value)
             
             conditions[i][j] = [key, split_sign, value]
+            
     
     return conditions
 
@@ -511,11 +534,10 @@ def import_forms_from_worksheet(template, file_base_64):
                 td.column_names += field["columns"].split("|")
                 tables[field_name] = td
                 table_names.add(field_name)
-    
+                
     
     for name in name_to_condition:
         name_to_condition[name] = process_condition(name_to_condition[name], field_types)
-    
     
     # load all table data
     for sht in workbook.sheetnames[1:]:
@@ -582,8 +604,9 @@ def import_forms_from_worksheet(template, file_base_64):
             unset_columns.remove(name)
             
         col_num += 1
-        
-        
+    
+    
+            
     # go through rows
     for row_num, sheet_row in enumerate(sheet.iter_rows(min_row = 4, values_only = True)):
         found_entry = False
@@ -605,7 +628,6 @@ def import_forms_from_worksheet(template, file_base_64):
         
         # add all information from row into fields
         for col_id, name in column_labels:
-            #name = label_to_name[label]
             value = sheet_row[col_id]
             
             if name in table_names:
@@ -617,7 +639,6 @@ def import_forms_from_worksheet(template, file_base_64):
                         field["value"] = tables[field["name"]][form_id]
                         found_entry = True
                 continue
-            
             
             if value == None:
                 unset_names.append(name)
@@ -657,56 +678,72 @@ def import_forms_from_worksheet(template, file_base_64):
                     if not found_choice and len(field["choice"]) > 0:
                         field["choice"][0]["value"] = 1
                         unset_names.append(name)
-                
-    
-    
-        if found_entry:
+                    
             
-            # check if form is complete, i.e., all required fields without conditions are filled
-            # as well as all fields where the conditions are met
-            for field_name in names_list:
-                if field_name not in name_to_condition: continue
-                field_visible[field_name] = False
-                for condition_and in name_to_condition[field_name]:
-                    condition_met = True
-                    for key, operator, value in condition_and:
+        # check if form is complete, i.e., all required fields without conditions are filled
+        # as well as all fields where the conditions are met
+        for field_name in names_list:
+            
+            
+            if field_name not in name_to_condition: continue
+            field_visible[field_name] = False
+                
+                
+            for condition_and in name_to_condition[field_name]:
+                condition_met = True
+                for key, operator, value in condition_and:
+                    if key not in name_to_field: continue
+                    
+                    if key not in choice_to_field:
+                        conditional_field = field_name
+                    else:
                         conditional_field = choice_to_field[key]
-                        condition_met &= (conditional_field in field_visible and field_visible[conditional_field]) and ((operator == "=" and name_to_field[key]["value"] == value) or (operator == "~" and name_to_field[key]["value"] != value))
                     
-                    field_visible[field_name] |= condition_met
-                    
-            for name in unset_names:
-                if name in field_visible and field_visible[name]: is_complete = False
-                    
+                    condition_met &= (conditional_field in field_visible and field_visible[conditional_field]) and ((operator == "=" and name_to_field[key]["value"] == value) or (operator == "~" and name_to_field[key]["value"] != value))
+                
+                field_visible[field_name] |= condition_met
+
             
-            for name in required_names:
-                if name not in field_visible or not field_visible[name]: continue
+        for name in required_names:
+            if name not in field_visible or not field_visible[name]: continue
+            if name in unset_names:
+                is_complete = False
+                break
+        
+            field = name_to_field[name]
             
-                field = name_to_field[name]
+            if field["type"] == "multiple":
+                any_set = sum([choice["value"] for choice in field["choice"]])
+                if any_set == 0:
+                    is_complete = False
+                    break
+            
+            """
+            if field["type"] == "text":
+                if field["value"] == "":
+                    is_complete = False
+                    raise Exception("e: %s" % name)
+                    break
+            
+            elif field["type"] == "number":
+                if field["value"] == "" or field["value"] == None:
+                    field["value"] = 0
+                    break
+            
+            elif field["type"] == "multiple":
+                any_set = sum([choice["value"] for choice in field["choice"]])
+                if any_set == 0:
+                    is_complete = False
+                    break
+            
+            elif field["type"] == "table":
+                if field["value"] == "" or field["value"] == None:
+                    is_complete = False
+                    field["value"] = ""
+                    break
+            """
                 
-                if field["type"] == "text":
-                    if field["value"] == "":
-                        is_complete = False
-                        break
-                
-                elif field["type"] == "number":
-                    if field["value"] == "" or field["value"] == None:
-                        field["value"] = 0
-                        break
-                
-                elif field["type"] == "multiple":
-                    any_set = sum([choice["value"] for choice in field["choice"]])
-                    if any_set == 0:
-                        is_complete = False
-                        break
-                
-                elif field["type"] == "table":
-                    if field["value"] == "" or field["value"] == None:
-                        is_complete = False
-                        field["value"] = ""
-                        break
-                
-            imported_forms.append([field_template, is_complete])
+        imported_forms.append([field_template, is_complete])
             
     return imported_forms
         
