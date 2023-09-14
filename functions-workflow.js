@@ -127,7 +127,7 @@ function update_main_forms(){
                 else {
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
-                    img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
+                    img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('lipidomics-forms-publishing-info-box').showModal(); document.getElementById('publish-verify-year').value = '';");
                     img_copy.src = connector_path + "/images/check.png";
                     img_copy.title = "Publish report, click here for more information";
                     img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
@@ -361,7 +361,7 @@ function export_report(entry_id){
 
 
 function publish(){
-    document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
+    document.getElementById("lipidomics-forms-publishing-info-box").close();
     if (publish_data.length < 2) return;
     
     workflow_title = publish_data[0];
@@ -383,7 +383,7 @@ function publish(){
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             document.getElementById("grey_background").style.display = "none";
-            document.getElementById("lipidomics-forms-publishing-info-box").style.display = "none";
+            document.getElementById("lipidomics-forms-publishing-info-box").close();
             document.getElementById("waiting_field").style.display = "none";
             
             response_text = xmlhttp_request.responseText;
@@ -471,15 +471,6 @@ function copy_main_form(entry_id){
 }
 
 
-function workflow_show_selector(){
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("workflow_selector").style.display = "block";
-    var workflow_selector = document.getElementById("workflow_selector_wrapper").offsetHeight;
-    var window_height = window.innerHeight;
-    document.getElementById("workflow_selector_wrapper").style.top = String((window_height - workflow_selector) / 2) + "px";
-}
-
-
 
 function workflow_select_selector(){
     register_new_main_form();
@@ -488,8 +479,7 @@ function workflow_select_selector(){
 
 
 function workflow_close_selector(){
-    document.getElementById("grey_background").style.display = "none";
-    document.getElementById("workflow_selector").style.display = "none";
+    document.getElementById("workflow_selector").close();
 }
 
 window.addEventListener('resize', function(event) {
@@ -503,7 +493,7 @@ window.addEventListener('resize', function(event) {
 
 
 var workflow_content = "<div style=\"display: inline-block;\"> \
-        <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New Report</div> \
+        <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"document.getElementById('workflow_selector').showModal();\">New Report</div> \
         </div><p /> \
         <h3>Own Report List</h3> \
         <view-table id=\"viewtable\" columns=\"Report&nbsp;title|Report&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
@@ -514,8 +504,8 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
             <view-table id=\"publishtable\" columns=\"Title|Principle&nbsp;investigator|Report&nbsp;type|Creation&nbsp;date|Actions\" size='30|30|20|15|5' sort='1|1|1|1|0' align='l|l|l|l|c' ></view-table><br /> \
         </div> \
      \
-    <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
-    <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td colspan='2' style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
+    <dialog id=\"lipidomics-forms-publishing-info-box\" style=\"font-size: 18px; background-color: white; border-radius: 5px;\"> \
+    <table style=\"width: 600px; height: 700px; margin: 0px; border: 0px;\" cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td colspan='2' style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
     <font size='+3'><b>Publication information</b></font></td></tr> \
     <tr height='88%'><td height='88%' colspan='2' valign='top' style='padding: 5px 25px 5px 25px;'>Please read the following information carefully: \
     <ul class='lipidomics-forms-publishing-ul'> \
@@ -531,32 +521,28 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     Therefore, we recommend to publish your report after your manuscript was accepted by a journal for publication in order to provide the DOI(s) in the final manuscript version. In order to proceed the publication, type the current year into the following text field and click on the 'OK, publish' button.</td></tr> \
     <tr><td  height='10%' valign='bottom' align='left' style='border: 0px; padding: 5px 25px 25px 25px;'>Current year:&nbsp;&nbsp;<input type='text' id='publish-verify-year' size=5 /></td> \
     <td height='10%' valign='bottom' align='right' style='border: 0px; padding: 5px 25px 25px 25px;'> \
-    <button onclick='document.getElementById(\"grey_background\").style.display = \"none\"; document.getElementById(\"lipidomics-forms-publishing-info-box\").style.display = \"none\";'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
-    </div> \
-    <div id=\"workflow_selector\" style=\"top: 0px; left: 0px; width: 100%; height: 100%; position: fixed; z-index: 120; display: none;\"> \
-        <div id=\"workflow_selector_wrapper\" style=\"left: 35%; width: 30%; position: fixed; background: white; border-radius: 5px;\"> \
-            <div id=\"workflow_control_buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
-                <table style=\"width: 100%; height: 100%; border: 1px solid black; \" cellspacing=\"10px\"> \
-                    <tr></tr> \
-                    <tr><td style=\"width: 100%; height: 80%;\" valign=\"top\" align=\"left\"> \
-                        <table cellpadding=\"10px\"> \
-                          <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your new report type</b></td></tr> \
-                          <tr><td><input type=\"radio\" id=\"radio_direct_infusion\" name=\"workflow_type_field\" value=\"workflow_direct_infusion\" checked></td> \
-                          <td><label for=\"radio_direct_infusion\" style=\"font-size: 20px;\">Direct Infusion</label></td></tr> \
-                          <tr><td><input type=\"radio\" id=\"radio_separation\" name=\"workflow_type_field\" value=\"workflow_separation\"></td> \
-                          <td><label for=\"radio_separation\" style=\"font-size: 20px;\">Separation</label></td></tr> \
-                          <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\" disabled></td> \
-                          <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
-                        </table> \
-                    </td></tr> \
-                    <tr><td align=\"right\" valign=\"bottom\" style=\"padding: 10px;\"> \
-                        <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_select_selector();\">Select</div>&nbsp;&nbsp; \
-                        <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_close_selector();\">Cancel</div> \
-                    </td></tr> \
+    <button onclick='document.getElementById(\"lipidomics-forms-publishing-info-box\").close();'>&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>&nbsp;&nbsp;&nbsp;<button onclick='publish();'>&nbsp;OK, publish&nbsp;</button></td></tr></table> \
+    </dialog> \
+    <dialog id=\"workflow_selector\" style=\"border-radius: 5px;\"> \
+        <table style=\"width: 576px; height: 265px; border: 0px;\"> \
+            <tr></tr> \
+            <tr><td style=\"width: 100%; height: 80%; border-top: 0px;\" valign=\"top\" align=\"left\"> \
+                <table cellpadding=\"10px\"> \
+                    <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your new report type</b></td></tr> \
+                    <tr><td><input type=\"radio\" id=\"radio_direct_infusion\" name=\"workflow_type_field\" value=\"workflow_direct_infusion\" checked></td> \
+                    <td><label for=\"radio_direct_infusion\" style=\"font-size: 20px;\">Direct Infusion</label></td></tr> \
+                    <tr><td><input type=\"radio\" id=\"radio_separation\" name=\"workflow_type_field\" value=\"workflow_separation\"></td> \
+                    <td><label for=\"radio_separation\" style=\"font-size: 20px;\">Separation</label></td></tr> \
+                    <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\" disabled></td> \
+                    <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
                 </table> \
-            </div> \
-        </div> \
-    </div> \
+            </td></tr> \
+            <tr><td align=\"right\" valign=\"bottom\" style=\"padding: 10px; border-top: 0px;\"> \
+                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_select_selector();\">Select</div>&nbsp;&nbsp; \
+                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_close_selector();\">Cancel</div> \
+            </td></tr> \
+        </table> \
+    </dialog> \
     </p> \
     <p>&nbsp;<br />&nbsp;<br />&nbsp;<br /> \
     </p>";
