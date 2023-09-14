@@ -10,8 +10,7 @@ function show_sample_selector(){
         document.getElementById("viewtable-import-sample").style.height =  String(document.getElementById("class_selector_inner").clientHeight) + "px";
     }, true);
     
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("sample_selector_wrapper").style.display = "block";
+    document.getElementById("sample_selector_wrapper").showModal();
     document.getElementById("viewtable-import-sample").resize();
 }
 
@@ -91,8 +90,8 @@ function select_sample_selector(){
 
 
 function close_sample_selector(){
-    document.getElementById("grey_background").style.display = "none";
-    document.getElementById("sample_selector_wrapper").style.display = "none";
+    //document.getElementById("grey_background").style.display = "none";
+    document.getElementById("sample_selector_wrapper").close();
 }
 
 
@@ -300,16 +299,16 @@ function export_samples(entry_id){
 
 
 function show_samples_importer(){
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("import_samples_from_file_form").style.display = "block";
+    //document.getElementById("grey_background").style.display = "block";
+    document.getElementById("import_samples_from_file_form").showModal();
     document.getElementById("sample_file_upload").value = null;
 }
 
 
 
 function hide_samples_importer(){
-    document.getElementById("grey_background").style.display = "none";
-    document.getElementById("import_samples_from_file_form").style.display = "none";
+    //document.getElementById("grey_background").style.display = "none";
+    document.getElementById("import_samples_from_file_form").close();
 }
 
 
