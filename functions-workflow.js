@@ -13,6 +13,8 @@ String.prototype.hashCode = function() {
   return hash;
 };
 
+
+
 function update_main_forms(){
     var xmlhttp_request = new XMLHttpRequest();
     
@@ -64,39 +66,51 @@ function update_main_forms(){
                 table_row.push(trb);
                 
                 if (row["status"] == "partial"){
+                    var img_fill1 = document.createElement("img");
+                    trb.push(img_fill1);
+                    img_fill1.style = "min-width: 25px; padding-right: 5px; box-sizing: border-box;";
+                    
                     var img_continue = document.createElement("img");
                     trb.push(img_continue);
                     img_continue.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
                     img_continue.src = connector_path + "/images/pencil.png";
                     img_continue.title = "Continue report";
-                    img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
+                    var img_fill2 = document.createElement("img");
+                    trb.push(img_fill2);
+                    img_fill2.style = "min-width: 26px; padding-right: 5px; box-sizing: border-box;";
+                    
+                    var img_fill3 = document.createElement("img");
+                    trb.push(img_fill3);
+                    img_fill3.style = "min-width: 24px; padding-right: 5px; box-sizing: border-box;";
                     
                     var img_del = document.createElement("img");
                     trb.push(img_del);
                     img_del.setAttribute("onclick", "delete_main_form(" + "'" + row["title"] + "', '" + row["entry_id"] + "');");
                     img_del.src = connector_path + "/images/trashbin.png";
                     img_del.title = "Delete report";
-                    img_del.style = "cursor: pointer; height: 20px;";
+                    img_del.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                 }
                 else if (row["status"] == "published") {
                     var div_doi = document.createElement("div");
                     trb.push(div_doi);
                     div_doi.setAttribute("class", "lipidomics-forms-tooltip-frame");
+                    div_doi.style = "padding-right: 5px; box-sizing: border-box;";
                     div_doi.innerHTML = "<img src=\"" + connector_path + "/images/globe.png\" style=\"cursor: pointer; height: 20px;\" onmouseout=\"reset_tooltip('" + tt_id + "');\" onclick=\"copy_link('" + row["entry_id"] + "', " + tt_id + ");\"><span class=\"lipidomics-forms-tooltip-text\" id=\"lipidomics-forms-tooltip-" + tt_id + "\">Copy the DOI to clipboard</span></img>";
                     tt_id++;
                     
-                    var div_sep = document.createElement("div");
-                    trb.push(div_sep);
-                    div_sep.style.display = "inline";
-                    div_sep.innerHTML = "&nbsp;";
+                    
+                    var img_fill1 = document.createElement("img");
+                    trb.push(img_fill1);
+                    img_fill1.style = "min-width: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     var img_copy = document.createElement("img");
                     trb.push(img_copy);
                     img_copy.setAttribute("onclick", "copy_main_form('" + row["entry_id"] + "');");
                     img_copy.src = connector_path + "/images/recycle.png";
                     img_copy.title = "Copy report";
-                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     
                     var img_download = document.createElement("img");
@@ -104,7 +118,11 @@ function update_main_forms(){
                     img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
                     img_download.src = connector_path + "/images/pdf.png";
                     img_download.title = "Download report";
-                    img_download.style = "cursor: pointer; height: 20px;";
+                    img_download.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
+                    
+                    var img_fill2 = document.createElement("img");
+                    trb.push(img_fill2);
+                    img_fill2.style = "min-width: 22px; padding-right: 5px; box-sizing: border-box;";
                 }
                 else {
                     var img_copy = document.createElement("img");
@@ -112,7 +130,7 @@ function update_main_forms(){
                     img_copy.setAttribute("onclick", "publish_data = ['" + row["title"] + "', '" + row["entry_id"] + "']; document.getElementById('grey_background').style.display = 'block';  document.getElementById('lipidomics-forms-publishing-info-box').style.display = 'block'; document.getElementById('publish-verify-year').value = '';");
                     img_copy.src = connector_path + "/images/check.png";
                     img_copy.title = "Publish report, click here for more information";
-                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     
                     var img_update = document.createElement("img");
@@ -120,7 +138,7 @@ function update_main_forms(){
                     img_update.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
                     img_update.src = connector_path + "/images/pencil.png";
                     img_update.title = "Update report";
-                    img_update.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    img_update.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     
                     var img_copy = document.createElement("img");
@@ -128,16 +146,15 @@ function update_main_forms(){
                     img_copy.setAttribute("onclick", "copy_main_form('" + row["entry_id"] + "');");
                     img_copy.src = connector_path + "/images/recycle.png";
                     img_copy.title = "Copy report";
-                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    img_copy.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     
                     var img_download = document.createElement("img");
                     trb.push(img_download);
                     img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
-                    //img_download.setAttribute("onclick", "export_samples('" + row["entry_id"] + "');");
                     img_download.src = connector_path + "/images/pdf.png";
                     img_download.title = "Download report";
-                    img_download.style = "cursor: pointer; height: 20px; padding-right: 5px;";
+                    img_download.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     
                     var img_del = document.createElement("img");
@@ -145,16 +162,16 @@ function update_main_forms(){
                     img_del.setAttribute("onclick", "delete_main_form('" + row["title"] + "', '" + row["entry_id"] + "');");
                     img_del.src = connector_path + "/images/trashbin.png";
                     img_del.title = "Delete report";
-                    img_del.style = "cursor: pointer; height: 20px;";
+                    img_del.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                 }
                 
                     
                 var img_dump = document.createElement("img");
                 trb.push(img_dump);
-                img_del.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
-                img_del.src = connector_path + "/images/floppy.png";
-                img_del.title = "Dump report in JSON format";
-                img_del.style = "cursor: pointer; height: 20px;";
+                img_dump.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
+                img_dump.src = connector_path + "/images/floppy.png";
+                img_dump.title = "Dump report in JSON format";
+                img_dump.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                 
                 document.getElementById("viewtable").addRow(table_row);
             }
@@ -163,7 +180,72 @@ function update_main_forms(){
     var request_url = connector_path + "/connector.php?command=get_main_forms";
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
+    
+    update_published_reports();
 }
+
+
+
+
+
+
+
+function update_published_reports(){
+    var xmlhttp_request = new XMLHttpRequest();
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                if (response_text == "ErrorCodes.NO_WORDPRESS_CONNECTION"){
+                    alert("Please login or sign in to use the reporting function.");
+                    window.location.replace("/reporting_checklist");
+                }
+                else {
+                    print_error(response_text);
+                }
+                return;
+            }
+            
+            document.getElementById("publishtable").resetTable();
+            var response = JSON.parse(response_text);
+            
+            var tt_id = 0;
+            for (var i = 0; i < response.length; ++i){
+                var row = response[i];
+                if (!("entry_id" in row) || !("title" in row) || !("type" in row) || !("author" in row) || !("date" in row)){
+                    continue;
+                }
+                
+                var table_row = [];
+                table_row.push([row["title"]]);
+                table_row.push([row["author"]]);
+                table_row.push([row["type"]]);
+                table_row.push([row["date"]]);
+                
+                var trb = [];
+                table_row.push(trb);
+            
+                var img_download = document.createElement("img");
+                trb.push(img_download);
+                img_download.setAttribute("onclick", "download_pdf('" + row["entry_id"] + "');");
+                img_download.src = connector_path + "/images/pdf.png";
+                img_download.title = "Download report";
+                img_download.style = "cursor: pointer; height: 20px;";
+                
+                
+                document.getElementById("publishtable").addRow(table_row);
+            }
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=get_published_forms";
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
+
+
 
 
 function reset_tooltip(tt_id){
@@ -257,7 +339,7 @@ function export_report(entry_id){
             document.getElementById("waiting_field").style.display = "none";
             
             response_text = xmlhttp_request.responseText;
-            if (response_text.length == 0 || response_text.startsWith("ErrorCodes") || response_text.substring(response_text.length - 4) != ".json"){
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
                 print_error(response_text);
                 return;
             }
@@ -417,11 +499,20 @@ window.addEventListener('resize', function(event) {
 }, true);
 
 
+
+
+
 var workflow_content = "<div style=\"display: inline-block;\"> \
         <div id=\"new_main_form\" style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;\" onclick=\"workflow_show_selector();\">New Report</div> \
         </div><p /> \
+        <h3>Own Report List</h3> \
         <view-table id=\"viewtable\" columns=\"Report&nbsp;title|Report&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
         <font color='red'><b>*</b></font> Status: partial \
+        <div style='display: none;'> \
+            <p />&nbsp;<p />&nbsp;<p />&nbsp;<p /> \
+            <h3>General List of Published Reports</h3> \
+            <view-table id=\"publishtable\" columns=\"Title|Principle&nbsp;investigator|Report&nbsp;type|Creation&nbsp;date|Actions\" size='30|30|20|15|5' sort='1|1|1|1|0' align='l|l|l|l|c' ></view-table><br /> \
+        </div> \
      \
     <div id=\"lipidomics-forms-publishing-info-box\" class=\"lipidomics-forms-publishing-info-box\"> \
     <table width='100%' height='100%' cellspacing='0px' cellpadding='0px' style='margin: 0px;'><tr><td colspan='2' style='background-color: #e0f1c7; padding: 15px 25px 5px 25px;'> \
