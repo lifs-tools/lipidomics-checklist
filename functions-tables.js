@@ -19,6 +19,10 @@ class TableView extends HTMLElement {
         this.thead = document.createElement("thead");
         this.tbody = document.createElement("tbody");
         this.align = [];
+        this.per_page = 10;
+        this.current_page = 0;
+        this.num_pages = 0;
+        this.page_select = document.createElement("select");
     }
     
     resize(){
@@ -150,6 +154,39 @@ class TableView extends HTMLElement {
         }
         this.table.append(this.tbody);
         
+        
+        this.page_select.style.display = "inline";
+        this.page_select.style.verticalAlign = "middle";
+        this.page_select.style.marginRight = "5px";
+        
+        var option_10 = document.createElement("option");
+        this.page_select.append(option_10);
+        option_10.value = 10;
+        option_10.innerHTML = "10";
+        
+        var option_20 = document.createElement("option");
+        this.page_select.append(option_20);
+        option_20.value = 20;
+        option_20.innerHTML = "20";
+        
+        var option_50 = document.createElement("option");
+        this.page_select.append(option_50);
+        option_50.value = 50;
+        option_50.innerHTML = "50";
+        
+        var option_100 = document.createElement("option");
+        this.page_select.append(option_100);
+        option_100.value = 100;
+        option_100.innerHTML = "100";
+        
+        var option_all = document.createElement("option");
+        this.page_select.append(option_all);
+        option_all.value = 1000000000;
+        option_all.innerHTML = "all";
+        
+        this.page_select.content = this;
+        this.page_select.setAttribute("onchange", "this.content.updateTable();");
+        
         this.updateTable();
         if (this.hasAttribute("fixedHeight")) this.resize();
     }
@@ -226,10 +263,35 @@ class TableView extends HTMLElement {
         this.updateTable();
     }
     
+    
+    firstPage(){
+        this.current_page = 0;
+        this.updateTable();
+    }
+    
+    
+    previousPage(){
+        this.current_page = Math.max(0, Math.min(this.current_page - 1, this.num_pages - 1));
+        this.updateTable();
+    }
+    
+    
+    nextPage(){
+        this.current_page = Math.max(0, Math.min(this.current_page + 1, this.num_pages - 1));
+        this.updateTable();
+    }
+    
+    lastPage(){
+        this.current_page = Math.max(0, Math.min(this.num_pages - 1));
+        this.updateTable();
+    }
+    
     updateTable(){
         // clear table
         var view_content = [];
         this.tbody.innerHTML = "";
+        this.per_page = this.page_select[this.page_select.selectedIndex].value;
+        
         
         var num_cols = this.column_labels.length;
         
@@ -296,20 +358,111 @@ class TableView extends HTMLElement {
         }
         
         
+        this.num_pages = Math.max(1, Math.floor(view_content.length / this.per_page) + ((view_content.length % this.per_page) != 0 ? 1 : 0));
+        this.current_page = Math.max(0, Math.min(this.current_page, this.num_pages - 1));
+        
+        
         // adding rows into the table
         var col = 0;
-        for (var row of view_content){
-            var tr_obj = document.createElement("tr");
-            tr_obj.style.backgroundColor = "red";
-            this.tbody.append(tr_obj);
-            tr_obj.style.fontWeight = "normal";
-            //var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
-            var bg_color = ((++col) & 1) ? "white" : ILSGreenRow;
-            for (var cell of row){
-                tr_obj.append(cell);
-                cell.style.backgroundColor = bg_color;
+        //for (var row of view_content){
+        if (view_content.length > 0){
+            for (var i = this.current_page * this.per_page; i < (this.current_page + 1) * this.per_page; ++i){
+                if (i >= view_content.length) break;
+                var row = view_content[i];
+                var tr_obj = document.createElement("tr");
+                tr_obj.style.backgroundColor = "red";
+                this.tbody.append(tr_obj);
+                tr_obj.style.fontWeight = "normal";
+                //var bg_color = ((++col) & 1) ? "white" : "#f4f4f4";
+                var bg_color = ((++col) & 1) ? "white" : ILSGreenRow;
+                for (var cell of row){
+                    tr_obj.append(cell);
+                    cell.style.backgroundColor = bg_color;
+                }
             }
         }
+        
+        
+        var tr_nav = document.createElement("tr");
+        this.tbody.append(tr_nav);
+        var td_nav = document.createElement("td");
+        tr_nav.append(td_nav);
+        td_nav.style.backgroundColor = "white";
+        td_nav.colSpan = this.column_labels.length;
+        td_nav.align = "center";
+        td_nav.width = "100%";
+        
+        
+        var div_start = document.createElement("div");
+        td_nav.append(div_start);
+        div_start.style.display = "inline";
+        div_start.style.color = "#aaa";
+        div_start.style.cursor = "pointer";
+        div_start.style.fontSize = "20px";
+        div_start.style.marginRight = "5px";
+        div_start.style.verticalAlign = "middle";
+        div_start.innerHTML = "\u23EE";
+        div_start.content = this;
+        div_start.setAttribute("onclick", "this.content.firstPage();");
+        
+        var div_left = document.createElement("div");
+        td_nav.append(div_left);
+        div_left.style.display = "inline";
+        div_left.style.color = "#aaa";
+        div_left.style.cursor = "pointer";
+        div_left.style.fontSize = "20px";
+        div_left.style.verticalAlign = "middle";
+        div_left.style.marginRight = "5px";
+        div_left.innerHTML = "\u23F4";
+        div_left.content = this;
+        div_left.setAttribute("onclick", "this.content.previousPage();");
+        
+        var div_nav_info = document.createElement("div");
+        td_nav.append(div_nav_info);
+        div_nav_info.style.display = "inline";
+        div_nav_info.style.color = "black";
+        div_nav_info.style.cursor = "pointer";
+        div_nav_info.style.fontSize = "14px";
+        div_nav_info.style.verticalAlign = "middle";
+        div_nav_info.style.marginRight = "5px";
+        div_nav_info.innerHTML = (this.current_page + 1).toString() + " / " + (this.num_pages).toString();
+        
+        
+        var div_right = document.createElement("div");
+        td_nav.append(div_right);
+        div_right.style.display = "inline";
+        div_right.style.color = "#aaa";
+        div_right.style.cursor = "pointer";
+        div_right.style.fontSize = "20px";
+        div_right.style.verticalAlign = "middle";
+        div_right.style.marginRight = "5px";
+        div_right.innerHTML = "\u23F5";
+        div_right.content = this;
+        div_right.setAttribute("onclick", "this.content.nextPage();");
+        
+        var div_end = document.createElement("div");
+        td_nav.append(div_end);
+        div_end.style.display = "inline";
+        div_end.style.color = "#aaa";
+        div_end.style.cursor = "pointer";
+        div_end.style.fontSize = "20px";
+        div_end.style.verticalAlign = "middle";
+        div_end.style.marginRight = "5px";
+        div_end.innerHTML = "\u23ED";
+        div_end.content = this;
+        div_end.setAttribute("onclick", "this.content.lastPage();");
+        
+        var div_page_size = document.createElement("div");
+        td_nav.append(div_page_size);
+        div_page_size.style.display = "inline";
+        div_page_size.style.color = "black";
+        div_page_size.style.fontSize = "14px";
+        div_page_size.style.verticalAlign = "middle";
+        div_page_size.style.marginLeft = "10px";
+        div_page_size.style.marginRight = "5px";
+        div_page_size.innerHTML = "Page Size";
+        
+        td_nav.append(this.page_select);
         
         if (this.hasAttribute("fixedHeight")) this.resize();
     }

@@ -24,12 +24,12 @@ try:
                     "get_all_class_forms", "get_all_sample_forms",
                     "import_class_forms", "import_sample_forms",
                     "complete_partial_form",
-                    #"export_report", "import_report",
+                    "export_report", "import_report",
                     "get_pdf", "publish", "get_public_link",
                     "get_form_content", "update_form_content",
                     "export_samples", "import_samples",
                     "export_lipid_class", "import_lipid_class",
-                    "get_fragment_suggestions"}
+                    "get_fragment_suggestions", "get_published_forms"}
     
     conn = None
     table_prefix = "TCrpQ_"
@@ -239,6 +239,66 @@ try:
                 if len(title) == 0: entry["title"] = "Untitled %s report" % (type_to_name[entry["type"]] if entry["type"] in type_to_name else "")
                 else: entry["title"] = title
                 entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
+                
+            request.sort(key = lambda x: x["date"], reverse = True)
+            print(json_dumps(request))
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
+
+        finally:
+            if conn is not None: conn.close()
+            
+            
+            
+            
+            
+
+
+    if content["command"] == "get_published_forms":
+        
+        if "user_uuid" not in content or "uid" not in content:
+            print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+            exit()
+        user_uuid = content["user_uuid"]
+        uid = int(content["uid"])
+        type_to_name = {"di": "direct infusion", "sep": "separation", "img": "imaging"}
+        
+        try:
+            # connect with the database
+            conn, db_cursor = dbconnect()
+            
+            # getting all main forms
+            sql = "SELECT id, date, fields FROM %sentries WHERE status = 'published';" % table_prefix
+            db_cursor.execute(sql)
+            request = db_cursor.fetchall()
+            for entry in request:
+                entry["entry_id"] = get_encrypted_entry(entry["id"])
+                del entry["id"]
+                entry["type"] = ""
+                entry["author"] = ""
+                title = ""
+                if len(entry["fields"]) > 0:
+                    field_data = json_loads(entry["fields"])
+                    del entry["fields"]
+                    
+                    if len(field_data) > 0:
+                        for field in field_data["pages"][0]["content"]:
+                            if "label" in field and field["label"] == "Title of the study" and len(field["value"]) > 0:
+                                title = field["value"]
+                                
+                            elif "name" in field and field["name"] == "principle_investigator" and len(field["value"]) > 0:
+                                entry["author"] = field["value"]
+                                
+                            elif "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
+                                entry["type"] = field["value"]
+                                
+                
+                if len(title) == 0: entry["title"] = "Untitled %s report" % (type_to_name[entry["type"]] if entry["type"] in type_to_name else "")
+                else: entry["title"] = title
+                entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
+                
+            request.sort(key = lambda x: x["date"], reverse = True)
             print(json_dumps(request))
             
         except Exception as e:
@@ -1629,17 +1689,36 @@ try:
             # connect with the database
             conn, db_cursor = dbconnect()
             
-            if not check_entry_id(entry_id, uid, db_cursor, "main"):
+            
+            sql = "SELECT * FROM %sentries WHERE id = ?;" % table_prefix
+            db_cursor.execute(sql, (entry_id,))
+            status = db_cursor.fetchone()["status"]
+            
+            if status != published_label and not check_entry_id(entry_id, uid, db_cursor, "main"):
                 print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
                 exit()
                 
-            sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
-            db_cursor.execute(sql, (entry_id, uid))
-            hash_value = db_cursor.fetchone()["hash"]
+            if status != published_label:
+                sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
+                db_cursor.execute(sql, (entry_id, uid))
+            else:
+                sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ?;" % (table_prefix, table_prefix)
+                db_cursor.execute(sql, (entry_id,))
+                
+            try:
+                hash_value = db_cursor.fetchone()["hash"]
+            except:
+                print("ErrorCodes.NO_DOCUMENT: It seems that this report is published but no document is created.")
+                exit()
+            
             
             pdf_file = "completed_documents/report-%s.pdf" % hash_value
             
             if not os.path.exists(pdf_file):
+                
+                if status == published_label:
+                    print("ErrorCodes.NO_DOCUMENT: It seems that this report is published but no document is created.")
+                    exit()
                 
                 import subprocess
                 import CreateReport
@@ -1651,6 +1730,7 @@ try:
                 p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents %s" % report_file, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, close_fds = True)
                 
                 output = p.stdout.read() # execution
+                
                 
                 if os.path.exists(pdf_file):
                     print("/%s/%s" % (path_name, pdf_file))
@@ -2361,8 +2441,8 @@ try:
             
             
 
-    """
-    elif content["command"] == "get_pdf":
+    
+    elif content["command"] == "export_report":
         
         if "user_uuid" not in content or "uid" not in content:
             print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
@@ -2395,9 +2475,38 @@ try:
                 
             sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
             db_cursor.execute(sql, (entry_id,))
-            print(db_cursor.fetchone()["fields"])
+            checklist = json_loads(db_cursor.fetchone()["fields"])
+            samples, lipid_classes = [], []
+            
+            # get all IDs of the assiciated sample entries
+            sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = ?;" % table_prefix
+            db_cursor.execute(sql, (entry_id,))
+            sample_form_entry_ids = [row["sample_form_entry_id"] for row in db_cursor.fetchall()]
+            
+            for sample_form_entry_id in sample_form_entry_ids:
+                sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
+                db_cursor.execute(sql, (sample_form_entry_id,))
+                samples.append(json_loads(db_cursor.fetchone()["fields"]))
+                
+            # get all IDs of the assiciated lipid class entries
+            sql = "SELECT class_form_entry_id FROM %sconnect_lipid_class WHERE main_form_entry_id = ?;" % table_prefix
+            db_cursor.execute(sql, (entry_id,))
+            class_form_entry_ids = [row["class_form_entry_id"] for row in db_cursor.fetchall()]
+            
+            for class_entry_id in class_form_entry_ids:
+                sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
+                db_cursor.execute(sql, (sample_form_entry_id,))
+                lipid_classes.append(json_loads(db_cursor.fetchone()["fields"]))
+            
+            report = {"checklist": checklist, "samples": samples, "lipid_classes": lipid_classes}
+            
+            b = b64encode(bytes(json_dumps(report).replace(" {", "\n{"), 'utf-8'))
+            print("data:application/json;base64,%s" % b.decode('utf-8'))
+            
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_EXPORTING_REPORT) + " in %s" % content["command"], e)
         
-    """
             
 except Exception as e:
     print("ErrorCodes.GENERIC", e)
