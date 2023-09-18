@@ -167,7 +167,7 @@
 
 {"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?"},
 
-{"label": "Type of Blanks", "name": "type_of_blanks", "type": "multiple", "required": 1, "choice": [{"name": "type_of_blanks#extraction_blank", "label": "Extraction blank", "value": 0}, {"name": "type_of_blanks#injection_blank", "label": "Injection blank", "value": 0}], "description": "Which types of blank samples were analyzed?", "condition": "blanks#yes=1"},
+{"label": "Type of Blanks", "name": "type_of_blanks", "type": "multiple", "required": 1, "choice": [{"name": "type_of_blanks#extraction_blank", "label": "Extraction blank", "value": 1}, {"name": "type_of_blanks#injection_blank", "label": "Injection blank", "value": 0}], "description": "Which types of blank samples were analyzed?", "condition": "blanks#yes=1"},
 
 {"label": "Quality control", "name": "quality_control", "type": "select", "required": 0, "choice": [{"name": "quality_control#yes", "label": "Yes", "value": 0}, {"name": "quality_control#no", "label": "No", "value": 1}], "description": "Were QC samples analyzed?"},
 

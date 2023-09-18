@@ -79,11 +79,19 @@ function update_main_forms(){
                     
                     var img_fill2 = document.createElement("img");
                     trb.push(img_fill2);
-                    img_fill2.style = "min-width: 26px; padding-right: 5px; box-sizing: border-box;";
+                    img_fill2.style = "min-width: 24px; padding-right: 5px; box-sizing: border-box;";
                     
                     var img_fill3 = document.createElement("img");
                     trb.push(img_fill3);
                     img_fill3.style = "min-width: 24px; padding-right: 5px; box-sizing: border-box;";
+                
+                    
+                    var img_dump = document.createElement("img");
+                    trb.push(img_dump);
+                    img_dump.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
+                    img_dump.src = connector_path + "/images/floppy.png";
+                    img_dump.title = "Dump report in JSON format";
+                    img_dump.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     var img_del = document.createElement("img");
                     trb.push(img_del);
@@ -119,6 +127,15 @@ function update_main_forms(){
                     img_download.src = connector_path + "/images/pdf.png";
                     img_download.title = "Download report";
                     img_download.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
+                
+                    
+                    var img_dump = document.createElement("img");
+                    trb.push(img_dump);
+                    img_dump.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
+                    img_dump.src = connector_path + "/images/floppy.png";
+                    img_dump.title = "Dump report in JSON format";
+                    img_dump.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
+                    
                     
                     var img_fill2 = document.createElement("img");
                     trb.push(img_fill2);
@@ -155,6 +172,14 @@ function update_main_forms(){
                     img_download.src = connector_path + "/images/pdf.png";
                     img_download.title = "Download report";
                     img_download.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
+                
+                    
+                    var img_dump = document.createElement("img");
+                    trb.push(img_dump);
+                    img_dump.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
+                    img_dump.src = connector_path + "/images/floppy.png";
+                    img_dump.title = "Dump report in JSON format";
+                    img_dump.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                     
                     
                     var img_del = document.createElement("img");
@@ -164,14 +189,6 @@ function update_main_forms(){
                     img_del.title = "Delete report";
                     img_del.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                 }
-                
-                    
-                var img_dump = document.createElement("img");
-                trb.push(img_dump);
-                img_dump.setAttribute("onclick", "export_report('" + row["entry_id"] + "');");
-                img_dump.src = connector_path + "/images/floppy.png";
-                img_dump.title = "Dump report in JSON format";
-                img_dump.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
                 
                 document.getElementById("viewtable").addRow(table_row);
             }
@@ -298,13 +315,11 @@ function delete_main_form(workflow_title, entry_id){
 function download_pdf(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("waiting_field").style.display = "block";
+    document.getElementById("waiting_field").showModal();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background").style.display = "none";
-            document.getElementById("waiting_field").style.display = "none";
+            document.getElementById("waiting_field").close();
             
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes") || response_text.substring(response_text.length - 4) != ".pdf"){
@@ -330,13 +345,11 @@ function download_pdf(entry_id){
 function export_report(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("waiting_field").style.display = "block";
+    document.getElementById("waiting_field").showModal();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background").style.display = "none";
-            document.getElementById("waiting_field").style.display = "none";
+            document.getElementById("waiting_field").close();
             
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
@@ -370,21 +383,18 @@ function publish(){
     
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
+    document.getElementById("lipidomics-forms-publishing-info-box").close();
     
     if (document.getElementById("publish-verify-year").value != new Date().getFullYear().toString()){
-        document.getElementById("grey_background").style.display = "none";
-        document.getElementById("waiting_field").style.display = "none";
         alert("Incorrect verification.");
         return;
     }
     
-    document.getElementById("waiting_field").style.display = "block";
+    document.getElementById("waiting_field").showModal();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background").style.display = "none";
-            document.getElementById("lipidomics-forms-publishing-info-box").close();
-            document.getElementById("waiting_field").style.display = "none";
+            document.getElementById("waiting_field").close();
             
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
@@ -482,13 +492,60 @@ function workflow_close_selector(){
     document.getElementById("workflow_selector").close();
 }
 
-window.addEventListener('resize', function(event) {
-    var workflow_selector = document.getElementById("workflow_selector_wrapper").offsetHeight;
-    var window_height = window.innerHeight;
-    document.getElementById("workflow_selector_wrapper").style.top = String((window_height - workflow_selector) / 2) + "px";
-}, true);
 
 
+
+
+
+
+function upload_report(){
+    document.getElementById("report_importer_form").close();    
+    
+    var files = document.getElementById("report_file_upload");
+    if (files.files.length == 0){
+        alert("Warning: no file selected for upload!");
+        return;
+    }
+    
+    document.getElementById("waiting_field").showModal();
+    
+    var file = files.files[0];
+    var reader = new FileReader();
+    reader.onload = function(){
+        var xmlhttp_request = new XMLHttpRequest();
+        xmlhttp_request.onreadystatechange = function() {
+            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+                document.getElementById("waiting_field").close();
+                
+                response_text = xmlhttp_request.responseText;
+                if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                    if (response_text.startsWith("ErrorCodes.ERROR_ON_DECODING_FORM")){
+                        alert("It seems that the json file is broken or not a json file at all. Please check.");
+                    }
+                    else {
+                        print_error(response_text);
+                    }
+                    return;
+                }
+                
+                update_main_forms();
+            }
+        }
+        
+        var tokens = reader.result.split("base64,");
+        if (tokens.length != 2){
+            print_error("Read file encoding not base 64.");
+            return;
+        }
+        
+        var request_url = connector_path + "/connector.php";
+        xmlhttp_request.open("POST", request_url);
+        xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        var request = "command=import_report&content=" + encodeURIComponent(tokens[1]);
+        xmlhttp_request.send(request);
+    }
+    reader.readAsDataURL(file);
+}
 
 
 
@@ -526,7 +583,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
     <dialog id=\"workflow_selector\" style=\"border-radius: 5px;\"> \
         <table style=\"width: 576px; height: 265px; border: 0px;\"> \
             <tr></tr> \
-            <tr><td style=\"width: 100%; height: 80%; border-top: 0px;\" valign=\"top\" align=\"left\"> \
+            <tr><td style=\"width: 100%; height: 80%; border-top: 0px;\" colspan=\"2\" valign=\"top\" align=\"left\"> \
                 <table cellpadding=\"10px\"> \
                     <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your new report type</b></td></tr> \
                     <tr><td><input type=\"radio\" id=\"radio_direct_infusion\" name=\"workflow_type_field\" value=\"workflow_direct_infusion\" checked></td> \
@@ -537,10 +594,32 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
                     <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
                 </table> \
             </td></tr> \
-            <tr><td align=\"right\" valign=\"bottom\" style=\"padding: 10px; border-top: 0px;\"> \
-                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_select_selector();\">Select</div>&nbsp;&nbsp; \
-                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_close_selector();\">Cancel</div> \
-            </td></tr> \
+            <tr><td align=\"left\" valign=\"bottom\" style=\"padding: 10px; border-top: 0px;\"> \
+                    <div style=\"padding: 10px 15px; user-select: none; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"document.getElementById('workflow_selector').close(); document.getElementById('report_file_upload').value = null; document.getElementById('report_importer_form').showModal();\">Import report</div> \
+                </td> \
+                <td align=\"right\" valign=\"bottom\" style=\"padding: 10px; border-top: 0px;\"> \
+                    <div style=\"padding: 10px 15px; user-select: none; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_select_selector();\">Select</div>&nbsp;&nbsp; \
+                    <div style=\"padding: 10px 15px; user-select: none; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"workflow_close_selector();\">Cancel</div> \
+                </td> \
+            </tr> \
+        </table> \
+    </dialog> \
+    <dialog id=\"report_selector\" style=\"border-radius: 5px;\"> \
+    </dialog> \
+    <dialog id='report_importer_form' style=\"background: white; border-radius: 5px;\"> \
+        <table style='width: 400px; height: 100px; border: 0px; margin: 0px;'> \
+            <tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'> \
+                <td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
+                    Select a report file (*.json) for upload: <p /> \
+                    <input type='file' id='report_file_upload' accept='.json' style='border: 0px;'></input><p />&nbsp;<p /> \
+                </td> \
+            </tr> \
+            <tr> \
+                <td align='right'> \
+                    <div style=\"padding: 10px 15px; user-select: none; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"upload_report();\">Upload report</div>&nbsp;&nbsp; \
+                    <div style=\"padding: 10px 15px; user-select: none; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"document.getElementById('report_importer_form').close(); document.getElementById('workflow_selector').showModal();\">Cancel</div> \
+                </td> \
+            </tr> \
         </table> \
     </dialog> \
     </p> \
