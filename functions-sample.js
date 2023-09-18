@@ -90,7 +90,6 @@ function select_sample_selector(){
 
 
 function close_sample_selector(){
-    //document.getElementById("grey_background").style.display = "none";
     document.getElementById("sample_selector_wrapper").close();
 }
 
@@ -206,30 +205,17 @@ function refresh_sample_view(){
 function preview_sample_form(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("waiting_field").style.display = "block";
-    
-    window.addEventListener('resize', function(event) {
-        document.getElementById("preview_sample").style.top = "calc(50% - " + Math.floor(window.innerHeight * 0.4).toString() + "px)";
-        document.getElementById("preview_sample").style.height = Math.floor(window.innerHeight * 0.8) + "px";
-        document.getElementById("preview_sample_content").style.height = Math.floor(window.innerHeight * 0.8 - 100) + "px";
-    }, true);
-    
-    document.getElementById("preview_sample").style.top = "calc(50% - " + Math.floor(window.innerHeight * 0.4).toString() + "px)";
-    document.getElementById("preview_sample").style.height = Math.floor(window.innerHeight * 0.8) + "px";
-    document.getElementById("preview_sample_content").style.height = Math.floor(window.innerHeight * 0.8 - 100) + "px";
-    
+    document.getElementById("waiting_field").showModal();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
             response_text = xmlhttp_request.responseText;
-            document.getElementById("waiting_field").style.display = "none";
+            document.getElementById("waiting_field").close();
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
                 print_error(response_text);
-                document.getElementById("grey_background").style.display = "none";
                 return;
             }
-            document.getElementById("preview_sample").style.display = "block";
+            document.getElementById("preview_sample").showModal();
             
             titles = [];
             report_fields = [];
@@ -266,13 +252,11 @@ function preview_sample_form(entry_id){
 function export_samples(entry_id){
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
-    document.getElementById("grey_background").style.display = "block";
-    document.getElementById("waiting_field").style.display = "block";
+    document.getElementById("waiting_field").showModal();
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-            document.getElementById("grey_background").style.display = "none";
-            document.getElementById("waiting_field").style.display = "none";
+            document.getElementById("waiting_field").close();
             
             response_text = xmlhttp_request.responseText;
             if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
@@ -299,7 +283,6 @@ function export_samples(entry_id){
 
 
 function show_samples_importer(){
-    //document.getElementById("grey_background").style.display = "block";
     document.getElementById("import_samples_from_file_form").showModal();
     document.getElementById("sample_file_upload").value = null;
 }
@@ -307,7 +290,6 @@ function show_samples_importer(){
 
 
 function hide_samples_importer(){
-    //document.getElementById("grey_background").style.display = "none";
     document.getElementById("import_samples_from_file_form").close();
 }
 
@@ -316,23 +298,20 @@ function hide_samples_importer(){
 
 function upload_samples(entry_id, force_upload){
     if (force_upload == undefined) force_upload = false;
-    document.getElementById("grey_background").style.display = "block";
+    document.getElementById("import_samples_from_file_form").close();
     
-    document.getElementById("import_samples_from_file_form").style.display = "none";
     if (entry_id == undefined || entry_id.length == 0){
-        document.getElementById("grey_background").style.display = "none";
         return;
     }
-    document.getElementById("waiting_field").style.display = "block";
     
     
     var files = document.getElementById("sample_file_upload");
     if (files.files.length == 0){
         alert("Warning: no file selected for upload!");
-        document.getElementById("grey_background").style.display = "none";
         return;
     }
     
+    document.getElementById("waiting_field").showModal();
     
     var file = files.files[0];
     var reader = new FileReader();
@@ -340,8 +319,7 @@ function upload_samples(entry_id, force_upload){
         var xmlhttp_request = new XMLHttpRequest();
         xmlhttp_request.onreadystatechange = function() {
             if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-                document.getElementById("grey_background").style.display = "none";
-                document.getElementById("waiting_field").style.display = "block";
+                document.getElementById("waiting_field").close();
                 
                 response_text = xmlhttp_request.responseText;
                 if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){

@@ -398,6 +398,7 @@ class TableView extends HTMLElement {
         div_start.style.display = "inline";
         div_start.style.color = "#aaa";
         div_start.style.cursor = "pointer";
+        div_start.style.userSelect = "none";
         div_start.style.fontSize = "20px";
         div_start.style.marginRight = "5px";
         div_start.style.verticalAlign = "middle";
@@ -410,6 +411,7 @@ class TableView extends HTMLElement {
         div_left.style.display = "inline";
         div_left.style.color = "#aaa";
         div_left.style.cursor = "pointer";
+        div_left.style.userSelect = "none";
         div_left.style.fontSize = "20px";
         div_left.style.verticalAlign = "middle";
         div_left.style.marginRight = "5px";
@@ -422,6 +424,7 @@ class TableView extends HTMLElement {
         div_nav_info.style.display = "inline";
         div_nav_info.style.color = "black";
         div_nav_info.style.cursor = "pointer";
+        div_nav_info.style.userSelect = "none";
         div_nav_info.style.fontSize = "14px";
         div_nav_info.style.verticalAlign = "middle";
         div_nav_info.style.marginRight = "5px";
@@ -433,6 +436,7 @@ class TableView extends HTMLElement {
         div_right.style.display = "inline";
         div_right.style.color = "#aaa";
         div_right.style.cursor = "pointer";
+        div_right.style.userSelect = "none";
         div_right.style.fontSize = "20px";
         div_right.style.verticalAlign = "middle";
         div_right.style.marginRight = "5px";
@@ -445,6 +449,7 @@ class TableView extends HTMLElement {
         div_end.style.display = "inline";
         div_end.style.color = "#aaa";
         div_end.style.cursor = "pointer";
+        div_end.style.userSelect = "none";
         div_end.style.fontSize = "20px";
         div_end.style.verticalAlign = "middle";
         div_end.style.marginRight = "5px";
@@ -490,11 +495,10 @@ var sample_table_view = "<dialog id=\"sample_selector_wrapper\" style=\"width: 7
         </table> \
     </div> \
 </dialog> \
-<div id='preview_sample' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
-<div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
-</div> \
-<div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
-</div> \
+<dialog id='preview_sample' style=\"width: 70%; height: 700px; border-radius: 5px;\"> \
+    <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").close();'></div> \
+    <div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
+</dialog> \
 <dialog id='import_samples_from_file_form' style=\"background: white; border-radius: 5px;\"> \
 <table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
 Select a spreadsheet file for upload: <p /> \
@@ -526,11 +530,10 @@ var lipid_class_table_view = "<dialog id=\"class_selector_wrapper\" style=\"widt
         </table> \
     </div> \
 </dialog> \
-<div id='preview_lipid_class' style=\"top: calc(50% - 350px); left: 15%; width: 70%; height: 700px; position: fixed; display: none; background: white; border: 1px solid black; z-index: 120; border-radius: 5px;\"> \
-<div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").style.display = \"none\"; document.getElementById(\"grey_background\").style.display = \"none\";' /> \
-</div> \
-<div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
-</div> \
+<dialog id='preview_lipid_class' style='width: 70%; height: 700px; background: white; border-radius: 5px;'> \
+    <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").close();'></div> \
+    <div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
+</dialog> \
 <dialog id='import_lipid_class_from_file_form' style=\"background: white; border-radius: 5px;\"> \
 <table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
 Select a spreadsheet file for upload: <p /> \

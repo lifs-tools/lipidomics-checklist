@@ -7,8 +7,10 @@ from openpyxl.utils.cell import get_column_letter as gcl
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.comments import Comment
 from tempfile import NamedTemporaryFile
-import json
+from json import loads as json_loads
+from json import dumps as json_dumps
 import base64
+from datetime import datetime
 from io import BytesIO
 from FormsEnum import *
 import warnings
@@ -151,7 +153,7 @@ class TableData:
 def export_forms_to_worksheet(template, fields, sheet_name):
     global checked, unchecked, outgrey
     
-    field_template = json.loads(open(template).read())
+    field_template = json_loads(open(template).read())
     workbook = Workbook()
     sheet = workbook[workbook.sheetnames[0]]
     sheet.title = sheet_name
@@ -309,7 +311,7 @@ def export_forms_to_worksheet(template, fields, sheet_name):
             
             form_name_to_field = {}
             
-            for page in json.loads(form)["pages"]:
+            for page in json_loads(form)["pages"]:
                 for field in page["content"]:
                     if "name" not in field or "type" not in field: continue
                     form_name_to_field[field["name"]] = field
@@ -485,7 +487,7 @@ def import_forms_from_worksheet(template, file_base_64):
     table_fields, tables, table_names = {}, {}, set()
     
 
-    field_template = json.loads(open(template).read())
+    field_template = json_loads(open(template).read())
     for page in field_template["pages"]:
         for field in page["content"]:
             if "name" not in field or "type" not in field: continue
@@ -617,7 +619,7 @@ def import_forms_from_worksheet(template, file_base_64):
         unset_names = list(unset_columns)
         
         # load fresh template
-        field_template = json.loads(open(template).read())
+        field_template = json_loads(open(template).read())
         for page in field_template["pages"]:
             for field in page["content"]:
                 if "name" not in field or "type" not in field: continue
@@ -752,6 +754,254 @@ def import_forms_from_worksheet(template, file_base_64):
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+def validate_form_complete(form, form_type):
+        
+    name_to_condition, field_types, required_names = {}, {}, []
+    field_visible, choice_to_field, names_list = {}, {}, []
+    unset_names, name_to_field = [], {}
+    
+
+    for page in form["pages"]:
+        required_names_page = []
+        required_names.append(required_names_page)
+        for field in page["content"]:
+            if "name" not in field or "type" not in field: continue
+            field_name = field["name"]
+            name_to_field[field_name] = field
+            field_types[field_name] = field["type"]
+            field_visible[field_name] = True
+            names_list.append(field_name)
+        
+            if field["type"] == "text":
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                if "required" in field and field["required"] == 1: required_names_page.append(field_name)
+                if not type(field["value"]) == str:
+                    field["value"] = ""
+                    unset_names.append(field_name)
+                    continue
+                
+                if "validate" in field:
+                    import re
+                    pattern = re.compile(field["validate"])
+                    if type(pattern.match(field["value"])) == None:
+                        unset_names.append(field_name)
+                        
+                if field["value"] == "":
+                    unset_names.append(field_name)
+        
+        
+            elif field["type"] == "number":
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                if "required" in field and field["required"] == 1: required_names_page.append(field_name)
+                if not (type(field["value"]) == int or type(field["value"]) == float):
+                    field["value"] = 0
+                    unset_names.append(field_name)
+                    continue
+                if ("min" in field and field["min"] > field["value"]) or ("max" in field and field["max"] < field["value"]):
+                    unset_names.append(field_name)
+                    
+            
+                
+            elif field["type"] == "select":
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                if "required" in field and field["required"] == 1: required_names_page.append(field_name)
+                set_choice = False
+                for choice in field["choice"]:
+                    field_types[choice["name"]] = field["type"]
+                    choice_to_field[choice["name"]] = field_name
+                    name_to_field[choice["name"]] = choice
+                    
+                    if choice["value"] not in {0, 1}:
+                        choice["value"]
+                        continue
+                    
+                    if choice["value"] == 1:
+                        if not set_choice: set_choice = True
+                        else:
+                            choice["value"] = 0
+                            
+                if not set_choice:
+                    unset_names.append(field_name)
+                    if len(field["choice"]) > 0: field["choice"][0]["value"] = 1
+                    
+                
+            elif field["type"] == "multiple":
+                if "required" in field and field["required"] == 1: required_names_page.append(field_name)
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                set_choices = 0
+                for choice in field["choice"]:
+                    choice_name = choice["name"]
+                    field_types[choice_name] = field["type"]
+                    name_to_field[choice["name"]] = choice
+                    choice_to_field[choice_name] = field_name
+                    if choice["value"] not in {0, 1}:
+                        choice["value"]
+                        continue
+                    set_choices += choice["value"] == 1
+                    
+                if set_choices == 0:
+                    unset_names.append(field_name)
+                    
+            elif field["type"] == "table":
+                if "required" in field and field["required"] == 1: required_names_page.append(field_name)
+                if "condition" in field: name_to_condition[field_name] = field["condition"]
+                
+    
+    for name in name_to_condition:
+        name_to_condition[name] = process_condition(name_to_condition[name], field_types)
+        
+    
+    fine_pages = len(required_names)
+                    
+    # check if form is complete, i.e., all required fields without conditions are filled
+    # as well as all fields where the conditions are met
+    for field_name in names_list:
+        if field_name not in name_to_condition: continue
+        field_visible[field_name] = False
+            
+            
+        for condition_and in name_to_condition[field_name]:
+            condition_met = True
+            for key, operator, value in condition_and:
+                if key not in name_to_field:
+                    continue
+                
+                if key not in choice_to_field:
+                    conditional_field = field_name
+                else:
+                    conditional_field = choice_to_field[key]
+                
+                condition_met &= (conditional_field in field_visible and field_visible[conditional_field]) and ((operator == "=" and name_to_field[key]["value"] == value) or (operator == "~" and name_to_field[key]["value"] != value))
+                
+            
+            field_visible[field_name] |= condition_met
+        
+    
+    for p, required_names_page in enumerate(required_names):
+        for name in required_names_page:
+            if name not in field_visible or not field_visible[name]: continue
+            if name in unset_names:
+                fine_pages = min(fine_pages, p)
+                break
+    """
+    if form_type == FormType.LIPID_CLASS:
+        lipid_name = ""
+        for ch in form["pages"][0]["content"][0]["choice"]:
+            if ch["value"] == 1:
+                lipid_name = ch["label"]
+                break
+        raise Exception("ErrorCodes error %s %s %s %s" % (lipid_name, fine_pages, len(required_names), fine_pages == len(required_names)))
+    """
+    return fine_pages == len(required_names), fine_pages
+        
+        
+        
+        
+        
+        
+        
+        
+def import_form_from_file(form, form_type, version):
+    reference_form, completed = 0, True
+    
+    
+    if form_type == FormType.CHECKLIST:
+        reference_form = json_loads(open("workflow-templates/checklist.json").read())
+        
+    elif form_type == FormType.SAMPLE:
+        reference_form = json_loads(open("workflow-templates/sample.json").read())
+        
+    elif form_type == FormType.LIPID_CLASS:
+        reference_form = json_loads(open("workflow-templates/lipid-class.json").read())
+        
+    reference_form["version"] = version
+    reference_form["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    if "pages" not in reference_form or "pages" not in form:
+        return reference_form, False
+    
+    try:
+        ref_pages = {p["title"]: p["content"] for p in reference_form["pages"]}
+        form_pages = {p["title"]: p["content"] for p in form["pages"]}
+    except:
+        return reference_form, False
+     
+    completed &= len(ref_pages) == len(form_pages)
+    for ref_page_title, ref_page in ref_pages.items():
+        if ref_page_title not in form_pages:
+            completed = False
+            continue
+        
+        form_page = form_pages[ref_page_title]
+        
+        try:
+            ref_contents = {c["name"]: c for c in ref_page}
+            form_contents = {c["name"]: c for c in form_page}
+        except:
+            completed = False
+            continue
+        
+        completed &= len(ref_contents) == len(form_contents)
+        for ref_content_name, ref_content in ref_contents.items():
+            if ref_content_name not in form_contents:
+                completed = False
+                continue
+            
+            form_content = form_contents[ref_content_name]
+            if "value" in ref_content:
+                if "value" in form_content:
+                    ref_content["value"] = form_content["value"]
+                else:
+                    completed = False
+                
+            if "choice" in ref_content:
+                if "choice" not in form_content:
+                    completed = False
+                    
+                else:
+                    try:
+                        ref_choices = {c["name"]: c for c in ref_content["choice"]}
+                        form_choices = {c["name"]: c for c in form_content["choice"]}
+                    except:
+                        completed = False
+                        continue
+                    
+                    completed &= len(ref_choices) == len(form_choices)
+                    for ref_choice_name, ref_choice in ref_choices.items():
+                        if ref_choice_name not in form_choices:
+                            completed = False
+                            continue
+                        else:
+                            
+                            form_choice = form_choices[ref_choice_name]
+                            if "value" in ref_choice:
+                                if "value" in form_choice:
+                                    ref_choice["value"] = form_choice["value"]
+                                else:
+                                    completed = False
+                 
+                           
+    
+    compl, fine_pages = validate_form_complete(reference_form, form_type)
+    fine_pages = min(fine_pages, form["max_page"]) if "max_page" in form and type(form["max_page"]) == int else fine_pages
+    completed &= compl
+    if "max_page" not in reference_form: completed = False
+    else: reference_form["max_page"] = fine_pages
+    
+    if fine_pages < len(form["pages"]) - 1: completed = False
+    
+        
+    return reference_form, completed
 
 
 if __name__ == "__main__":

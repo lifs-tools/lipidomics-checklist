@@ -2478,6 +2478,7 @@ try:
             checklist = json_loads(db_cursor.fetchone()["fields"])
             samples, lipid_classes = [], []
             
+            
             # get all IDs of the assiciated sample entries
             sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = ?;" % table_prefix
             db_cursor.execute(sql, (entry_id,))
@@ -2488,20 +2489,164 @@ try:
                 db_cursor.execute(sql, (sample_form_entry_id,))
                 samples.append(json_loads(db_cursor.fetchone()["fields"]))
                 
+                
             # get all IDs of the assiciated lipid class entries
             sql = "SELECT class_form_entry_id FROM %sconnect_lipid_class WHERE main_form_entry_id = ?;" % table_prefix
             db_cursor.execute(sql, (entry_id,))
             class_form_entry_ids = [row["class_form_entry_id"] for row in db_cursor.fetchall()]
             
-            for class_entry_id in class_form_entry_ids:
+            for class_form_entry_id in class_form_entry_ids:
                 sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
-                db_cursor.execute(sql, (sample_form_entry_id,))
+                db_cursor.execute(sql, (class_form_entry_id,))
                 lipid_classes.append(json_loads(db_cursor.fetchone()["fields"]))
+            
             
             report = {"checklist": checklist, "samples": samples, "lipid_classes": lipid_classes}
             
             b = b64encode(bytes(json_dumps(report).replace(" {", "\n{"), 'utf-8'))
             print("data:application/json;base64,%s" % b.decode('utf-8'))
+            
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_EXPORTING_REPORT) + " in %s" % content["command"], e)
+            
+            
+            
+            
+            
+            
+            
+            
+
+    
+    elif content["command"] == "import_report":
+        
+        if "user_uuid" not in content or "uid" not in content:
+            print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+            exit()
+        user_uuid = content["user_uuid"]
+        uid = int(content["uid"])
+        
+        try:
+            form_content = unquote(b64decode(content["content"]).decode("utf-8"))
+            form_content = json_loads(form_content)
+            f = form_content["checklist"]
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_DECODING_FORM) + " in %s" % content["command"], e)
+            exit()
+            
+        
+        from ImportExportForms import import_form_from_file
+        
+        checklist, completed = import_form_from_file(form_content["checklist"], FormType.CHECKLIST, version)
+        samples, lipid_classes = [], []
+        if "samples" in form_content:        
+            for form_sample in form_content["samples"]:
+                sample, compl = import_form_from_file(form_sample, FormType.SAMPLE, version)
+                samples.append([sample, compl])
+                completed &= compl
+                if not compl: checklist["max_page"] = min(checklist["max_page"], 1)
+                
+        if "lipid_classes" in form_content:
+            for form_lipid_class in form_content["lipid_classes"]:
+                lipid_class, compl = import_form_from_file(form_lipid_class, FormType.LIPID_CLASS, version)
+                lipid_classes.append([lipid_class, compl])
+                completed &= compl
+                if not compl: checklist["max_page"] = min(checklist["max_page"], 4)
+        
+        
+        try:
+            # connect with the database
+            conn, db_cursor = dbconnect()
+            
+            # importing checklist and all associated sample and lipid class forms
+            # get form to copy and update some entries
+            checklist["current_page"] = 0
+            checklist["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            checklist = json_dumps(checklist)
+            
+            
+            # insert content into the db
+            sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, DATETIME('now'), ?);" % table_prefix
+            values = (main_form_id, uid, completed_label if completed else partial_label, checklist, user_uuid)
+            db_cursor.execute(sql, values)
+            conn.commit()
+            
+            # retrieve new main entry id
+            sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ?;" % table_prefix
+            db_cursor.execute(sql, (uid, main_form_id))
+            request = db_cursor.fetchone()
+            new_main_entry_id = request["eid"]
+            
+            
+            # add hash value, when report is completed
+            if completed:
+                while True:
+                    hash_value = chr(randint(97, 122)) + chr(randint(97, 122)) + "".join(str(randint(0, 9)) for i in range(8))
+                    
+                    sql = "SELECT COUNT(*) AS cnt FROM %sreports WHERE hash = ?;" % table_prefix
+                    db_cursor.execute(sql, (hash_value,))
+                    if db_cursor.fetchone()["cnt"] == 0: break
+                
+                sql = "INSERT INTO %sreports (entry_id, hash, DOI) VALUES (?, ?, '');" % table_prefix
+                db_cursor.execute(sql, (new_main_entry_id, hash_value))
+                conn.commit()
+            
+            
+            
+            
+            for sample_fields, compl in samples:
+                sample_fields["current_page"] = 0
+                sample_fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                sample_fields = json_dumps(sample_fields)
+                
+                # insert sample entries into the db
+                sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, DATETIME('now'), ?);" % table_prefix
+                values = (sample_form_id, uid, completed_label if compl else partial_label, sample_fields, user_uuid)
+                db_cursor.execute(sql, values)
+                conn.commit()
+                
+                # retrieve new sample entry id
+                sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ?;" % table_prefix
+                db_cursor.execute(sql, (uid, sample_form_id))
+                request = db_cursor.fetchone()
+                new_sample_entry_id = request["eid"]
+                
+                
+                # add copy of lipid sample form into connetion table
+                sql = "INSERT INTO %sconnect_sample (main_form_entry_id, sample_form_entry_id) VALUES (?, ?);" % table_prefix
+                db_cursor.execute(sql, (new_main_entry_id, new_sample_entry_id))
+                conn.commit()
+            
+            
+            
+            
+            for class_fields, compl in lipid_classes:
+                class_fields["current_page"] = 0
+                class_fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                class_fields = json_dumps(class_fields)
+                
+                # insert sample entries into the db
+                sql = "INSERT INTO %sentries (form, user_id, status, fields, date, user_uuid) VALUES (?, ?, ?, ?, DATETIME('now'), ?);" % table_prefix
+                values = (class_form_id, uid, completed_label if compl else partial_label, class_fields, user_uuid)
+                db_cursor.execute(sql, values)
+                conn.commit()
+                    
+                
+                # retrieve new main entry id
+                sql = "SELECT max(id) as eid FROM %sentries WHERE user_id = ? and form = ?;" % table_prefix
+                db_cursor.execute(sql, (uid, class_form_id))
+                request = db_cursor.fetchone()
+                new_class_entry_id = request["eid"]
+                
+                
+                # add copy of lipid class form into connetion table
+                sql = "INSERT INTO %sconnect_lipid_class (main_form_entry_id, class_form_entry_id) VALUES (?, ?);" % table_prefix
+                db_cursor.execute(sql, (new_main_entry_id, new_class_entry_id))
+                conn.commit()
+                
+            print(0)
             
             
         except Exception as e:
