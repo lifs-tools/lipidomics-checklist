@@ -539,7 +539,7 @@ function load_data(content){
             obj_next.setAttribute('onclick','change_page(1);');
         }
         else {
-            obj_next.innerHTML = "Submit";
+            obj_next.innerHTML = "Save";
             obj_next.setAttribute('onclick','submit_form();');
         }
         obj_page.append(obj_next);
@@ -900,15 +900,15 @@ function submit_form(){
     xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp_request.send("command=complete_partial_form&entry_id=" + encodeURIComponent(entry_id));
     if (workflow_type == "sample"){
-        alert("Sample form successfully completed.");
+        alert("Sample form successfully saved.");
         hide_samplelist();
     }
     else if (workflow_type == "lipid-class"){
-        alert("Lipid class form successfully completed.");
+        alert("Lipid class form successfully saved.");
         hide_lipid_classlist();
     }
     else {
-        alert("Lipidomics report successfully completed.");
+        alert("Lipidomics report successfully saved.");
         hide_checklist();
         var xmlhttp_m = new XMLHttpRequest();
         xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=report_completed", true);

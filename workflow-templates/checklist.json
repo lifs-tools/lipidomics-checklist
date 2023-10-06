@@ -58,7 +58,11 @@
 
 
 
-{"title": "Analytical platform", "content": [{"label": "Number of separation dimensions", "name": "number_of_separation_dimensions", "type": "select", "required": 0, "choice": [{"name": "number_of_separation_dimensions#one_dimension", "label": "One dimension", "value": 1}, {"name": "number_of_separation_dimensions#two_dimensions", "label": "Two dimensions", "value": 0}], "description": "How many dimensions were applied?", "condition": "workflowtype='sep'"},
+{"title": "Analytical platform", "content": [{"label": "Which solvent was used", "name": "solvent_di", "type": "text", "required": 1, "description": "Possible solvents may be 'IPA:Methanol:Chloroform(4:2:1) + Amonium acetate'", "condition": "workflowtype='di'"},
+
+{"label": "Which solvents were used", "name": "solvent_sep", "type": "text", "required": 1, "description": "Possible solvents may be 'Solvent A was ACN/H2O (3:2, v/v) + 0.1 % formic acid + 10 mM ammonium formate; solvent B was IPA/ACN (9:1, v/v) + 0.1 % formic acid + 10 mM ammonium formate'", "condition": "workflowtype='sep'"},
+
+{"label": "Number of separation dimensions", "name": "number_of_separation_dimensions", "type": "select", "required": 0, "choice": [{"name": "number_of_separation_dimensions#one_dimension", "label": "One dimension", "value": 1}, {"name": "number_of_separation_dimensions#two_dimensions", "label": "Two dimensions", "value": 0}], "description": "How many dimensions were applied?", "condition": "workflowtype='sep'"},
 
 {"label": "Separation type 1", "name": "separation_type_1", "type": "select", "required": 0, "choice": [{"name": "separation_type_1#gc", "label": "GC", "value": 0}, {"name": "separation_type_1#lc", "label": "LC", "value": 1}, {"name": "separation_type_1#sfc", "label": "SFC", "value": 0}, {"name": "separation_type_1#tlc", "label": "TLC", "value": 0}, {"name": "separation_type_1#other", "label": "Other", "value": 0}], "description": "Which type of separation was applied?", "condition": "workflowtype='sep'"},
 

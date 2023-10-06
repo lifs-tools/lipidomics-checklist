@@ -505,12 +505,12 @@ Select a spreadsheet file for upload: <p /> \
 <input type='file' id='sample_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
 <button onclick='upload_samples(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_samples_importer();'>Cancel</button> \
 </td></tr></table></dialog> \
-<div style=\"display: inline-block;\"> \
-    <a id=\"new_sample_form\" title=\"You can create a completely new sample entry\" style=\"cursor: pointer; display: inline-block;\" onclick=\"register_new_sample_form();\">Add sample type</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"import_sample_form\" title=\"You can import sample entries from your other reports\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_sample_selector();\">Import registered sample</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"export_sample_forms\" title=\"You can export sample entries into a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"export_samples(entry_id);\">Export samples to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"upload_sample_forms\" title=\"You can import sample entries from a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_samples_importer();\">Import samples from file</a> \
-</div> \
+&nbsp;<p /><div style=\"display: inline-block;\"> \
+    <button class='submit-button' title=\"You can create a completely new sample entry\" onclick=\"register_new_sample_form();\">Add sample type</button> \
+    <button class='submit-button' title=\"You can import sample entries from your other reports\" onclick=\"show_sample_selector();\">Add sample type</button> \
+    <button class='submit-button' title=\"You can export sample entries into a spreadsheet file\" onclick=\"export_samples(entry_id);\">Export samples to file</button> \
+    <button class='submit-button' title=\"You can import sample entries from a spreadsheet file\" onclick=\"show_samples_importer();\">Import samples from file</button> \
+</div><p /> \
 <view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
 
@@ -540,12 +540,12 @@ Select a spreadsheet file for upload: <p /> \
 <input type='file' id='lipid_class_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
 <button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
 </td></tr></table></dialog> \
-<div style=\"display: inline-block;\"> \
-    <a id=\"new_class_form\" title=\"You can create a completely new lipid class entry\" style=\"cursor: pointer; display: inline-block;\" onclick=\"register_new_class_form();\">Add lipid class</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"new_class_form\" title=\"You can import lipid class entries from your other reports\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_class_selector();\">Import registered lipid classes</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"export_lipid_class_forms\" title=\"You can export lipid class entries into a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"export_lipid_class(entry_id);\">Export lipid classes to file</a>&nbsp;&nbsp;/&nbsp;&nbsp; \
-    <a id=\"upload_lipid_class_forms\" title=\"You can import lipid_class entries from a spreadsheet file\" style=\"cursor: pointer; display: inline-block;\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</a> \
-</div> \
+&nbsp;<p /><div style=\"display: inline-block;\"> \
+    <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_sample_form();\">Add lipid class</button> \
+    <button class='submit-button' title=\"You can import lipid class entries from your other reports\" onclick=\"show_class_selector();\">Import registered lipid classes</button> \
+    <button class='submit-button' title=\"You can export lipid class entries into a spreadsheet file\" onclick=\"export_lipid_class(entry_id)\">Export lipid classes to file</button> \
+    <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</button> \
+</div><p /> \
 <div id=\"result_box\"></div>\
 <view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
 
