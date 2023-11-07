@@ -386,7 +386,7 @@ function publish(){
     document.getElementById("lipidomics-forms-publishing-info-box").close();
     
     if (document.getElementById("publish-verify-year").value != new Date().getFullYear().toString()){
-        alert("Incorrect verification.");
+        alert("The verification year was incorrect. Please type in the correct verification year in order to continue the publication process.");
         return;
     }
     

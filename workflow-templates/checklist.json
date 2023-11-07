@@ -35,7 +35,7 @@
 
 {"label": "Other extraction method", "name": "other_extraction_method", "type": "text", "required": 1, "value": "", "description": "Which other extraction method was applied?", "condition": "extraction_method#other=1"},
 
-{"label": "pH adjustment", "name": "ph_adjustment", "type": "select", "required": 0, "choice": [{"name": "ph_adjustment#none", "label": "None", "value": 1}, {"name": "ph_adjustment#hydrochloric_acid", "label": "Hydrochloric acid", "value": 0}, {"name": "ph_adjustment#citrate", "label": "Citrate", "value": 0}, {"name": "ph_adjustment#ammonium_formate", "label": "Ammonium formate", "value": 0}, {"name": "ph_adjustment#other", "label": "Other", "value": 0}], "description": "Was the pH adjusted for extraction? If yes, which buffer, acid/base was added?", "condition": "workflowtype~'img'"},
+{"label": "pH adjustment", "name": "ph_adjustment", "type": "select", "required": 0, "choice": [{"name": "ph_adjustment#none", "label": "None", "value": 1}, {"name": "ph_adjustment#hydrochloric_acid", "label": "Hydrochloric acid", "value": 0}, {"name": "ph_adjustment#citric_acid", "label": "Citric acid", "value": 0}, {"name": "ph_adjustment#citrate_salt", "label": "Citrate salt", "value": 0}, {"name": "ph_adjustment#ammonium_formate", "label": "Ammonium formate", "value": 0}, {"name": "ph_adjustment#other", "label": "Other", "value": 0}], "description": "Was the pH adjusted for extraction? If yes, which buffer, acid/base was added?", "condition": "workflowtype~'img'"},
 
 {"label": "Other pH adjustment", "name": "other_ph_adjustment", "type": "text", "required": 1, "value": "", "description": "Which other pH adjustment was applied?", "condition": "ph_adjustment#other=1"},
 
@@ -128,6 +128,8 @@
 
 {"label": "Mass accuracy in ppm at MS1", "name": "mass_accuracy_ppm_ms1", "type": "number", "required": 1, "value": 5, "description": "", "condition": "ms_level#ms1=1&mass_resolution_ms1#high_resolution=1&detector#ms=1"},
 
+{"label": "Recording mode of raw data at MS1", "name": "rec_mode_ms1", "type": "select", "required": 0, "choice": [{"name": "rec_mode_ms1#centroid", "label": "Centroid mode", "value": 1}, {"name": "rec_mode_ms1#profile", "label": "Profile mode", "value": 0}], "description": "", "condition": "detector#ms=1&ms_level#ms1=1"},
+
 {"label": "Mass window for precursor ion isolation (in Da total isolation window)", "name": "mass_window_precursor_ion_isolation", "type": "number", "required": 1, "value": 1, "description": "For MS2 and higher - which mass window was applied for precursor selection?", "min": 0.0, "condition": "ms_level#msn=1|ms_level#ms2=1&detector#ms=1"},
 
 {"label": "Mass resolution for detected ion at MS2", "name": "mass_resolution_ms2", "type": "select", "required": 0, "choice": [{"name": "mass_resolution_ms2#low_resolution", "label": "Low resolution", "value": 1}, {"name": "mass_resolution_ms2#high_resolution", "label": "High resolution", "value": 0}], "description": "Which mass resolution was applied for the detected ion?", "condition": "ms_level#ms2=1&detector#ms=1"},
@@ -138,6 +140,8 @@
 
 {"label": "Mass accuracy in ppm at MS2", "name": "mass_accuracy_ppm_ms2", "type": "number", "required": 1, "value": 5, "description": "", "condition": "ms_level#ms2=1&mass_resolution_ms2#high_resolution=1&detector#ms=1"},
 
+{"label": "Recording mode of raw data at MS2", "name": "rec_mode_ms2", "type": "select", "required": 0, "choice": [{"name": "rec_mode_ms2#centroid", "label": "Centroid mode", "value": 1}, {"name": "rec_mode_ms2#profile", "label": "Profile mode", "value": 0}], "description": "", "condition": "detector#ms=1&ms_level#ms2=1"},
+
 {"label": "Mass resolution for detected ion at MSn", "name": "mass_resolution_msn", "type": "select", "required": 0, "choice": [{"name": "mass_resolution_msn#low_resolution", "label": "Low resolution", "value": 1}, {"name": "mass_resolution_msn#high_resolution", "label": "High resolution", "value": 0}], "description": "Which mass resolution was applied for the detected ion?", "condition": "ms_level#msn=1&detector#ms=1"},
 
 {"label": "Resolution at MSn", "name": "resolution_msn_low", "type": "select", "required": 0, "choice": [{"name": "resolution_msn_low#low", "label": "Low", "value": 1}, {"name": "resolution_msn_low#unit", "label": "Unit", "value": 0}, {"name": "resolution_msn_low#high", "label": "High", "value": 0}], "description": "", "condition": "ms_level#msn=1&mass_resolution_msn#low_resolution=1&detector#ms=1"},
@@ -145,6 +149,8 @@
 {"label": "Resolution at m/z 200 at MSn", "name": "resolution_mz_msn", "type": "number", "required": 1, "value": 10000, "description": "Specify the resolution at m/z 200 FWHM.", "min": 0.0, "condition": "ms_level#msn=1&mass_resolution_msn#high_resolution=1&detector#ms=1"},
 
 {"label": "Mass accuracy in ppm at MSn", "name": "mass_accuracy_ppm_msn", "type": "number", "required": 1, "value": 5, "description": "", "min": 0.0, "condition": "ms_level#msn=1&mass_resolution_msn#high_resolution=1&detector#ms=1"},
+
+{"label": "Recording mode of raw data at MSn", "name": "rec_mode_msn", "type": "select", "required": 0, "choice": [{"name": "rec_mode_msn#centroid", "label": "Centroid mode", "value": 1}, {"name": "rec_mode_msn#profile", "label": "Profile mode", "value": 0}], "description": "", "condition": "detector#ms=1&ms_level#msn=1"},
 
 {"label": "Was/Were additional dimension/techniques used", "name": "add_dimension", "type": "select", "required": 0, "choice": [{"name": "add_dimension#yes", "label": "Yes", "value": 0}, {"name": "add_dimension#no", "label": "No", "value": 1}], "description": "Were additional analytical dimensions (e.g., IMS) applied?"}
 

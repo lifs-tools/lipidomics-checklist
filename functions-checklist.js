@@ -39,15 +39,12 @@ function load_data(content){
     form_enabled = true;
     
     if (workflow_type == "sample"){
-        //document.getElementById("back_button").innerHTML = "Save & Back to Sample Overview";
-        document.getElementById("back_button").innerHTML = "Back to Sample Overview";
+        document.getElementById("back_button").innerHTML = "Back to Preanalytics / Sample material";
     }
     else if (workflow_type == "lipid-class"){
-        //document.getElementById("back_button").innerHTML = "Save & Back to Lipid Class Overview";
-        document.getElementById("back_button").innerHTML = "Back to Lipid Class Overview";
+        document.getElementById("back_button").innerHTML = "Back to Lipid identification / Additional separation method(s)";
     }
     else {
-        //document.getElementById("back_button").innerHTML = "Save & Back to Report Overview";
         document.getElementById("back_button").innerHTML = "Back to Report Overview";
     }
     

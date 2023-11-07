@@ -507,7 +507,7 @@ Select a spreadsheet file for upload: <p /> \
 </td></tr></table></dialog> \
 &nbsp;<p /><div style=\"display: inline-block;\"> \
     <button class='submit-button' title=\"You can create a completely new sample entry\" onclick=\"register_new_sample_form();\">Add sample type</button> \
-    <button class='submit-button' title=\"You can import sample entries from your other reports\" onclick=\"show_sample_selector();\">Add sample type</button> \
+    <button class='submit-button' title=\"You can import sample entries from your other reports\" onclick=\"show_sample_selector();\">Import registered samples</button> \
     <button class='submit-button' title=\"You can export sample entries into a spreadsheet file\" onclick=\"export_samples(entry_id);\">Export samples to file</button> \
     <button class='submit-button' title=\"You can import sample entries from a spreadsheet file\" onclick=\"show_samples_importer();\">Import samples from file</button> \
 </div><p /> \
@@ -541,7 +541,7 @@ Select a spreadsheet file for upload: <p /> \
 <button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
 </td></tr></table></dialog> \
 &nbsp;<p /><div style=\"display: inline-block;\"> \
-    <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_sample_form();\">Add lipid class</button> \
+    <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_class_form();\">Add lipid class</button> \
     <button class='submit-button' title=\"You can import lipid class entries from your other reports\" onclick=\"show_class_selector();\">Import registered lipid classes</button> \
     <button class='submit-button' title=\"You can export lipid class entries into a spreadsheet file\" onclick=\"export_lipid_class(entry_id)\">Export lipid classes to file</button> \
     <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</button> \
