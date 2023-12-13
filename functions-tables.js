@@ -511,7 +511,18 @@ Select a spreadsheet file for upload: <p /> \
     <button class='submit-button' title=\"You can export sample entries into a spreadsheet file\" onclick=\"export_samples(entry_id);\">Export samples to file</button> \
     <button class='submit-button' title=\"You can import sample entries from a spreadsheet file\" onclick=\"show_samples_importer();\">Import samples from file</button> \
 </div><p /> \
-<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
+<div style='width: 100%; text-align: right;'>\
+    <font size='-1'>\
+        Select mass action: <select id='mass_action_samples'>\
+            <option>Please select</option> \
+            <option>Export to file</option> \
+            <option>Delete</option> \
+        </select> <button onclick='sample_mass_action();'>Go</button><br />\
+        \
+        <div style='cursor: pointer; display: inline;' onclick='select_all_samples(true);'>select all</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_samples(false);'>deselect all</div>\
+    </font>\
+</div>\
+<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions|Samples' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
 
 
 
@@ -547,6 +558,17 @@ Select a spreadsheet file for upload: <p /> \
     <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</button> \
 </div><p /> \
 <div id=\"result_box\"></div>\
-<view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions' size='70|10|10' sort='1|1|0' align='l|l|c' ></view-table>";
+<div style='width: 100%; text-align: right;'>\
+    <font size='-1'>\
+        Select mass action: <select id='mass_action_lipid_class'>\
+            <option>Please select</option> \
+            <option>Export to file</option> \
+            <option>Delete</option> \
+        </select> <button onclick='lipid_class_mass_action();'>Go</button><br />\
+        \
+        <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(true);'>select all</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(false);'>deselect all</div>\
+    </font>\
+</div>\
+<view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions|Select' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
 
 var registered_tables = {"sample": sample_table_view, "lipid-class": lipid_class_table_view};

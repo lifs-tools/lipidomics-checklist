@@ -2,6 +2,7 @@
 var sample_field_object = null;
 var has_partial_samples = false;
 var checkbox_list_sample = [];
+var checkbox_selection_sample = [];
 
 function show_sample_selector(){
     update_load_sample_forms();
@@ -98,6 +99,7 @@ function update_sample_forms() {
     
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
+    checkbox_selection_sample = [];
     
     
     xmlhttp_request.onreadystatechange = function() {
@@ -178,6 +180,12 @@ function update_sample_forms() {
                 img_delete.title = "Delete sample type";
                 img_delete.style = "cursor: pointer; height: 20px;";
                 
+                var chb_entry = document.createElement("input");
+                chb_entry.type = "checkbox";
+                chb_entry.id = row["entry_id"];
+                table_row.push([chb_entry]);
+                checkbox_selection_sample.push(chb_entry);
+                
                 document.getElementById("viewtable-sample").addRow(table_row);
             }
         
@@ -196,6 +204,41 @@ function update_sample_forms() {
 
 function refresh_sample_view(){
     if (sample_field_object != null) update_tableview(sample_field_object);
+}
+
+
+
+
+
+
+function sample_mass_action(){
+    var select_obj = document.getElementById("mass_action_samples");
+    
+    if (checkbox_selection_sample.length == 0 || select_obj == undefined || select_obj.selectedIndex == 0) return;
+    
+    var sample_entry_ids = [];
+    for (var checkbox of checkbox_selection_sample){
+        if (checkbox.checked) sample_entry_ids.push(checkbox.id);
+    }
+    
+    if (sample_entry_ids.length == 0) return;
+    
+    action_name = select_obj.options[select_obj.selectedIndex].value;
+    if (action_name == "Export to file"){
+        export_samples(entry_id, sample_entry_ids);
+    }
+    else if (action_name == "Delete"){
+        delete_selected_sample_forms(sample_entry_ids);
+    }
+}
+
+
+
+
+function select_all_samples(checked_type){
+    for (var checkbox of checkbox_selection_sample){
+        checkbox.checked = checked_type;
+    }
 }
 
 
@@ -249,8 +292,8 @@ function preview_sample_form(entry_id){
 
 
 
-function export_samples(entry_id){
-    if (entry_id == undefined || entry_id.length == 0) return;
+function export_samples(report_entry_id, sample_entry_ids){
+    if (report_entry_id == undefined || report_entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     document.getElementById("waiting_field").showModal();
     
@@ -273,7 +316,13 @@ function export_samples(entry_id){
             document.body.removeChild(tempLink);
         }
     }
-    var request_url = connector_path + "/connector.php?command=export_samples&entry_id=" + encodeURIComponent(entry_id);
+    var request_url = "";
+    if (sample_entry_ids == undefined){
+        request_url = connector_path + "/connector.php?command=export_samples&entry_id=" + encodeURIComponent(report_entry_id);
+    }
+    else {
+        request_url = connector_path + "/connector.php?command=export_selected_samples&report_entry_id=" + encodeURIComponent(report_entry_id) + "&sample_entry_ids=" + encodeURIComponent(sample_entry_ids.join(";"));
+    }
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
@@ -378,6 +427,38 @@ function delete_sample_form(sample_type, entry_id){
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
+
+
+
+
+
+function delete_selected_sample_forms(sample_entry_ids){
+    refresh_sample_view();
+    if (!confirm("Do you really want to delete the selected sample type?")) return;
+    
+    if (sample_field_object != null) update_tableview(sample_field_object);
+    if (sample_entry_ids == undefined || sample_entry_ids.length == 0) return;
+    var xmlhttp_request = new XMLHttpRequest();
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                print_error(response_text);
+                return;
+            }
+                    
+            update_sample_forms();
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=delete_selected_sample_forms&entry_ids=" + encodeURIComponent(sample_entry_ids.join(";"));
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
+
+
+
 
 
 function copy_sample_form( entry_id){

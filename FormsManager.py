@@ -21,14 +21,15 @@ try:
                     "add_main_form", "add_class_form", "add_sample_form",
                     "copy_main_form", "copy_class_form", "copy_sample_form",
                     "delete_main_form", "delete_class_form", "delete_sample_form",
+                    "delete_selected_class_forms", "delete_selected_sample_forms",
                     "get_all_class_forms", "get_all_sample_forms",
                     "import_class_forms", "import_sample_forms",
                     "complete_partial_form",
                     "export_report", "import_report",
                     "get_pdf", "publish", "get_public_link",
                     "get_form_content", "update_form_content",
-                    "export_samples", "import_samples",
-                    "export_lipid_class", "import_lipid_class",
+                    "export_samples", "export_selected_samples", "import_samples",
+                    "export_lipid_class", "export_selected_lipid_classes", "import_lipid_class",
                     "get_fragment_suggestions", "get_published_forms"}
     
     conn = None
@@ -1282,7 +1283,10 @@ try:
         except:
             print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
             exit()
-        if class_entry_id < 0: print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
+            
+        if class_entry_id < 0:
+            print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
+            exit()
         
         try:
             # connect with the database
@@ -1313,6 +1317,82 @@ try:
             if conn is not None: conn.close()
             
         print(0)
+        
+        
+        
+        
+        
+        
+        
+        
+          
+
+    elif content["command"] == "delete_selected_class_forms":
+        if "user_uuid" not in content or "uid" not in content:
+            print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+            exit()
+        user_uuid = content["user_uuid"]
+        uid = int(content["uid"])
+        
+        # check if main form entry id is within the request and an integer
+        if "entry_ids" not in content:
+            print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        try:
+            class_entry_ids = [int(get_decrypted_entry(entry_id)) for entry_id in content["entry_ids"].split(";")]
+        except:
+            print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        if len(class_entry_ids) == 0:
+            print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        for class_entry_id in class_entry_ids:
+            if class_entry_id < 0:
+                print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
+                exit()
+        
+        try:
+            # connect with the database
+            conn, db_cursor = dbconnect()
+            
+            for class_entry_id in class_entry_ids:
+                if not check_entry_id(class_entry_id, uid, db_cursor, "class"):
+                    print(str(ErrorCodes.INVALID_CLASS_ENTRY_ID) + " in %s" % content["command"])
+                    exit()
+            
+                # checking if class form is partial or completed
+                status, request = check_status(class_entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
+                
+            
+            for class_entry_id in class_entry_ids:
+                # delete class entry from connection table
+                sql = "DELETE FROM %sconnect_lipid_class WHERE class_form_entry_id = ?;" % table_prefix
+                db_cursor.execute(sql, (class_entry_id,))
+                conn.commit()
+                
+                # delete class entry
+                sql = "DELETE FROM %sentries WHERE id = ? AND form = ? AND user_id = ?;" % table_prefix
+                db_cursor.execute(sql, (class_entry_id, class_form_id, uid))
+                conn.commit()
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_DELETING_CLASS_FORM) + " in %s" % content["command"], e)
+
+        finally:
+            if conn is not None: conn.close()
+            
+        print(0)
+        
+        
+        
+        
+        
+        
+        
+
+
 
 
 
@@ -1326,7 +1406,7 @@ try:
         
         # check if main form entry id is within the request and an integer
         if "entry_id" not in content:
-            print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            print(str(ErrorCodes.NO_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
             exit()
         try:
             sample_entry_id = int(get_decrypted_entry(content["entry_id"]))
@@ -1366,12 +1446,84 @@ try:
             if conn is not None: conn.close()
             
         print(0)
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+    elif content["command"] == "delete_selected_sample_forms":
+        if "user_uuid" not in content or "uid" not in content:
+            print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+            exit()
+        user_uuid = content["user_uuid"]
+        uid = int(content["uid"])
+        
+        # check if main form entry id is within the request and an integer
+        if "entry_ids" not in content:
+            print(str(ErrorCodes.NO_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        try:
+            sample_entry_ids = [int(get_decrypted_entry(entry_id)) for entry_id in content["entry_ids"].split(";")]
+        except:
+            print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        if len(sample_entry_ids) == 0:
+            print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        
+        for sample_entry_id in sample_entry_ids:
+            if sample_entry_id < 0:
+                print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
+                exit()
+        
+        try:
+            # connect with the database
+            conn, db_cursor = dbconnect()
+            
+            for sample_entry_id in sample_entry_ids:
+                if not check_entry_id(sample_entry_id, uid, db_cursor, "sample"):
+                    print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
+                    exit()
+                    
+                    
+                # checking if sample form is partial or completed
+                status, request = check_status(sample_entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
+                
+            for sample_entry_id in sample_entry_ids:  
+                # delete sample entry from connection table
+                sql = "DELETE FROM %sconnect_sample WHERE sample_form_entry_id = ?;" % table_prefix
+                db_cursor.execute(sql, (sample_entry_id,))
+                conn.commit()
+                
+                
+                # delete sample entry
+                sql = "DELETE FROM %sentries WHERE id = ? AND form = ? AND user_id = ?;" % table_prefix
+                db_cursor.execute(sql, (sample_entry_id, sample_form_id, uid))
+                conn.commit()
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_DELETING_SAMPLE_FORM) + " in %s" % content["command"], e)
+
+        finally:
+            if conn is not None: conn.close()
+            
+        print(0)
             
         
         
         
         
         
+            
             
             
             
@@ -2180,6 +2332,81 @@ try:
                 
             db_cursor.execute(sql, (entry_id, uid))
             fields = [row["fields"] for row in db_cursor.fetchall()]
+            from ImportExportForms import export_forms_to_worksheet
+            worksheet_base64 = export_forms_to_worksheet(template_file, fields, sheet_name)
+            print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)
+            
+        except Exception as e:
+            print(str(ErrorCodes.ERROR_ON_EXPORTING_FORMS) + " in %s" % content["command"], e)
+
+        finally:
+            if conn is not None: conn.close()
+            
+
+
+
+    
+
+
+
+
+    elif content["command"] in {"export_selected_samples", "export_selected_lipid_classes"}:
+        if "user_uuid" not in content or "uid" not in content:
+            print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
+            exit()
+        user_uuid = content["user_uuid"]
+        uid = int(content["uid"])
+        # check if main form entry id is within the request and an integer
+
+        if "report_entry_id" not in content:
+            print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+        try:
+            report_entry_id = int(get_decrypted_entry(content["report_entry_id"]))
+        except:
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        if report_entry_id < 0:
+            print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        form_type = FormType.LIPID_CLASS if content["command"] == "export_selected_lipid_classes" else FormType.SAMPLE
+        
+        dyn_field_name = "sample_entry_ids" if form_type == FormType.SAMPLE else "lipid_class_entry_ids"
+        if dyn_field_name not in content:
+            print(str(ErrorCodes.NO_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
+            exit()
+            
+        field_entry_ids = {int(get_decrypted_entry(entry_id)) for entry_id in content[dyn_field_name].split(";")}
+        
+        for field_entry_id in field_entry_ids:
+            if field_entry_id < 0:
+                print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+                exit()
+        
+        
+        try:
+            # connect with the database
+            conn, db_cursor = dbconnect()
+            
+            if not check_entry_id(report_entry_id, uid, db_cursor, "main"):
+                print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
+                exit()
+                
+            
+            if form_type == FormType.SAMPLE:
+                sql = "SELECT e.id, e.fields FROM %sentries AS e INNER JOIN %sconnect_sample AS s ON e.id = s.sample_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
+                template_file = "workflow-templates/sample.json"
+                sheet_name = "Sample forms"
+            
+            else:
+                sql = "SELECT e.id, e.fields FROM %sentries AS e INNER JOIN %sconnect_lipid_class AS s ON e.id = s.class_form_entry_id WHERE s.main_form_entry_id = ? and e.user_id = ?;" % (table_prefix, table_prefix)
+                template_file = "workflow-templates/lipid-class.json"
+                sheet_name = "Lipid class forms"
+                
+            db_cursor.execute(sql, (report_entry_id, uid))
+            fields = [row["fields"] for row in db_cursor.fetchall() if row["id"] in field_entry_ids]
             from ImportExportForms import export_forms_to_worksheet
             worksheet_base64 = export_forms_to_worksheet(template_file, fields, sheet_name)
             print("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,%s" % worksheet_base64)

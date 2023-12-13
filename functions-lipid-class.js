@@ -2,6 +2,7 @@
 var lipid_class_field_object = null;
 var has_partial_lipid_class = false;
 var checkbox_list_lipid_class = [];
+var checkbox_selection_lipid_class = [];
 
 function show_class_selector(){
     update_load_class_forms();
@@ -109,6 +110,7 @@ function update_class_forms() {
     
     if (entry_id == undefined || entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
+    checkbox_selection_lipid_class = [];
     
     xmlhttp_request.onreadystatechange = function() {
         if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
@@ -155,7 +157,6 @@ function update_class_forms() {
                     img_continue.style = "cursor: pointer; height: 20px; padding-right: 5px;";
                 }
                 else {
-                    
                     var img_update = document.createElement("img");
                     trb.push(img_update);
                     img_update.setAttribute("onclick", "refresh_lipid_class_view(); show_lipid_classlist('" + row["entry_id"] + "');");
@@ -184,6 +185,14 @@ function update_class_forms() {
                 img_delete.title = "Delete lipid class";
                 img_delete.style = "cursor: pointer; height: 20px;";
                 
+                var chb_entry = document.createElement("input");
+                chb_entry.type = "checkbox";
+                chb_entry.id = row["entry_id"];
+                table_row.push([chb_entry]);
+                checkbox_selection_lipid_class.push(chb_entry);
+                
+                
+                
                 document.getElementById("viewtable-lipid-class").addRow(table_row);
             }
             
@@ -199,6 +208,36 @@ function update_class_forms() {
 }
 
 
+
+
+function select_all_lipid_classes(checked_type){
+    for (var checkbox of checkbox_selection_lipid_class){
+        checkbox.checked = checked_type;
+    }
+}
+
+
+
+function lipid_class_mass_action(){
+    var select_obj = document.getElementById("mass_action_lipid_class");
+    
+    if (checkbox_selection_lipid_class.length == 0 || select_obj == undefined || select_obj.selectedIndex == 0) return;
+    
+    var lipid_class_entry_ids = [];
+    for (var checkbox of checkbox_selection_lipid_class){
+        if (checkbox.checked) lipid_class_entry_ids.push(checkbox.id);
+    }
+    
+    if (lipid_class_entry_ids.length == 0) return;
+    
+    action_name = select_obj.options[select_obj.selectedIndex].value;
+    if (action_name == "Export to file"){
+        export_lipid_class(entry_id, lipid_class_entry_ids);
+    }
+    else if (action_name == "Delete"){
+        delete_selected_class_forms(lipid_class_entry_ids);
+    }
+}
 
 
 
@@ -259,8 +298,8 @@ function preview_lipid_class_form(entry_id){
 
 
 
-function export_lipid_class(entry_id){
-    if (entry_id == undefined || entry_id.length == 0) return;
+function export_lipid_class(report_entry_id, lipid_class_entry_ids){
+    if (report_entry_id == undefined || report_entry_id.length == 0) return;
     var xmlhttp_request = new XMLHttpRequest();
     document.getElementById("waiting_field").showModal();
     
@@ -283,7 +322,14 @@ function export_lipid_class(entry_id){
             document.body.removeChild(tempLink);
         }
     }
-    var request_url = connector_path + "/connector.php?command=export_lipid_class&entry_id=" + encodeURIComponent(entry_id);
+    
+    var request_url = "";
+    if (lipid_class_entry_ids == undefined){
+        request_url = connector_path + "/connector.php?command=export_lipid_class&entry_id=" + encodeURIComponent(report_entry_id);
+    }
+    else {
+        request_url = connector_path + "/connector.php?command=export_selected_lipid_classes&report_entry_id=" + encodeURIComponent(report_entry_id) + "&lipid_class_entry_ids=" + encodeURIComponent(lipid_class_entry_ids.join(";"));
+    }
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
@@ -384,6 +430,32 @@ function delete_class_form(lipid_class, entry_id){
         }
     }
     var request_url = connector_path + "/connector.php?command=delete_class_form&entry_id=" + encodeURIComponent(entry_id);
+    xmlhttp_request.open("GET", request_url);
+    xmlhttp_request.send();
+}
+
+
+
+
+function delete_selected_class_forms(lipid_class_entry_ids){
+    refresh_lipid_class_view();
+    if (!confirm("Do you really want to delete the selected lipid classes?")) return;
+    
+    if (lipid_class_entry_ids == undefined || lipid_class_entry_ids.length == 0) return;
+    var xmlhttp_request = new XMLHttpRequest();
+    
+    xmlhttp_request.onreadystatechange = function() {
+        if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+            response_text = xmlhttp_request.responseText;
+            if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                    print_error(response_text);
+                    return;
+            }
+            
+            update_class_forms();
+        }
+    }
+    var request_url = connector_path + "/connector.php?command=delete_selected_class_forms&entry_ids=" + encodeURIComponent(lipid_class_entry_ids.join(";"));
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
