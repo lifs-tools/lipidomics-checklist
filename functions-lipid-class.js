@@ -322,16 +322,18 @@ function export_lipid_class(report_entry_id, lipid_class_entry_ids){
             document.body.removeChild(tempLink);
         }
     }
+    var request_url = connector_path + "/connector.php";
     
-    var request_url = "";
+    var request_data = "";
     if (lipid_class_entry_ids == undefined){
-        request_url = connector_path + "/connector.php?command=export_lipid_class&entry_id=" + encodeURIComponent(report_entry_id);
+        request_data = "command=export_lipid_class&entry_id=" + encodeURIComponent(report_entry_id);
     }
     else {
-        request_url = connector_path + "/connector.php?command=export_selected_lipid_classes&report_entry_id=" + encodeURIComponent(report_entry_id) + "&lipid_class_entry_ids=" + encodeURIComponent(lipid_class_entry_ids.join(";"));
+        request_data = "command=export_selected_lipid_classes&report_entry_id=" + encodeURIComponent(report_entry_id) + "&lipid_class_entry_ids=" + encodeURIComponent(lipid_class_entry_ids.join(";"));
     }
-    xmlhttp_request.open("GET", request_url);
-    xmlhttp_request.send();
+    xmlhttp_request.open("POST", request_url, false);
+    xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp_request.send(request_data);
 }
 
 
@@ -455,9 +457,10 @@ function delete_selected_class_forms(lipid_class_entry_ids){
             update_class_forms();
         }
     }
-    var request_url = connector_path + "/connector.php?command=delete_selected_class_forms&entry_ids=" + encodeURIComponent(lipid_class_entry_ids.join(";"));
-    xmlhttp_request.open("GET", request_url);
-    xmlhttp_request.send();
+    var request_url = connector_path + "/connector.php";
+    xmlhttp_request.open("POST", request_url, false);
+    xmlhttp_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp_request.send("command=delete_selected_class_forms&entry_ids=" + encodeURIComponent(lipid_class_entry_ids.join(";")));
 }
 
 

@@ -4,6 +4,8 @@
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 
+{"label": "Derivatization", "name": "derivatization", "type": "text", "value": "", "description": "Please specify a derivatization, if applicable."},
+
 {"label": "MS Level for identification", "name": "ms_level_ident", "type": "multiple", "required": 1, "choice": [{"name": "ms_level#ms1", "label": "MS1", "value": 0}, {"name": "ms_level#ms2", "label": "MS2", "value": 0}, {"name": "ms_level#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for identification?"},
 
 {"label": "Identification level", "name": "ident_level", "type": "select", "required": 0, "choice": [{"name": "ident_level#species_level", "label": "Species level", "value": 1}, {"name": "ident_level#molecular_species_level", "label": "Molecular species level", "value": 0}, {"name": "ident_level#double_bond_position", "label": "Double bond position", "value": 0}, {"name": "ident_level#sn_position", "label": "sn Position", "value": 0}, {"name": "ident_level#structure_defined", "label": "Structure defined", "value": 0}, {"name": "ident_level#full_structure", "label": "Full structure", "value": 0}, {"name": "ident_level#complete_structure", "label": "Complete structure", "value": 0}, {"name": "ident_level#undefined", "label": "Undefined", "value": 0}], "description": ""},
