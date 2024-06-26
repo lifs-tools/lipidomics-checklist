@@ -1,14 +1,134 @@
-{"pages": [{"title": "Lipid identification", "content": [{"label": "Lipid class", "name": "lipid_class", "type": "select", "required": 0, "choice": [{"name": "lipid_class#fa", "label": "FA", "value": 1}, {"name": "lipid_class#dg", "label": "DG", "value": 0}, {"name": "lipid_class#dgdg", "label": "DGDG", "value": 0}, {"name": "lipid_class#mg", "label": "MG", "value": 0}, {"name": "lipid_class#mgdg", "label": "MGDG", "value": 0}, {"name": "lipid_class#sqdg", "label": "SQDG", "value": 0}, {"name": "lipid_class#tg", "label": "TG", "value": 0}, {"name": "lipid_class#bmp", "label": "BMP", "value": 0}, {"name": "lipid_class#cdpdag", "label": "CDPDAG", "value": 0}, {"name": "lipid_class#cl", "label": "CL", "value": 0}, {"name": "lipid_class#dmpe", "label": "DMPE", "value": 0}, {"name": "lipid_class#lpa", "label": "LPA", "value": 0}, {"name": "lipid_class#lpc", "label": "LPC", "value": 0}, {"name": "lipid_class#lpc_o-a", "label": "LPC O", "value": 0}, {"name": "lipid_class#lpc_o-p", "label": "LPC P", "value": 0}, {"name": "lipid_class#lpe", "label": "LPE", "value": 0}, {"name": "lipid_class#lpe_o-a", "label": "LPE O", "value": 0}, {"name": "lipid_class#lpe_o-p", "label": "LPE P", "value": 0}, {"name": "lipid_class#lpg", "label": "LPG", "value": 0}, {"name": "lipid_class#lpi", "label": "LPI", "value": 0}, {"name": "lipid_class#lps", "label": "LPS", "value": 0}, {"name": "lipid_class#lcl", "label": "LCL", "value": 0}, {"name": "lipid_class#mmpe", "label": "MMPE", "value": 0}, {"name": "lipid_class#pa", "label": "PA", "value": 0}, {"name": "lipid_class#pc", "label": "PC", "value": 0}, {"name": "lipid_class#pc_o-a", "label": "PC O", "value": 0}, {"name": "lipid_class#pc_o-p", "label": "PC P", "value": 0}, {"name": "lipid_class#pe", "label": "PE", "value": 0}, {"name": "lipid_class#pe_o-a", "label": "PE O", "value": 0}, {"name": "lipid_class#pe_o-p", "label": "PE P", "value": 0}, {"name": "lipid_class#pet", "label": "PEt", "value": 0}, {"name": "lipid_class#pg", "label": "PG", "value": 0}, {"name": "lipid_class#pi", "label": "PI", "value": 0}, {"name": "lipid_class#pip", "label": "PIP", "value": 0}, {"name": "lipid_class#pip2", "label": "PIP2", "value": 0}, {"name": "lipid_class#pip3", "label": "PIP3", "value": 0}, {"name": "lipid_class#ps", "label": "PS", "value": 0}, {"name": "lipid_class#cer", "label": "Cer", "value": 0}, {"name": "lipid_class#cerp", "label": "CerP", "value": 0}, {"name": "lipid_class#epc", "label": "EPC", "value": 0}, {"name": "lipid_class#gb4", "label": "GB4", "value": 0}, {"name": "lipid_class#gd3", "label": "GD3", "value": 0}, {"name": "lipid_class#gm1", "label": "GM1", "value": 0}, {"name": "lipid_class#gm3", "label": "GM3", "value": 0}, {"name": "lipid_class#gm4", "label": "GM4", "value": 0}, {"name": "lipid_class#hex2cer", "label": "Hex2Cer", "value": 0}, {"name": "lipid_class#hex3cer", "label": "Hex3Cer", "value": 0}, {"name": "lipid_class#hexcer", "label": "HexCer", "value": 0}, {"name": "lipid_class#ipc", "label": "IPC", "value": 0}, {"name": "lipid_class#spb", "label": "SPB", "value": 0}, {"name": "lipid_class#spbp", "label": "SPBP", "value": 0}, {"name": "lipid_class#lhexcer", "label": "LHexCer", "value": 0}, {"name": "lipid_class#lsm", "label": "LSM", "value": 0}, {"name": "lipid_class#m(ip)2c", "label": "M(IP)2C", "value": 0}, {"name": "lipid_class#mipc", "label": "MIPC", "value": 0}, {"name": "lipid_class#shexcer", "label": "SHexCer", "value": 0}, {"name": "lipid_class#sm", "label": "SM", "value": 0}, {"name": "lipid_class#se_27_1", "label": "CE", "value": 0}, {"name": "lipid_class#st_27_1_1", "label": "ST", "value": 0}, {"name": "lipid_class#other", "label": "Other", "value": 0}], "description": ""},
+{"pages": [{"title": "Lipid identification", "content": [
+
+{"label": "Lipid class", "name": "lipid_class", "type": "select", "required": 0, "choice": [
+
+{"name": "lipid_class#car", "label": "CAR", "group": "Fatty Acyls", "description": "Acyl carnitines", "value": 1},
+{"name": "lipid_class#coa", "label": "CoA", "group": "Fatty Acyls", "description": "Acyl CoAs", "value": 0},
+{"name": "lipid_class#fa", "label": "FA", "group": "Fatty Acyls", "description": "Fatty acids", "value": 0},
+{"name": "lipid_class#fahfa", "label": "FAHFA", "group": "Fatty Acyls", "description": "Fatty acid estolides", "value": 0},
+{"name": "lipid_class#fal", "label": "FAL", "group": "Fatty Acyls", "description": "Fatty aldehydes", "value": 0},
+{"name": "lipid_class#foh", "label": "FOH", "group": "Fatty Acyls", "description": "Fatty alcohols", "value": 0},
+{"name": "lipid_class#na", "label": "NA", "group": "Fatty Acyls", "description": "N-acyl amines", "value": 0},
+{"name": "lipid_class#nae", "label": "NAE", "group": "Fatty Acyls", "description": "N-acyl ethanolamines", "value": 0},
+{"name": "lipid_class#nat", "label": "NAT", "group": "Fatty Acyls", "description": "N-acyl taurines", "value": 0},
+{"name": "lipid_class#wd", "label": "WD", "group": "Fatty Acyls", "description": "Wax diesters", "value": 0},
+{"name": "lipid_class#we", "label": "WE", "group": "Fatty Acyls", "description": "Wax esters", "value": 0},
+
+{"name": "lipid_class#dg", "label": "DG", "group": "Glycerolipids", "description": "Diacyl/alkylglycerides", "value": 0},
+{"name": "lipid_class#dgdg", "label": "DGDG", "group": "Glycerolipids", "description": "Digalactosyldiacylglycerol", "value": 0},
+{"name": "lipid_class#dgmg", "label": "DGMG", "group": "Glycerolipids", "description": "Digalactosylmonoacylglycerol", "value": 0},
+{"name": "lipid_class#mg", "label": "MG", "group": "Glycerolipids", "description": "Monoacyl/alkylglycerides", "value": 0},
+{"name": "lipid_class#mgdg", "label": "MGDG", "group": "Glycerolipids", "description": "Monogalactosyldiacylglycerol", "value": 0},
+{"name": "lipid_class#mgmg", "label": "MGMG", "group": "Glycerolipids", "description": "Monogalactosylmonoacylglycerol", "value": 0},
+{"name": "lipid_class#sqdg", "label": "SQDG", "group": "Glycerolipids", "description": "Sulfoquinovosyldiacylglycerols", "value": 0},
+{"name": "lipid_class#sqmg", "label": "SQMG", "group": "Glycerolipids", "description": "Sulfoquinovosylmonoacylglycerols", "value": 0},
+{"name": "lipid_class#tg", "label": "TG", "group": "Glycerolipids", "description": "Triacyl/alkylglycerides (triglycerides)", "value": 0},
+{"name": "lipid_class#tgest", "label": "TG-EST", "group": "Glycerolipids", "description": "Estolides", "value": 0},
+
+{"name": "lipid_class#bmp", "label": "BMP", "group": "Glycerophospholipids", "description": "Bis[monoacylglycero]phosphates", "value": 0},
+{"name": "lipid_class#cdpdag", "label": "CDPDAG", "group": "Glycerophospholipids", "description": "CDP-diacylglycerols", "value": 0},
+{"name": "lipid_class#cl", "label": "CL", "group": "Glycerophospholipids", "description": "Cardiolipins", "value": 0},
+{"name": "lipid_class#dmpe", "label": "DMPE", "group": "Glycerophospholipids", "description": "Dimethyl Phosphatidylethanolamine", "value": 0},
+{"name": "lipid_class#lpa", "label": "LPA", "group": "Glycerophospholipids", "description": "Lysophosphatidic acids", "value": 0},
+{"name": "lipid_class#lpc", "label": "LPC", "group": "Glycerophospholipids", "description": "Lysophosphatidylcholines", "value": 0},
+{"name": "lipid_class#lpc_o-a", "label": "LPC O", "group": "Glycerophospholipids", "description": "Alkyl Lysophosphatidylcholines", "value": 0},
+{"name": "lipid_class#lpc_o-p", "label": "LPC P", "group": "Glycerophospholipids", "description": "Alkenyl Lysophosphatidylcholines", "value": 0},
+{"name": "lipid_class#lpe", "label": "LPE", "group": "Glycerophospholipids", "description": "Lysophosphatidylethanolamines", "value": 0},
+{"name": "lipid_class#lpe_o-a", "label": "LPE O", "group": "Glycerophospholipids", "description": "Alkyl Lysophosphatidylethanolamines", "value": 0},
+{"name": "lipid_class#lpe_o-p", "label": "LPE P", "group": "Glycerophospholipids", "description": "Alkenyl Lysophosphatidylethanolamines", "value": 0},
+{"name": "lipid_class#lpg", "label": "LPG", "group": "Glycerophospholipids", "description": "Lysophosphatidylgylcerols", "value": 0},
+{"name": "lipid_class#lpi", "label": "LPI", "group": "Glycerophospholipids", "description": "Lysophosphatidylinositols", "value": 0},
+{"name": "lipid_class#lps", "label": "LPS", "group": "Glycerophospholipids", "description": "Lysophosphatidylserines", "value": 0},
+{"name": "lipid_class#lcl", "label": "LCL", "group": "Glycerophospholipids", "description": "Lysocardiolipins", "value": 0},
+{"name": "lipid_class#mmpe", "label": "MMPE", "group": "Glycerophospholipids", "description": "Monomethyl Phosphatidylethanolamine", "value": 0},
+{"name": "lipid_class#pa", "label": "PA", "group": "Glycerophospholipids", "description": "Phosphatidic acids", "value": 0},
+{"name": "lipid_class#pc", "label": "PC", "group": "Glycerophospholipids", "description": "Phosphatidylcholines", "value": 0},
+{"name": "lipid_class#pc_o-a", "label": "PC O", "group": "Glycerophospholipids", "description": "Alkyl Phosphatidylcholines", "value": 0},
+{"name": "lipid_class#pc_o-p", "label": "PC P", "group": "Glycerophospholipids", "description": "Alkenyl Phosphatidylcholines", "value": 0},
+{"name": "lipid_class#pe", "label": "PE", "group": "Glycerophospholipids", "description": "Phosphatidylethanolamines", "value": 0},
+{"name": "lipid_class#pe_o-a", "label": "PE O", "group": "Glycerophospholipids", "description": "Alkyl Phosphatidylethanolamines", "value": 0},
+{"name": "lipid_class#pe_o-p", "label": "PE P", "group": "Glycerophospholipids", "description": "Alkenyl Phosphatidylethanolamines", "value": 0},
+{"name": "lipid_class#pet", "label": "PEt", "group": "Glycerophospholipids", "description": "Phosphatidylethanol", "value": 0},
+{"name": "lipid_class#pg", "label": "PG", "group": "Glycerophospholipids", "description": "Phosphatidylgylcerols", "value": 0},
+{"name": "lipid_class#pgp", "label": "PGP", "group": "Glycerophospholipids", "description": "Phosphatidylgylcerolphosphates", "value": 0},
+{"name": "lipid_class#pi", "label": "PI", "group": "Glycerophospholipids", "description": "Phosphatidylinositols", "value": 0},
+{"name": "lipid_class#pim", "label": "PIM", "group": "Glycerophospholipids", "description": "Phosphatidylinositol-mannoside", "value": 0},
+{"name": "lipid_class#pip", "label": "PIP", "group": "Glycerophospholipids", "description": "Phosphatidylinositol-monophosphates", "value": 0},
+{"name": "lipid_class#pip2", "label": "PIP2", "group": "Glycerophospholipids", "description": "Phosphatidylinositol-bisphosphates", "value": 0},
+{"name": "lipid_class#pip3", "label": "PIP3", "group": "Glycerophospholipids", "description": "Phosphatidylinositol-trisphosphates", "value": 0},
+{"name": "lipid_class#ps", "label": "PS", "group": "Glycerophospholipids", "description": "Phosphatidylserines", "value": 0},
+
+{"name": "lipid_class#acer", "label": "ACer", "group": "Sphingolipids", "description": "Acyl Ceramides", "value": 0},
+{"name": "lipid_class#cer", "label": "Cer", "group": "Sphingolipids", "description": "Ceramides", "value": 0},
+{"name": "lipid_class#cerp", "label": "CerP", "group": "Sphingolipids", "description": "Ceramide-phosphates", "value": 0},
+{"name": "lipid_class#epc", "label": "EPC", "group": "Sphingolipids", "description": "Ethanolaminephosphorylceramides", "value": 0},
+{"name": "lipid_class#galcer", "label": "GalCer", "group": "Sphingolipids", "description": "Galactosylceramide", "value": 0},
+{"name": "lipid_class#ga1", "label": "GA1", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#ga2", "label": "GA2", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gb4", "label": "GB4", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd0a", "label": "GD0a", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd1", "label": "GD1", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd1a", "label": "GD1a", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd1a_ac", "label": "GD1a-AC", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd1b", "label": "GD1b", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd2", "label": "GD2", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gd3", "label": "GD3", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gipc", "label": "GIPC", "group": "Sphingolipids", "description": "Glycosylinositolphosphorylceramides", "value": 0},
+{"name": "lipid_class#glccer", "label": "GlcCer", "group": "Sphingolipids", "description": "Glucosylceramide", "value": 0},
+{"name": "lipid_class#gm1", "label": "GM1", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gm2", "label": "GM2", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gm3", "label": "GM3", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gm4", "label": "GM4", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gp1", "label": "GP1", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gq1", "label": "GQ1", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gq1a", "label": "GQ1a", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gq1a_ac", "label": "GQ1a-AC", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gq1b", "label": "GQ1b", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gt1", "label": "GT1", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gt1a", "label": "GT1a", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gt1b", "label": "GT1b", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gt2", "label": "GT2", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gt3", "label": "GT3", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#gt3_ac", "label": "GT3-AC", "group": "Sphingolipids", "description": "Glycosphingolipids", "value": 0},
+{"name": "lipid_class#hex2cer", "label": "Hex2Cer", "group": "Sphingolipids", "description": "Dihexosylceramides", "value": 0},
+{"name": "lipid_class#hex3cer", "label": "Hex3Cer", "group": "Sphingolipids", "description": "Trihexosylceramides", "value": 0},
+{"name": "lipid_class#hexcer", "label": "HexCer", "group": "Sphingolipids", "description": "Hexosylceramides", "value": 0},
+{"name": "lipid_class#ipc", "label": "IPC", "group": "Sphingolipids", "description": "Inositolphosphorylceramides", "value": 0},
+{"name": "lipid_class#laccer", "label": "LacCer", "group": "Sphingolipids", "description": "Lactosylceramide", "value": 0},
+{"name": "lipid_class#lhexcer", "label": "LHexCer", "group": "Sphingolipids", "description": "Lysohexosylceramides", "value": 0},
+{"name": "lipid_class#lsm", "label": "LSM", "group": "Sphingolipids", "description": "Lysosphingomyelins", "value": 0},
+{"name": "lipid_class#m(ip)2c", "label": "M(IP)2C", "group": "Sphingolipids", "description": "Mannosyl-diinositolphosphoceramide", "value": 0},
+{"name": "lipid_class#mipc", "label": "MIPC", "group": "Sphingolipids", "description": "Mannosyl-inositolphosphoceramides", "value": 0},
+{"name": "lipid_class#shexcer", "label": "SHexCer", "group": "Sphingolipids", "description": "Sulfatides", "value": 0},
+{"name": "lipid_class#spb", "label": "SPB", "group": "Sphingolipids", "description": "Sphingoid bases", "value": 0},
+{"name": "lipid_class#spbp", "label": "SPBP", "group": "Sphingolipids", "description": "Sphingoid base-phosphates", "value": 0},
+{"name": "lipid_class#sm", "label": "SM", "group": "Sphingolipids", "description": "Sphingomyelins", "value": 0},
+
+{"name": "lipid_class#asg", "label": "ASG", "group": "Sterol lipids", "description": "Acylsterylglycosides", "value": 0},
+{"name": "lipid_class#ba", "label": "BA", "group": "Sterol lipids", "description": "Bile acids", "value": 0},
+{"name": "lipid_class#ce", "label": "CE", "group": "Sterol lipids", "description": "Cholesteryl ester", "value": 0},
+{"name": "lipid_class#fc", "label": "FC", "group": "Sterol lipids", "description": "(Free) cholesterol", "value": 0},
+{"name": "lipid_class#se_27_1", "label": "SE", "group": "Sterol lipids", "description": "Sterol esters", "value": 0},
+{"name": "lipid_class#st_27_1_1", "label": "ST", "group": "Sterol lipids", "description": "Sterols", "value": 0},
+{"name": "lipid_class#sg", "label": "SG", "group": "Sterol lipids", "description": "Sterylglycosides", "value": 0},
+
+{"name": "lipid_class#other", "label": "Other", "value": 0}], "description": ""},
 
 {"label": "Other lipid class", "name": "other_lipid_class", "type": "text", "required": 1, "value": "", "description": "Specify another lipid class", "condition": "lipid_class#other=1"},
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 
-{"label": "Derivatization", "name": "derivatization", "type": "text", "value": "", "description": "Please specify a derivatization, if applicable."},
-
 {"label": "MS Level for identification", "name": "ms_level_ident", "type": "multiple", "required": 1, "choice": [{"name": "ms_level#ms1", "label": "MS1", "value": 0}, {"name": "ms_level#ms2", "label": "MS2", "value": 0}, {"name": "ms_level#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for identification?"},
 
-{"label": "Identification level", "name": "ident_level", "type": "select", "required": 0, "choice": [{"name": "ident_level#species_level", "label": "Species level", "value": 1}, {"name": "ident_level#molecular_species_level", "label": "Molecular species level", "value": 0}, {"name": "ident_level#double_bond_position", "label": "Double bond position", "value": 0}, {"name": "ident_level#sn_position", "label": "sn Position", "value": 0}, {"name": "ident_level#structure_defined", "label": "Structure defined", "value": 0}, {"name": "ident_level#full_structure", "label": "Full structure", "value": 0}, {"name": "ident_level#complete_structure", "label": "Complete structure", "value": 0}, {"name": "ident_level#undefined", "label": "Undefined", "value": 0}], "description": ""},
+{"label": "Identification level", "name": "ident_level", "type": "select", "required": 0, "choice": [
+{"name": "ident_level#species_level", "label": "Species level", "description": "e.g. PC 34:1;O", "value": 1},
+{"name": "ident_level#molecular_species_level", "label": "Molecular species level", "description": "e.g. PC 16:0;O_18:1", "value": 0},
+{"name": "ident_level#double_bond_position", "label": "Double bond position", "description": "e.g. PC 16:0;O_18:1(9)", "value": 0},
+{"name": "ident_level#sn_position", "label": "sn Position", "description": "e.g. PC 18:1/16:0;O", "value": 0},
+{"name": "ident_level#structure_defined", "label": "Structure defined", "description": "e.g. PC 18:1(9)/16:0;OH", "value": 0},
+{"name": "ident_level#full_structure", "label": "Full structure", "description": "e.g. PC 18:1(9Z)/16:0;3OH", "value": 0},
+{"name": "ident_level#complete_structure", "label": "Complete structure", "description": "e.g. FAHFA 18:1(9Z)/9O(FA 18:0[R])", "value": 0},
+{"name": "ident_level#undefined", "label": "Undefined", "value": 0}], "description": ""},
 
 {"label": "Polarity mode", "name": "polarity_mode", "type": "select", "required": 0, "choice": [{"name": "polarity_mode#positive", "label": "Positive", "value": 1}, {"name": "polarity_mode#negative", "label": "Negative", "value": 0}], "description": "Which polarity was applied for analysis?"},
 
@@ -22,7 +142,7 @@
 
 {"label": "Fragments for identification", "name": "frag_used", "type": "table", "columns": "Fragment name", "required": 1, "value": "", "description": "Please specify the fragments used for the identification. The suggested fragment ions are following this standard nomenclature: (doi: <a href=\"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0188394\" target=\"_blank\">10.1371/journal.pone.0188394</a>)", "condition": "ms_level#ms2=1|ms_level#msn=1"},
 
-{"label": "Isotope correction at MS1", "name": "isotope_corr_ms1", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms1#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms1#no", "label": "No", "value": 1}], "description": "Was Type II overlap corrected?", "condition": "ms_level#ms1=1"},
+{"label": "Isotope correction at MS1", "name": "isotope_corr_ms1", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms1#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms1#no", "label": "No", "value": 1}], "description": "Was <a href=\" https://doi.org/10.1016/j.jlr.2021.100138\" target=\"blank\">Type II overlap</a> corrected?", "condition": "ms_level#ms1=1"},
 
 {"label": "Isotope correction at MS2", "name": "isotope_corr_ms2", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms2#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms2#no", "label": "No", "value": 1}], "description": "Was Type II overlap corrected?", "condition": "ms_level#ms2=1"},
 
@@ -44,7 +164,11 @@
 
 {"label": "Which assumptions were presumed?", "name": "assumptions_presumed", "type": "text", "required": 1, "value": "", "condition": "assumptions#yes=1"},
 
-{"label": "Check isomer overlap", "name": "check_isomer_overlap", "type": "select", "required": 0, "choice": [{"name": "check_isomer_overlap#yes", "label": "Yes", "value": 0}, {"name": "check_isomer_overlap#no", "label": "No", "value": 1}], "description": "Was interferene by isomeric lipid classes excluded (see LSI table)?"},
+{"label": "Check on:", "name": "general_checks", "type": "multiple", "required": 0, "choice": [{"name": "general_checks#isomer_overlap", "label": "Isomeric overlap", "value": 0, "description": "Was interference by isomeric lipid classes excluded, see <a href='https://lipidomicstandards.org/isomeric-overlap/' target='_blank'>LSI table</a>?"}, {"name": "general_checks#isobar_overlap", "label": "Isobaric overlap", "value": 0, "description": "see <a href='https://lipidomicstandards.org/isobaric-overlap/' target='_blank'>LSI table</a>"},{"name": "general_checks#insource", "label": "In-source fragmentation", "value": 0, "description": "see <a href='https://lipidomicstandards.org/in-source-fragmentation/' target='_blank'>LSI table</a>"}]},
+
+{"label": "Limit of detection", "name": "lod", "type": "select", "required": 0, "choice": [{"name": "lod#no", "label": "No", "value": 1}, {"name": "lod#s/n_ratio", "label": "S/N ratio > 3", "value": 0}, {"name": "lod#lowest_over_3", "label": "Threshold 3x above lowest signal", "value": 0}, {"name": "lod#signal_theshold", "label": "Signal theshold", "value": 0}, {"name": "lod#other", "label": "Other", "value": 0}], "description": "Was limit of detection applied?"},
+
+{"label": "Other limit of detection", "name": "other_lod", "type": "text", "required": 0, "value": "", "description": "Which other limit of detection was applied?", "condition": "lod#other=1"},
 
 {"label": "RT verified by standard", "name": "rt_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "rt_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "rt_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check retention time of lipid class(species)?", "condition": "workflowtype='sep'"},
 
@@ -52,31 +176,37 @@
 
 {"label": "Model for separation prediction", "name": "model_for_separation_prediction", "type": "select", "required": 0, "choice": [{"name": "model_for_separation_prediction#yes", "label": "Yes", "value": 1}, {"name": "model_for_separation_prediction#no", "label": "No", "value": 0}], "description": "Was a model used to predict lipid molecule separation?", "condition": "workflowtype='sep'"},
 
-{"label": "Additional dimension/techniques", "name": "additional_dimension", "type": "multiple", "required": 0, "choice": [{"name": "additional_dimension#ims", "label": "IMS", "value": 0}, {"name": "additional_dimension#ozid", "label": "OzID", "value": 0}, {"name": "additional_dimension#uv-pd", "label": "UV-PD", "value": 0}, {"name": "additional_dimension#paterno-buechi", "label": "Paterno-B\u00fcchi", "value": 0}, {"name": "additional_dimension#other", "label": "Other", "value": 0}], "description": "Were additional analytical dimensions applied?"},
+{"label": "Additional dimension/techniques", "name": "additional_dimension", "type": "multiple", "required": 0, "choice": [{"name": "additional_dimension#ims", "label": "IMS", "value": 0}, {"name": "additional_dimension#ozid", "label": "OzID", "value": 0}, {"name": "additional_dimension#uvpd", "label": "UVPD", "value": 0}, {"name": "additional_dimension#paterno-buechi", "label": "Paterno-B\u00fcchi", "value": 0}, {"name": "additional_dimension#other", "label": "Other", "value": 0}], "description": "Were additional analytical dimensions applied?"},
 
 {"label": "CCS verified by standard", "name": "ccs_verified_by_standard", "type": "select", "required": 0, "choice": [{"name": "ccs_verified_by_standard#yes", "label": "Yes", "value": 1}, {"name": "ccs_verified_by_standard#no", "label": "No", "value": 0}], "description": "Were standards used to check collision cross section (CCS) values?", "condition": "additional_dimension#ims=1"},
 
 {"label": "Other additional dimension/techniques", "name": "other_additional_dimension", "type": "text", "required": 1, "value": "", "description": "Which other additional dimension/technique was used?", "condition": "additional_dimension#other=1"},
 
-{"label": "How was/were the additional dimension(s) used?", "name": "add_dim_used", "type": "text", "required": 1, "value": "", "description": "For example: <i>For separation of isobaric/isomeric interferece</i>", "condition": "additional_dimension#ims=1|additional_dimension#ozid=1|additional_dimension#uv-pd=1|additional_dimension#paterno-buechi=1|additional_dimension#other=1"},
+{"label": "How was/were the additional dimension(s) used?", "name": "add_dim_used", "type": "text", "required": 1, "value": "", "description": "For example: <i>For separation of isobaric/isomeric interferece</i>", "condition": "additional_dimension#ims=1|additional_dimension#ozid=1|additional_dimension#uvpd=1|additional_dimension#paterno-buechi=1|additional_dimension#other=1"},
 
-{"label": "Was a model used to predict lipid molecule separation?", "name": "model_predicted", "type": "select", "required": 0, "choice": [{"name": "model_predicted#yes", "label": "Yes", "value": 0}, {"name": "model_predicted#no", "label": "No", "value": 1}], "description": "Models can be for instance a collision cross section (CCS) model", "condition": "additional_dimension#ims=1|additional_dimension#ozid=1|additional_dimension#uv-pd=1|additional_dimension#paterno-buechi=1|additional_dimension#other=1"},
+{"label": "Was a model used to predict lipid molecule separation?", "name": "model_predicted", "type": "select", "required": 0, "choice": [{"name": "model_predicted#yes", "label": "Yes", "value": 0}, {"name": "model_predicted#no", "label": "No", "value": 1}], "description": "Models can be for instance a collision cross section (CCS) model", "condition": "additional_dimension#ims=1|additional_dimension#ozid=1|additional_dimension#uvpd=1|additional_dimension#paterno-buechi=1|additional_dimension#other=1"},
 
 {"label": "Lipid Identification Software", "name": "ident_soft", "type": "select", "required": 0, "choice": [{"name": "ident_soft#lipidxplorer", "label": "LipidXplorer", "value": 1}, {"name": "ident_soft#alex", "label": "ALEX", "value": 0}, {"name": "ident_soft#lipidsearch", "label": "LipidSearch", "value": 0}, {"name": "ident_soft#lipidblast", "label": "LipidBlast", "value": 0}, {"name": "ident_soft#greazy", "label": "Greazy", "value": 0}, {"name": "ident_soft#lipidex", "label": "LipiDex", "value": 0}, {"name": "ident_soft#lipid_data_analyzer_(lda)", "label": "Lipid Data Analyzer (LDA)", "value": 0}, {"name": "ident_soft#lipidhunter", "label": "LipidHunter", "value": 0}, {"name": "ident_soft#lpptiger", "label": "LPPtiger", "value": 0}, {"name": "ident_soft#liquid", "label": "LIQUID", "value": 0}, {"name": "ident_soft#ms-dial", "label": "MS-DIAL", "value": 0}, {"name": "ident_soft#lipidms", "label": "LipidMS", "value": 0}, {"name": "ident_soft#lipidimms_analyzer", "label": "LipidIMMS Analyzer", "value": 0}, {"name": "ident_soft#ms-lamp", "label": "MS-LAMP", "value": 0}, {"name": "ident_soft#homemade", "label": "Homemade", "value": 0}, {"name": "ident_soft#other", "label": "Other", "value": 0}], "description": "Which software was applied for lipid identification?"},
 
 {"label": "Other Lipid Identification Software", "name": "other_ident_soft", "type": "text", "required": 1, "value": "", "description": "Which other lipid identification software was used?", "condition": "ident_soft#other=1"},
 
-{"label": "Data manipulation", "name": "data_manipul", "type": "multiple", "required": 0, "choice": [{"name": "data_manipul#smoothing", "label": "Smoothing", "value": 0}, {"name": "data_manipul#centroiding", "label": "Centroiding", "value": 0}, {"name": "data_manipul#lock_mass_correction", "label": "Lock mass correction", "value": 0}, {"name": "data_manipul#other", "label": "Other", "value": 0}], "description": "Which kind of data manipulation was applied?"},
+{"label": "Data manipulation", "name": "data_manipul", "type": "multiple", "required": 0, "choice": [{"name": "data_manipul#smoothing", "label": "Smoothing", "value": 0}, {"name": "data_manipul#centroiding", "label": "Centroiding", "value": 0}, {"name": "data_manipul#lock_mass_correction", "label": "Lock mass correction", "value": 0}, {"name": "data_manipul#bg_sub", "label": "Background subtraction", "value": 0}, {"name": "data_manipul#other", "label": "Other", "value": 0}], "description": "Which kind of data manipulation was applied?"},
 
 {"label": "Other data manipulation", "name": "other_data_manipul", "type": "text", "required": 1, "value": "", "description": "Which other data manipulation was applied?", "condition": "data_manipul#other=1"},
 
-{"label": "Nomenclature for intact lipid molecule", "name": "nomenclature_molecule", "type": "select", "required": 0, "choice": [{"name": "nomenclature_molecule#yes", "label": "Yes", "value": 0}, {"name": "nomenclature_molecule#no", "label": "No", "value": 1}], "description": "Was  the latest shorthand notation (doi: <a href=\"https://pubmed.ncbi.nlm.nih.gov/33037133/\" target=\"_blank\">10.1194/jlr.S120001025</a>) used for annotation?"},
+{"label": "Nomenclature for intact lipid molecule", "name": "nomenclature_molecule", "type": "select", "required": 0, "choice": [{"name": "nomenclature_molecule#yes", "label": "Yes", "value": 0}, {"name": "nomenclature_molecule#no", "label": "No", "value": 1}], "description": "Was  the latest shorthand notation (doi: <a href=\"https://doi.org/10.1194/jlr.S120001025\" target=\"_blank\">10.1194/jlr.S120001025</a>) used for annotation?"},
 
-{"label": "Nomenclature for fragment ions", "name": "nomenclature_frag", "type": "select", "required": 0, "choice": [{"name": "nomenclature_frag#yes", "label": "Yes", "value": 0}, {"name": "nomenclature_frag#no", "label": "No", "value": 0}, {"name": "nomenclature_frag#n/a", "label": "N/A", "value": 1}], "description": "Was the recommended annotation of fragment ions  (doi: <a href=\"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0188394\" target=\"_blank\">10.1371/journal.pone.0188394</a>) applied?", "condition": "ms_level#ms2=1|ms_level#msn=1"},
+{"label": "Nomenclature for fragment ions", "name": "nomenclature_frag", "type": "select", "required": 0, "choice": [{"name": "nomenclature_frag#yes", "label": "Yes", "value": 0}, {"name": "nomenclature_frag#no", "label": "No", "value": 0}, {"name": "nomenclature_frag#n/a", "label": "N/A", "value": 1}], "description": "Was the recommended annotation of fragment ions  (doi: <a href=\"https://doi.org/10.1371/journal.pone.0188394\" target=\"_blank\">10.1371/journal.pone.0188394</a>) applied?", "condition": "ms_level#ms2=1|ms_level#msn=1"},
 
 {"label": "Further identification remarks", "name": "ident_remarks", "type": "text", "required": 0, "value": "", "description": "Do you have further remarks considering the identification?"}
 
-]}, {"title": "Lipid quantification", "content": [{"label": "Quantitative", "name": "quantitative", "type": "select", "required": 0, "choice": [{"name": "quantitative#yes", "label": "Yes", "value": 0}, {"name": "quantitative#no", "label": "No", "value": 1}], "description": "Is the lipid quantitatively identified, i.e. concentrations are reported?"},
+]},
+
+
+
+{"title": "Lipid quantification", "content": [
+
+{"label": "Quantitative", "name": "quantitative", "type": "select", "required": 0, "choice": [{"name": "quantitative#yes", "label": "Yes", "value": 0}, {"name": "quantitative#no", "label": "No", "value": 1}], "description": "Is the lipid quantitatively identified, i.e. concentrations are reported?"},
 
 {"label": "MS Level for quantification", "name": "ms_level_quant", "type": "multiple", "required": 1, "choice": [{"name": "ms_level_quant#ms1", "label": "MS1", "value": 0}, {"name": "ms_level_quant#ms2", "label": "MS2", "value": 0}, {"name": "ms_level_quant#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for quantification?", "condition": "quantitative#yes=1"},
 
@@ -84,17 +214,19 @@
 
 {"label": "Internal lipid standard(s) MS2", "name": "internal_standard_ms2", "type": "table", "columns": "Internal standard|Fragment(s)|Endogenous subclass", "required": 1, "value": "", "description": "Which internal standard(s) was/were used with which fragment(s) to quantify which endogenous lipid/lipid subclass? Example: <i>Cer 18:1;O2/12:0</i> with fragment <i>LCB-H2O3</i> for all <i>Cer 18:1;O2/XX:X</i>", "condition": "ms_level_quant#ms2=1|ms_level_quant#msn=1"},
 
-{"label": "Type of quantification", "name": "type_of_quant", "type": "select", "required": 0, "choice": [{"name": "type_of_quant#is_amount", "label": "Internal standard amount", "value": 1}, {"name": "type_of_quant#calib", "label": "Calibration line", "value": 0}], "description": "How were the samples quantified?", "condition": "quantitative#yes=1"},
+{"label": "Type of quantification", "name": "type_of_quant", "type": "select", "required": 0, "choice": [{"name": "type_of_quant#is_amount", "label": "Internal standard amount", "value": 1}, {"name": "type_of_quant#calib", "label": "Calibration line", "value": 0}, {"name": "type_of_quant#other", "label": "Other", "value": 0}], "description": "How were the samples quantified?", "condition": "quantitative#yes=1"},
+
+{"label": "Other type of quantification", "name": "other_type_of_quant", "type": "text", "required": 1, "description": "Which other type of quantification was used?", "condition": "type_of_quant#other=1"},
 
 {"label": "Type of calibration line", "name": "type_calib", "type": "select", "required": 0, "choice": [{"name": "type_calib#matrix_based", "label": "Matrix based", "value": 1}, {"name": "type_calib#solvent_based", "label": "Solvent based", "value": 0}], "description": "Which type of calibration was used?", "condition": "type_of_quant#calib=1"},
 
 {"label": "Species calibration line", "name": "species_calibration_line", "type": "text", "required": 0, "value": "", "description": "Which lipid species were used for the calibrations?", "condition": "type_of_quant#calib=1"}, 
 
-{"label": "Response correction", "name": "response_corr", "type": "select", "required": 0, "choice": [{"name": "response_corr#no", "label": "No", "value": 1}, {"name": "response_corr#response_model", "label": "Response model", "value": 0}, {"name": "response_corr#one_factor", "label": "One factor for all species", "value": 0}], "description": "Was the analytical response corrected?\r\n", "condition": "quantitative#yes=1"},
+{"label": "Response correction", "name": "response_corr", "type": "select", "required": 0, "choice": [{"name": "response_corr#no", "label": "No", "value": 1}, {"name": "response_corr#response_model", "label": "Response model", "value": 0}, {"name": "response_corr#one_factor", "label": "One factor for all species", "value": 0}], "description": "Was the analytical response of individual lipid species corrected?\r\n", "condition": "quantitative#yes=1"},
 
-{"label": "Type I isotope correction", "name": "type_i_corr", "type": "select", "required": 0, "choice": [{"name": "type_i_corr#yes", "label": "Yes", "value": 0}, {"name": "type_i_corr#no", "label": "No", "value": 1}], "description": "Was isotopic abundance of individual species corrected (Type I)?", "condition": "quantitative#yes=1"},
+{"label": "Type I isotope correction", "name": "type_i_corr", "type": "select", "required": 0, "choice": [{"name": "type_i_corr#yes", "label": "Yes", "value": 0}, {"name": "type_i_corr#no", "label": "No", "value": 1}], "description": "<a href=\"https://doi.org/10.1016/j.jlr.2021.100138\" target=\"blank\">Type I</a> isotopic effect refers to the fact that the abundance (normalized to the sum of all isotopologues) of M+0 decreases and higher isotopologues increase with the number of carbon atoms.Was isotopic abundance of individual species corrected (Type I)?", "condition": "quantitative#yes=1"},
 
-{"label": "Limit of quantification", "name": "loq", "type": "select", "required": 0, "choice": [{"name": "loq#no", "label": "No", "value": 1}, {"name": "loq#s/n_ratio", "label": "S/N ratio", "value": 0}, {"name": "loq#signal_theshold", "label": "Signal theshold", "value": 0}, {"name": "loq#other", "label": "Other", "value": 0}], "description": "Was limit of quantification applied?", "condition": "quantitative#yes=1"},
+{"label": "Limit of quantification", "name": "loq", "type": "select", "required": 0, "choice": [{"name": "loq#no", "label": "No", "value": 1}, {"name": "loq#s/n_ratio", "label": "S/N ratio > 10", "value": 0}, {"name": "loq#lowest_over_10", "label": "Threshold 10x above lowest signal", "value": 0}, {"name": "loq#signal_theshold", "label": "Signal theshold", "value": 0}, {"name": "loq#other", "label": "Other", "value": 0}], "description": "Was limit of quantification applied?", "condition": "quantitative#yes=1"},
 
 {"label": "Other limit of quantification", "name": "other_loq", "type": "text", "required": 0, "value": "", "description": "Which other limit of quantification was applied?", "condition": "loq#other=1"},
 

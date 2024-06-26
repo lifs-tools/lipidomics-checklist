@@ -278,12 +278,15 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\definecolor{TitleGray}{HTML}{999999}
 \\newcolumntype{P}[1]{>{\\raggedright\\arraybackslash}p{#1}}
 \\newcolumntype{C}[1]{>{\\raggedleft\\arraybackslash}p{#1}}
-\\newcommand{\\mainbox}[1]{\\colorbox{ILSgreen}{\\textsf{\\textbf{\\color{white}\\LARGE \\adjustbox{margin=3px}{#1}}}}
-\\vskip-2.6pt
-\\par\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\\vskip+1em}
+\\newcommand{\\mainbox}[1]{\\section{#1}}
+%%\\colorbox{ILSgreen}{\\section{#1}}}
+%%\\textsf{\\textbf{\\color{white}\\LARGE \\adjustbox{margin=3px}{#1}}}}
+%%\\vskip-2.6pt
+%%\\par\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\\vskip+1em}
 \\setlength{\\parindent}{0px}
 \\renewcommand{\\familydefault}{\\sfdefault}
 \\newcommand*{\\tabindent}{0px}
+\\setcounter{secnumdepth}{0}
 \\newcommand{\\grayline}{\\arrayrulecolor{TitleGray}\\hline\\arrayrulecolor{black}}
 \\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\vtop\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
 
@@ -296,6 +299,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     tex_preamble += version
     tex_preamble += """}\\end{flushright}
 \\vskip-45pt
+\\tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% General Workflow
@@ -326,8 +330,9 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                 
                 tex.write("\\begin{pageblock}\n")
                 if i == 0: tex.write("\\mainbox{%s}~\\\\\n" % mainbox)
-                tex.write("\\textbf{\\large \\textcolor{TitleGray}{%s}}\n" % mc)
-                tex.write("\\newline\\vskip-1.6em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
+                tex.write("\\subsection{\\textcolor{TitleGray}{%s}}\n" % mc)
+                #tex.write("\\textbf{\\large \\textcolor{TitleGray}{%s}}\n" % mc)
+                tex.write("\\vskip-1.2em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
                 tex.write("\\newline{\\vskip-10px\\noindent\\textcolor{gray!20}{\\rule{\\textwidth}{10pt}}}\n")
                 tex.write("\\setlength\\tabcolsep{0pt}\\begin{tabular}{@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}P{0.01\\textwidth}@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}}\n")
                 

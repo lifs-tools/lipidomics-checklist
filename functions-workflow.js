@@ -37,7 +37,14 @@ function update_main_forms(){
             document.getElementById("viewtable").resetTable();
                 
             new_main_form_button.disabled = false;
-            var response = JSON.parse(response_text);
+            var response = null;
+            try {
+                response = JSON.parse(response_text);
+            }
+            catch(err){
+                print_error(err);
+                return;
+            }
             
             
             var tt_id = 0;
@@ -226,7 +233,14 @@ function update_published_reports(){
             }
             
             document.getElementById("publishtable").resetTable();
-            var response = JSON.parse(response_text);
+            var response = null;
+            try {
+                response = JSON.parse(response_text);
+            }
+            catch(err){
+                print_error(err);
+                return;
+            }
             
             var tt_id = 0;
             for (var i = 0; i < response.length; ++i){

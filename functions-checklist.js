@@ -35,6 +35,7 @@ function load_data(content){
     dom_select_fields = {};
     dom_input_table_fields = {};
     choice_to_field = {};
+    lipid_class_abbreviations = [];
     
     form_enabled = true;
     
@@ -433,6 +434,13 @@ function load_data(content){
                     var obj_label = document.createElement("label");
                     obj_li.append(obj_label);
                     obj_label.innerHTML = choice["label"];
+                    if ("description" in choice){
+                        var obj_description = document.createElement("div");
+                        obj_li.append(obj_description);
+                        obj_description.className = "lipidomics-forms-field-description";
+                        obj_description.style.display = "inline";
+                        obj_description.innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;(" + choice["description"] + ")";
+                    }
                     
                 }
                 obj_content.append(obj_ul);
@@ -478,6 +486,56 @@ function load_data(content){
                 dom_select_fields[field_name] = obj_select;
                 var selectedIndex = 0;
                 var cnt = 0;
+                
+                if (field_name == "lipid_class"){
+                    lipid_class_abbreviations = [];
+                }
+                
+                var groups = {};
+                var group_order = [];
+                var remaining_label = "Remaining";
+                for (choice of field["choice"]){
+                    if (!("name" in choice)) continue;
+                    if (!("label" in choice)) choice["label"] = "Null";
+                    if (!("value" in choice)) choice["value"] = 0;
+                    group_name = ("group" in choice) ? choice["group"] : remaining_label;
+                    if (!(group_name in groups)) {
+                        groups[group_name] = [];
+                        group_order.push(group_name);
+                    }
+                    groups[group_name].push(choice);
+                }
+                
+                if (group_order.length == 0 || (group_order.length == 1 && (remaining_label in groups))){
+                    for (group_name of group_order){
+                        for (choice of groups[group_name]){
+                            var obj_option = document.createElement("option");
+                            obj_select.append(obj_option);
+                            if (choice["value"] == 1) selectedIndex = cnt;
+                            obj_option.innerHTML = choice["label"] + ("description" in choice ? " - " + choice["description"]: "");
+                            if (field_name == "lipid_class") lipid_class_abbreviations.push(choice["label"]);
+                            cnt++;
+                        }
+                    }
+                }
+                else {
+                    for (group_name of group_order){
+                        var obj_optgroup = document.createElement("optgroup");
+                        obj_select.append(obj_optgroup);
+                        obj_optgroup.label = group_name;
+                        for (choice of groups[group_name]){
+                            var obj_option = document.createElement("option");
+                            obj_optgroup.append(obj_option);
+                            if (choice["value"] == 1) selectedIndex = cnt;
+                            
+                            obj_option.innerHTML = choice["label"] + ("description" in choice ? " - " + choice["description"]: "");
+                            if (field_name == "lipid_class") lipid_class_abbreviations.push(choice["label"]);
+                            cnt++;
+                        }
+                    }
+                }
+                
+                /*
                 for (choice of field["choice"]){
                     if (!("name" in choice)) continue;
                     if (!("label" in choice)) choice["label"] = "Null";
@@ -490,6 +548,7 @@ function load_data(content){
                     obj_option.innerHTML = choice["label"];
                     cnt++;
                 }
+                */
                 obj_select.selectedIndex = selectedIndex;
                 obj_select.setAttribute('onchange','update_select(this);');
                 obj_content.append(obj_select);
@@ -577,11 +636,14 @@ function load_data(content){
 
 function change_frag_used_suggestions(){
     if (!("lipid_class" in dom_select_fields) || !("polarity_mode" in dom_select_fields) || !("frag_used" in dom_input_table_fields)) return;
+    
     var lipid_class_select = dom_select_fields["lipid_class"];
     var polarity_select = dom_select_fields["polarity_mode"];
     dom_input_table_fields["frag_used"].addSuggestions(0, []);
     
-    var lipid_class_name = lipid_class_select[lipid_class_select.selectedIndex].value;
+    if (lipid_class_abbreviations.length == 0 || lipid_class_abbreviations.length < lipid_class_select.selectedIndex) return;
+    
+    var lipid_class_name = lipid_class_abbreviations[lipid_class_select.selectedIndex];
     var polarity = polarity_select[polarity_select.selectedIndex].value;
     var adduct = "";
     if (polarity == "Positive" && ("type_pos_ion" in dom_select_fields)){

@@ -55,6 +55,36 @@ try:
                 }
 
 
+    def copy_form(original_form, new_form):
+        original_fields = {}
+        
+        def fill_fields(form, original_fields):
+            if type(form) == list:
+                for element in form: fill_fields(element, original_fields)
+            elif type(form) == dict:
+                if "name" in form: original_fields[form["name"]] = form
+                for k, v in form.items():
+                    fill_fields(v, original_fields)
+
+        fill_fields(original_form, original_fields)
+        
+        def copy_fields(form, original_fields):
+            if type(form) == list:
+                for element in form: copy_fields(element, original_fields)
+            elif type(form) == dict:
+                if "name" in form:
+                    form_name = form["name"]
+                    if form_name in original_fields:
+                        orig_field = original_fields[form_name]
+                        if (("type" not in form and "type" not in orig_field) or form["type"] == orig_field["type"]) and "value" in form and "value" in orig_field:
+                            form["value"] = orig_field["value"]
+                        
+                for k, v in form.items():
+                    copy_fields(v, original_fields)
+                    
+        copy_fields(new_form, original_fields)
+        
+
 
     def dbconnect():
         try:
@@ -967,7 +997,26 @@ try:
             sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
             db_cursor.execute(sql, (uid, main_entry_id))
             request = db_cursor.fetchone()
-            fields = json_loads(request["fields"])
+            fields_orig = json_loads(request["fields"])
+            
+            workflow_type = "di"
+            
+            if "pages" in fields_orig and len(fields_orig["pages"]) > 0:
+                for field in fields_orig["pages"][0]["content"]:
+                    if field["type"] == "hidden":
+                        workflow_type = field["value"]
+                        break
+            
+            fields = json_loads(open("workflow-templates/checklist.json").read())
+            if "pages" in fields and len(fields["pages"]) > 0:
+                for field in fields["pages"][0]["content"]:
+                    if field["type"] == "hidden":
+                        field["value"] = workflow_type
+                        break
+                fields["version"] = version            
+                
+            copy_form(fields_orig, fields)
+            
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             fields = json_dumps(fields)
@@ -997,7 +1046,10 @@ try:
                 sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
                 db_cursor.execute(sql, (uid, sample_entry_id))
                 request = db_cursor.fetchone()
-                fields = json_loads(request["fields"])
+                fields_orig = json_loads(request["fields"])
+                fields = json_loads(open("workflow-templates/sample.json").read())
+                copy_form(fields_orig, fields)
+                fields["current_page"] = 0
                 fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 fields = json_dumps(fields)
                     
@@ -1033,7 +1085,10 @@ try:
                 sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
                 db_cursor.execute(sql, (uid, class_entry_id))
                 request = db_cursor.fetchone()
-                fields = json_loads(request["fields"])
+                fields_orig = json_loads(request["fields"])
+                fields = json_loads(open("workflow-templates/lipid-class.json").read())
+                copy_form(fields_orig, fields)
+                fields["current_page"] = 0
                 fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 fields = json_dumps(fields)
                     
@@ -1120,7 +1175,9 @@ try:
             sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
             db_cursor.execute(sql, (uid, class_entry_id))
             request = db_cursor.fetchone()
-            fields = json_loads(request["fields"])
+            fields_orig = json_loads(request["fields"])
+            fields = json_loads(open("workflow-templates/lipid-class.json").read())
+            copy_form(fields_orig, fields)
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             fields = json_dumps(fields)
@@ -1211,7 +1268,9 @@ try:
             sql = "SELECT fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
             db_cursor.execute(sql, (uid, sample_entry_id))
             request = db_cursor.fetchone()
-            fields = json_loads(request["fields"])
+            fields_orig = json_loads(request["fields"])
+            fields = json_loads(open("workflow-templates/sample.json").read())
+            copy_form(fields_orig, fields)
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             fields = json_dumps(fields)
@@ -1940,6 +1999,8 @@ try:
                 print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
                 exit()
                 
+            import warnings
+            warnings.filterwarnings("ignore")
             import requests
                 
                 
@@ -1949,6 +2010,7 @@ try:
             
             fields = json_loads(request["fields"])
             report_title, report_author,report_affiliation = "-", "-", "-"
+            
             
             for field in fields["pages"][0]["content"]:
                 if "name" in field and field["name"] == "title_study": report_title = field["value"]
@@ -1983,7 +2045,7 @@ try:
             except:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
                 exit()
-                    
+                   
                     
             try:
                 publishing_error_code = "Error during Zenodo upload"
@@ -1994,14 +2056,11 @@ try:
                 with open(pdf_path, "rb") as fp:
                     r = requests.put("%s/%s" % (bucket_url, pdf_file), data = fp, params = params, timeout = 15)
 
-                if r.status_code != 200:
-                    print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], json_dumps(r.json())))
-                    exit()
             except:
                 print("%s %s" % (str(ErrorCodes.PUBLISHING_FAILED) + " in %s" % content["command"], publishing_error_code))
                 exit()
 
-
+             
 
             try:
                 publishing_error_code = "Error during Zenodo meta data upload"
