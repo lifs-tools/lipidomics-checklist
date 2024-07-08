@@ -12,7 +12,7 @@
 
 {"label": "Perfusion", "name": "perfusion", "type": "select", "required": 0, "choice": [{"name": "perfusion#yes", "label": "Yes", "value": 0}, {"name": "perfusion#no", "label": "No", "value": 1}], "description": "", "condition": "sample_type#tissues=1"},
 
-{"label": "Storage and collection", "name": "storage_conditions", "type": "select", "required": 0, "choice": [{"name": "storage_conditions#available", "label": "Available", "value": 1},{"name": "storage_conditions#unknown", "label": "Unknown", "value": 0}], "description": ""},
+{"label": "Storage and collection conditions", "name": "storage_conditions", "type": "select", "required": 0, "choice": [{"name": "storage_conditions#available", "label": "Available", "value": 1},{"name": "storage_conditions#unknown", "label": "Unknown", "value": 0}], "description": ""},
 
 {"label": "Provided preanalytical information", "name": "provided_information", "type": "multiple", "required": 0, "choice": [{"name": "provided_information#time_to_separate", "label": "Time to separate plasma/serum (min)", "value": 0, "condition": "sample_type#serum=1|sample_type#plasma=1"}, {"name": "provided_information#time_to_freeze", "label": "Time to freeze (min)", "value": 0}, {"name": "provided_information#storage_time", "label": "Storage time (month)", "value": 0}, {"name": "provided_information#freeze-thaw_cycles", "label": "Freeze-thaw cycles", "value": 0}], "description": "Which information is provided?", "condition": "storage_conditions#available=1"},
 

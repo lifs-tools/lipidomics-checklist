@@ -10,9 +10,9 @@
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 
-{"label": "Is the workflow targeted or untargeted?", "name": "workflow_targeted", "type": "select", "required": 0, "choice": [{"name": "workflow_targeted#targeted", "label": "Targeted", "value": 1}, {"name": "workflow_targeted#untargeted", "label": "Untargeted", "value": 0}], "description": ""},
+{"label": "Is the workflow targeted or untargeted?", "name": "workflow_targeted", "type": "select", "required": 0, "choice": [{"name": "workflow_targeted#targeted", "label": "Targeted", "value": 1}, {"name": "workflow_targeted#untargeted", "label": "Untargeted", "value": 0}], "description": "Targeted workflows are typically based on Single Ion Monitoring (SIM) or Selected Reaction Monitoring (SRM). Workflows based on scans are considered untargeted."},
 
-{"label": "Clinical", "name": "clinical", "type": "select", "required": 0, "choice": [{"name": "clinical#yes", "label": "Yes", "value": 1}, {"name": "clinical#no", "label": "No", "value": 0}], "description": "Is it clinical lipidomics, i.e. samples were analyzed related to a clinical question using a quantitative, validated method?"}
+{"label": "Clinical", "name": "clinical", "type": "select", "required": 0, "choice": [{"name": "clinical#yes", "label": "Yes", "value": 1}, {"name": "clinical#no", "label": "No", "value": 0}], "description": "Clinical lipidomics refers to studies on human samples using a quantitative and validated method. It refers not only to studies using a clinical diagnostic method, but also to studies aimed at developing and validating lipids for clinical applications."}
 
 ]},
 

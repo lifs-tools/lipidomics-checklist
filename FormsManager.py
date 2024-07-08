@@ -11,7 +11,7 @@ try:
     from random import randint
     import db.ChecklistConfig as cfg
     from FormsEnum import *
-        
+    from datetime import datetime
         
     def dict_factory(cursor, row):
         return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
@@ -254,9 +254,12 @@ try:
                 entry["entry_id"] = get_encrypted_entry(entry["id"])
                 title = ""
                 entry["type"] = ""
+                entry["version"] = ""
                 if len(entry["fields"]) > 0:
                     field_data = json_loads(entry["fields"])
                     del entry["fields"]
+                    
+                    if "version" in field_data: entry["version"] = field_data["version"]
                     
                     if len(field_data) > 0:
                         for field in field_data["pages"][0]["content"]:
@@ -272,6 +275,13 @@ try:
                 entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
                 
             request.sort(key = lambda x: x["date"], reverse = True)
+            for entry in request:
+                try:
+                    entry["date"] = datetime.fromisoformat(entry["date"]).strftime('%m/%d/%Y')
+                    if len(entry["version"]) > 0: entry["date"] += " (%s)" % entry["version"]
+                except Exception as e:
+                    pass
+            
             print(json_dumps(request))
             
         except Exception as e:
@@ -2703,18 +2713,27 @@ try:
         
         from pandas import read_csv
         df = read_csv("db/ms2fragments.csv")
+        
+        
+        def clean_fragment(fragment, adduct):
+            fragment = fragment.replace("[adduct]", adduct)
+            fragment = fragment.replace(" [xx:x]", "1")
+            fragment = fragment.replace(" [yy:y]", "2")
+            fragment = fragment.replace(" [zz:z]", "3")
+            fragment = fragment.replace(" [aa:a]", "4")
+            return fragment.replace(" [xx:x;x]", "")
     
         
         if polarity_positive:
-            fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] > 0)]["fragmentname"])
+            fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] > 0)]["nameafter"])
         else: 
-            fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] < 0)]["fragmentname"])
+            fragments = list(df[(df["class"] == lipid_class_name) & (df["charge"] < 0)]["nameafter"])
             
         if adduct and adduct[:2] == "[M" and (adduct[-2] == "]" or adduct[-3] == "]"):
             adduct = adduct[2:]
             if adduct[-2] == "]": adduct = adduct[:-2]
             elif adduct[-3] == "]": adduct = adduct[:-3]
-            fragments = [fragment.replace("[adduct]", adduct) for fragment in fragments]
+            fragments = [clean_fragment(fragment, adduct) for fragment in fragments]
             
         print(json_dumps(fragments))
             

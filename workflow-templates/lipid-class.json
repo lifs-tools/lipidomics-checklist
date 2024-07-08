@@ -121,14 +121,14 @@
 {"label": "MS Level for identification", "name": "ms_level_ident", "type": "multiple", "required": 1, "choice": [{"name": "ms_level#ms1", "label": "MS1", "value": 0}, {"name": "ms_level#ms2", "label": "MS2", "value": 0}, {"name": "ms_level#msn", "label": "MSn", "value": 0}], "description": "Which MS level(s) was(were) used for identification?"},
 
 {"label": "Identification level", "name": "ident_level", "type": "select", "required": 0, "choice": [
-{"name": "ident_level#species_level", "label": "Species level", "description": "e.g. PC 34:1;O", "value": 1},
-{"name": "ident_level#molecular_species_level", "label": "Molecular species level", "description": "e.g. PC 16:0;O_18:1", "value": 0},
-{"name": "ident_level#double_bond_position", "label": "Double bond position", "description": "e.g. PC 16:0;O_18:1(9)", "value": 0},
-{"name": "ident_level#sn_position", "label": "sn Position", "description": "e.g. PC 18:1/16:0;O", "value": 0},
-{"name": "ident_level#structure_defined", "label": "Structure defined", "description": "e.g. PC 18:1(9)/16:0;OH", "value": 0},
-{"name": "ident_level#full_structure", "label": "Full structure", "description": "e.g. PC 18:1(9Z)/16:0;3OH", "value": 0},
-{"name": "ident_level#complete_structure", "label": "Complete structure", "description": "e.g. FAHFA 18:1(9Z)/9O(FA 18:0[R])", "value": 0},
-{"name": "ident_level#undefined", "label": "Undefined", "value": 0}], "description": ""},
+{"name": "ident_level#species_level", "label": "Species level", "description": "e.g. PC 34:1", "value": 1},
+{"name": "ident_level#molecular_species_level", "label": "Molecular species level", "description": "e.g. PC 16:0_18:1", "value": 0},
+{"name": "ident_level#double_bond_position", "label": "Double bond position", "description": "e.g. PC 16:0_18:1(9)", "value": 0},
+{"name": "ident_level#sn_position", "label": "sn Position", "description": "e.g. PC 18:1/16:0", "value": 0},
+{"name": "ident_level#structure_defined", "label": "Structure defined", "description": "e.g. FA 18:2(9,11);OH", "value": 0},
+{"name": "ident_level#full_structure", "label": "Full structure", "description": "e.g. FA 18:2(9Z,11E);13OH", "value": 0},
+{"name": "ident_level#complete_structure", "label": "Complete structure", "description": "13R-HODE", "value": 0},
+{"name": "ident_level#undefined", "label": "Undefined", "value": 0}], "description": "For more details see: <a href='https://doi.org/10.1194/jlr.S120001025' target='_blank'>https://doi.org/10.1194/jlr.S120001025</a>."},
 
 {"label": "Polarity mode", "name": "polarity_mode", "type": "select", "required": 0, "choice": [{"name": "polarity_mode#positive", "label": "Positive", "value": 1}, {"name": "polarity_mode#negative", "label": "Negative", "value": 0}], "description": "Which polarity was applied for analysis?"},
 
@@ -142,7 +142,7 @@
 
 {"label": "Fragments for identification", "name": "frag_used", "type": "table", "columns": "Fragment name", "required": 1, "value": "", "description": "Please specify the fragments used for the identification. The suggested fragment ions are following this standard nomenclature: (doi: <a href=\"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0188394\" target=\"_blank\">10.1371/journal.pone.0188394</a>)", "condition": "ms_level#ms2=1|ms_level#msn=1"},
 
-{"label": "Isotope correction at MS1", "name": "isotope_corr_ms1", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms1#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms1#no", "label": "No", "value": 1}], "description": "Was <a href=\" https://doi.org/10.1016/j.jlr.2021.100138\" target=\"blank\">Type II overlap</a> corrected?", "condition": "ms_level#ms1=1"},
+{"label": "Isotope correction at MS1", "name": "isotope_corr_ms1", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms1#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms1#no", "label": "No", "value": 1}], "description": "Type II isotopic overlap occurs in DB series, i.e. within a lipid class the M + 2 isotopologue of an unsaturated species overlaps the M + 0 of species with one less double bond. See <a href=\"https://doi.org/10.1016/j.jlr.2021.100138\" target=\"_blank\">https://doi.org/10.1016/j.jlr.2021.100138</a>.", "condition": "ms_level#ms1=1"},
 
 {"label": "Isotope correction at MS2", "name": "isotope_corr_ms2", "type": "select", "required": 0, "choice": [{"name": "isotope_corr_ms2#type_2", "label": "Type 2", "value": 0}, {"name": "isotope_corr_ms2#no", "label": "No", "value": 1}], "description": "Was Type II overlap corrected?", "condition": "ms_level#ms2=1"},
 
