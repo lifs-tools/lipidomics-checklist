@@ -1,0 +1,330 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Lipidomics checklist JSON Schema 1.0",
+    "description": "A JSON Schema for the lipidomics checklist",
+    "type": "object",
+    "properties": {
+        "CheckList": {
+            "type": "object",
+            "description": "The main checklist object",
+            "properties": {
+                "pages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "type": "string"
+                            },
+                            "content": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "label": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "required": {
+                                            "type": "integer"
+                                        },
+                                        "value": {
+                                            "type": [
+                                                "integer",
+                                                "string"
+                                            ]
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "validate": {
+                                            "type": "string"
+                                        },
+                                        "choice": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": "integer"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "label",
+                                                    "name",
+                                                    "value"
+                                                ]
+                                            }
+                                        },
+                                        "view": {
+                                            "type": "string"
+                                        },
+                                        "condition": {
+                                            "type": "string"
+                                        },
+                                        "min": {
+                                            "type": "number"
+                                        },
+                                        "code": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "type"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "content",
+                            "title"
+                        ]
+                    }
+                },
+                "current_page": {
+                    "type": "integer"
+                },
+                "max_page": {
+                    "type": "integer"
+                },
+                "creation_date": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "creation_date",
+                "current_page",
+                "max_page",
+                "pages",
+                "version"
+            ]
+        },
+        "LipidClass": {
+            "type": "object",
+            "properties": {
+                "pages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "type": "string"
+                            },
+                            "content": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "label": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "required": {
+                                            "type": "integer"
+                                        },
+                                        "choice": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "group": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "label",
+                                                    "name",
+                                                    "value"
+                                                ]
+                                            }
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "condition": {
+                                            "type": "string"
+                                        },
+                                        "columns": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "type"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "content",
+                            "title"
+                        ]
+                    }
+                },
+                "current_page": {
+                    "type": "integer"
+                },
+                "max_page": {
+                    "type": "integer"
+                },
+                "creation_date": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "creation_date",
+                "current_page",
+                "max_page",
+                "pages",
+                "version"
+            ]
+        },
+        "Sample": {
+            "type": "object",
+            "properties": {
+                "pages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "type": "string"
+                            },
+                            "content": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "label": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "required": {
+                                            "type": "integer"
+                                        },
+                                        "value": {
+                                            "type": [
+                                                "integer",
+                                                "string"
+                                            ]
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "choice": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": "integer"
+                                                    },
+                                                    "condition": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "label",
+                                                    "name",
+                                                    "value"
+                                                ]
+                                            }
+                                        },
+                                        "condition": {
+                                            "type": "string"
+                                        },
+                                        "min": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "required": [
+                                        "description",
+                                        "label",
+                                        "name",
+                                        "required",
+                                        "type"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "content",
+                            "title"
+                        ]
+                    }
+                },
+                "current_page": {
+                    "type": "integer"
+                },
+                "max_page": {
+                    "type": "integer"
+                },
+                "creation_date": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "creation_date",
+                "current_page",
+                "max_page",
+                "pages",
+                "version"
+            ]
+        }
+    }
+}
