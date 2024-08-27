@@ -1,2 +1,3 @@
 db/checklist.sqlite
 db/ChecklistConfig.py
+.venv
