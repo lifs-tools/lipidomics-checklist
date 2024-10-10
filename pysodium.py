@@ -30,8 +30,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import ctypes
 import ctypes.util
 
-#sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
-sodium = ctypes.cdll.LoadLibrary("./libsodium.so")
+# check if ./libsodium.so exists, otherwise try to load it from the system
+try:
+    sodium = ctypes.cdll.LoadLibrary('./libsodium.so')
+except OSError:
+    sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
+
 if not sodium._name:
     raise ValueError('Unable to find libsodium')
 

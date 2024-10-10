@@ -19,7 +19,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 # Install the dependencies
 pip install -r requirements.txt
-
-# Run the application
-# start a python webserver and serve from the current directory, keep the container in the foreground
-docker compose up -d --build
+echo "Starting the application..."
+# Run the application with docker compose
+docker compose up --build --no-recreate --watch

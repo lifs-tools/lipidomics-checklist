@@ -1,0 +1,27 @@
+# Ignoriere Node.js Abhängigkeiten
+node_modules
+
+# Ignoriere Composer Abhängigkeiten
+vendor
+
+# Ignoriere Umgebungsdateien
+.env
+
+# Ignoriere Log-Dateien
+*.log
+
+# Ignoriere temporäre Dateien und Verzeichnisse
+tmp/
+temp/
+
+# Ignoriere IDE-spezifische Dateien
+.vscode/
+.idea/
+
+# Ignoriere Betriebssystem-spezifische Dateien
+.DS_Store
+Thumbs.db
+
+# Ignoriere Build-Artefakte
+dist/
+build/

@@ -1,3 +1,4 @@
 db/checklist.sqlite
 db/ChecklistConfig.py
 .venv
+__pycache__

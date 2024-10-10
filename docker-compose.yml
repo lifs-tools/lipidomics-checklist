@@ -1,7 +1,7 @@
 services:
 
   wordpress:
-    image: wordpress
+    build: .
     restart: always
     ports:
       - 8888:80
@@ -10,9 +10,20 @@ services:
       WORDPRESS_DB_USER: exampleuser
       WORDPRESS_DB_PASSWORD: examplepass
       WORDPRESS_DB_NAME: exampledb
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: .
+    #       target: /var/www/html/lipidomics-checklist  
+    #       ignore:
+    #         - .venv/
+    #         - .git/
+    #         - .vscode/
+    #         - __pycache__/
+    #         - .gitignore
+    #         - docker-compose.yml
     volumes:
-      - wp:/var/www/html
-      - .:/var/www/html/lipidomics-checklist/
+      - .:/var/www/html/lipidomics-checklist
 
   db:
     image: mysql:8.0
@@ -22,9 +33,3 @@ services:
       MYSQL_USER: exampleuser
       MYSQL_PASSWORD: examplepass
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
-    volumes:
-      - db:/var/lib/mysql
-
-volumes:
-  wp:
-  db: 
