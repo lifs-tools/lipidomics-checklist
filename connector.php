@@ -81,7 +81,13 @@ foreach($_POST as $key => $val) {
 ////////////////////////////////////////////////////////////////////////////
 // collect all information for the request
 ////////////////////////////////////////////////////////////////////////////
+if (!isset($_SERVER['REMOTE_ADDR'])) {
+    $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+}
 array_push($request, "ip=" . rawurlencode($_SERVER['REMOTE_ADDR']));
+if (!isset($_SERVER['HTTP_USER_AGENT'])) {
+    $_SERVER['HTTP_USER_AGENT'] = 'CLI';
+}
 array_push($request, "user_agent=" . rawurlencode($_SERVER['HTTP_USER_AGENT']));
 $user_id = 0;
 if ($config["machine"] != "home"){
