@@ -838,8 +838,19 @@ try:
             
             # checking if main form is partial or completed
             status, request = check_status(main_entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
+
+            field_data = json_loads(request["fields"])
+            workflow_type = ""
+            for field in field_data["pages"][0]["content"]:
+                if "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
+                    workflow_type = field["value"]
                 
             field_template = json_loads(open("workflow-templates/sample.json").read())
+            if "pages" in field_template and len(field_template["pages"]) > 0:
+                for field in field_template["pages"][0]["content"]:
+                    if field["type"] == "hidden":
+                        field["value"] = workflow_type
+                        break
             field_template["version"] = version
             field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             field_template = json_dumps(field_template)
@@ -2547,6 +2558,12 @@ try:
             
             # checking if main form is partial or completed
             status, request = check_status(main_entry_id, uid, db_cursor, is_in = {published_label})
+
+            workflow_type = ""
+            field_data = json_loads(request["fields"])
+            for field in field_data["pages"][0]["content"]:
+                if "name" in field and field["name"] == "workflowtype" and len(field["value"]) > 0:
+                    workflow_type = field["value"]
                 
             
             from ImportExportForms import import_forms_from_worksheet
@@ -2555,8 +2572,13 @@ try:
             # all complete
             if sum(form[1] for form in imported_forms) == len(imported_forms) or force_upload:
                 for field_template, is_complete in imported_forms:
-                    field_template["version"] = version
-                    field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    if "pages" in field_template and len(field_template["pages"]) > 0:
+                        for field in field_template["pages"][0]["content"]:
+                            if field["type"] == "hidden":
+                                field["value"] = workflow_type
+                                break
+                        field_template["version"] = version
+                        field_template["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     field_template = json_dumps(field_template)
                     
                     status_label = completed_label if is_complete else partial_label

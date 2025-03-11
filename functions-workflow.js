@@ -72,6 +72,7 @@ function update_main_forms(){
                 var trb = [];
                 table_row.push(trb);
                 
+                /*
                 if (("owner" in row) && row["owner"] == 1){
                     var img_share = document.createElement("img");
                     trb.push(img_share);
@@ -84,7 +85,7 @@ function update_main_forms(){
                     var img_fill = document.createElement("img");
                     trb.push(img_fill);
                     img_fill.style = "min-width: 25px; padding-right: 5px; box-sizing: border-box;";
-                }
+                }*/
                 
                 if (row["status"] == "partial"){
                     var img_fill1 = document.createElement("img");
