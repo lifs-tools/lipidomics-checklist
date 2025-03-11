@@ -21,6 +21,151 @@ var ILSGreenCell = "#E5F1D4";
 var goto_select = document.createElement("select");
 goto_select.className = "lipidomics-forms-select";
 
+
+
+function format_field(el, final_valid_mode, cursors = 0){
+    var tokens = [];
+    var valid = true;
+    
+    var pos = 0;
+    for (var c of el.dataset.slots){
+        new_pos = el.placeholder.indexOf(c, pos);
+        if (new_pos == -1){
+            valid = false;
+            break;
+        }
+        tokens.push(el.placeholder.substring(pos, new_pos));
+        pos = new_pos + 1;
+    }
+    if (valid){
+        if (pos < el.placeholder.length) tokens.push(el.placeholder.substring(pos, el.placeholder.length));
+        var regExpList = el.dataset.accept.split("||");
+    }
+    
+    if (!valid) return;
+
+    var value = el.value == null || el.value.length == 0 ? el.placeholder : el.value;
+    var value_array = [];
+    var wildcards = [];
+    var set_cursor = [];
+    var i = 0, pos = -1, cursor_pos = 0;
+    all_passed = true;
+    for (i = 0; i < tokens.length; ++i){
+        token = tokens[i];
+        pos = value.indexOf(token);
+        if (pos == -1){
+            all_passed = false;
+            break;
+        }
+        if (i > 0) {
+            wildcard = value.substring(0, pos);
+            if (wildcard.length == 0) wildcard = el.dataset.slots.charAt(wildcards.length);
+            else if (wildcard.length == 2 && wildcard.charAt(1) == el.dataset.slots.charAt(i - 1)) wildcard = wildcard.substring(0, 1);
+            wildcards.push(wildcard);
+            value_array.push(wildcard);
+            value = value.substring(pos, value.length);
+            if (wildcard.length == 1 && wildcard.charAt(0) == el.dataset.slots.charAt(i - 1)){
+                set_cursor.push(cursor_pos);
+                cursor_pos += token.length + 1;
+                set_cursor.push(cursor_pos);
+            }
+            else {
+                for (j = 0; j <= wildcard.length; ++j){
+                    set_cursor.push(cursor_pos++);
+                }
+                cursor_pos += token.length - 1;
+            }
+            for (j = 1; j < token.length; ++j) set_cursor.push(cursor_pos);
+        }
+        else {
+            cursor_pos += token.length;
+            for (j = 0; j < token.length; ++j) set_cursor.push(cursor_pos);
+        }
+        value_array.push(value.substring(0, token.length));
+        value = value.substring(token.length, value.length);
+    }
+    var l = wildcards.length;
+    if (value.length > 0){
+        wildcard = value;
+        if (wildcard.length == 0) wildcard = el.dataset.slots.charAt(l);
+        else if (wildcard.length == 2 && wildcard.charAt(1) == el.dataset.slots.charAt(l)) wildcard = wildcard.substring(0, 1);            
+    
+        wildcards.push(wildcard);
+        value_array.push(wildcard);
+        
+        if (wildcard.length == 1 && wildcard.charAt(0) == el.dataset.slots.charAt(l)){
+            set_cursor.push(cursor_pos);
+            set_cursor.push(cursor_pos);
+        }
+        else {
+            for (j = 0; j <= wildcard.length; ++j){
+                set_cursor.push(cursor_pos++);
+            }
+        }
+    }
+    else if (wildcards.length < el.dataset.slots.length){
+        wildcards.push(el.dataset.slots.charAt(l));
+        value_array.push(el.dataset.slots.charAt(l));
+        set_cursor.push(cursor_pos);
+    }
+    
+    
+    for (i = 0; i < regExpList.length; ++i){
+        wildcard = wildcards[i];
+        if (wildcard == el.dataset.slots.charAt(i) && !final_valid_mode) continue;
+        regExp = regExpList[i];
+        if (!final_valid_mode && regExp.length > 5 && regExp.substring(0, 3) === "(?:" && regExp.charAt(regExp.length - 1) === ")"){
+            var regExp_tokens = regExp.substring(3, regExp.length - 1).split("|");
+            regExp = new Set();
+            for (token of regExp_tokens){
+                for (j = 1; j <= token.length; ++j) regExp.add(token.substring(0, j));
+            }
+            regExp = "(?:" + Array.from(regExp).join("|") + ")";
+        }
+        accept = new RegExp("^" + regExp + "$");
+        
+        if (wildcard.match(accept) == null){
+            all_passed = false;
+            break;
+        }
+    }
+    
+    if (all_passed){
+        var selection_pos = el.selectionStart;
+        
+        el.value = value_array.join("");
+        el.previous_value = el.value;
+        
+        if (cursors == -1){
+            var curr_pos = selection_pos;
+            while (curr_pos > 0 && set_cursor[curr_pos] == selection_pos) curr_pos--;
+            if (curr_pos == 0) curr_pos = set_cursor[curr_pos];
+            el.selectionStart = curr_pos;
+        }
+        else {
+            selection_pos = Math.max(0, Math.min(el.value.length, selection_pos + cursors));
+            el.selectionStart = set_cursor[selection_pos];
+        }
+        el.selectionEnd = el.selectionStart;
+        el.previous_cursor = el.selectionStart;
+        
+    }
+    else {
+        if (final_valid_mode) el.value = "";
+        else {
+            el.value = el.previous_value;
+            el.selectionStart = el.previous_cursor;
+            el.selectionEnd = el.previous_cursor;
+        }
+    }
+    
+    if (final_valid_mode){
+        el.previous_value = el.placeholder;
+        el.previous_cursor = 0;
+        el.all_passed = false;
+    }
+}
+
 function load_data(content){
     lipidomics_forms_content = content;
     field_map = {};
@@ -250,6 +395,30 @@ function load_data(content){
                 obj_content.append(obj_input);
                 obj.append(obj_content);
                 dom_text_fields[field_name] = obj_input;
+                
+                if ("options" in field){
+                    var options = JSON.parse(field["options"]);
+                    obj_input.options = options;
+                    for (option in options){
+                        obj_input.setAttribute(option, options[option]);
+                    }
+                    obj_input.addEventListener("keydown", (e) => {
+                        if (e.code === "ArrowLeft" || e.code == "ArrowRight"){
+                            cursors = e.code === "ArrowLeft" ? -1 : 1;
+                            format_field(e.target, false, cursors);
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    });
+                    
+                    obj_input.addEventListener("input", (e) => {format_field(e.target, false);});
+                    obj_input.addEventListener("click", (e) => {format_field(e.target, false);});
+                    obj_input.addEventListener("focus", (e) => {format_field(e.target, false);});
+                    obj_input.addEventListener("blur", (e) => {format_field(e.target, true);});
+                    obj_input.previous_value = obj_input.placeholder;
+                    obj_input.previous_cursor = obj_input.selectionStart;
+                    obj_input.all_passed = false;
+                }
                 
                 // Adding description of the field if present
                 if (field["description"].length > 0){
@@ -685,6 +854,7 @@ function change_frag_used_suggestions(){
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
+
     
 function change_internal_standard_ms2_suggestions(){
     if (!("lipid_class" in dom_select_fields) || !("frag_used" in dom_input_table_fields) || !("internal_standard_ms2" in dom_input_table_fields)) return;
@@ -740,7 +910,6 @@ function update_number(form){
     form.style.border = "1px solid #ccc";
     check_conditions();
 }
-
 
 
                 
@@ -970,7 +1139,7 @@ function submit_form(){
         alert("Lipidomics report successfully saved.");
         hide_checklist();
         var xmlhttp_m = new XMLHttpRequest();
-        xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=report_completed", true);
+        xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=" + current_version + "&e_a=report_completed", true);
         xmlhttp_m.send();
     }
 }

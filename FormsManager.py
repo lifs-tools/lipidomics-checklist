@@ -12,6 +12,7 @@ try:
     import db.ChecklistConfig as cfg
     from FormsEnum import *
     from datetime import datetime
+    import traceback
         
     def dict_factory(cursor, row):
         return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
@@ -30,7 +31,7 @@ try:
                     "get_form_content", "update_form_content",
                     "export_samples", "export_selected_samples", "import_samples",
                     "export_lipid_class", "export_selected_lipid_classes", "import_lipid_class",
-                    "get_fragment_suggestions", "get_published_forms"}
+                    "get_fragment_suggestions", "get_published_forms", "get_current_version"}
     
     conn = None
     table_prefix = "TCrpQ_"
@@ -246,9 +247,16 @@ try:
             conn, db_cursor = dbconnect()
             
             # getting all main forms
-            sql = "SELECT status, id, date, fields FROM %sentries WHERE form = ? AND user_id = ?;" % table_prefix
+            sql = "SELECT status, id, date, fields, 1 owner  FROM %sentries WHERE form = ? AND user_id = ?;" % table_prefix
             db_cursor.execute(sql, (main_form_id, uid))
             request = db_cursor.fetchall()
+            
+            
+            # check if forms are shared
+            # sql = "SELECT e.status, e.id, e.date, e.fields, 0 owner FROM %sentries e INNER JOIN %sshares s ON e.id = s.report_entry_id WHERE e.form = ? AND s.shared_user_id = ?;" % (table_prefix, table_prefix)
+            # db_cursor.execute(sql, (main_form_id, uid))
+            # request += db_cursor.fetchall()
+            
             type_to_name = {"di": "direct infusion", "sep": "separation", "img": "imaging"}
             for entry in request:
                 entry["entry_id"] = get_encrypted_entry(entry["id"])
@@ -273,6 +281,7 @@ try:
                 if len(title) == 0: entry["title"] = "Untitled %s report" % (type_to_name[entry["type"]] if entry["type"] in type_to_name else "")
                 else: entry["title"] = title
                 entry["type"] = (type_to_name[entry["type"]] if entry["type"] in type_to_name else "").capitalize()
+            
                 
             request.sort(key = lambda x: x["date"], reverse = True)
             for entry in request:
@@ -2177,24 +2186,26 @@ try:
         if "entry_id" not in content:
             print(str(ErrorCodes.NO_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
+
             
         try:
             entry_id = int(get_decrypted_entry(content["entry_id"]))
         except Exception as e:
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"], e)
             exit()
-            
+
         if entry_id < 0:
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
-            
+
+
         try:
             # connect with the database
             conn, db_cursor = dbconnect()
-            
+
             # checking if main form is partial or completed
             status, request = check_status(entry_id, uid, db_cursor, not_in = {partial_label, completed_label})
-            
+
             sql = "SELECT fields FROM %sentries WHERE id = ?;" % table_prefix
             db_cursor.execute(sql, (entry_id,))
             print(db_cursor.fetchone()["fields"])
@@ -2957,6 +2968,11 @@ try:
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_EXPORTING_REPORT) + " in %s" % content["command"], e)
         
+        
+        
+    
+    elif content["command"] == "get_current_version":
+        print(cfg.version)
             
 except Exception as e:
-    print("ErrorCodes.GENERIC", e)
+    print("ErrorCodes.GENERIC", traceback.format_exc().replace("\n", "  "))

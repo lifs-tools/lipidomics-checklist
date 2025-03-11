@@ -783,6 +783,7 @@ def validate_form_complete(form, form_type):
             names_list.append(field_name)
         
             if field["type"] == "text":
+                if "value" not in field: continue
                 if "condition" in field: name_to_condition[field_name] = field["condition"]
                 if "required" in field and field["required"] == 1: required_names_page.append(field_name)
                 if not type(field["value"]) == str:

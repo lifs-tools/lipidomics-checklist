@@ -72,6 +72,20 @@ function update_main_forms(){
                 var trb = [];
                 table_row.push(trb);
                 
+                if (("owner" in row) && row["owner"] == 1){
+                    var img_share = document.createElement("img");
+                    trb.push(img_share);
+                    //img_share.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
+                    img_share.src = connector_path + "/images/share.png";
+                    img_share.title = "Share report";
+                    img_share.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
+                }
+                else {
+                    var img_fill = document.createElement("img");
+                    trb.push(img_fill);
+                    img_fill.style = "min-width: 25px; padding-right: 5px; box-sizing: border-box;";
+                }
+                
                 if (row["status"] == "partial"){
                     var img_fill1 = document.createElement("img");
                     trb.push(img_fill1);
@@ -428,7 +442,7 @@ function publish(){
             update_main_forms();
             
             var xmlhttp_m = new XMLHttpRequest();
-            xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=report_published", true);
+            xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=" + current_version + "&e_a=report_published", true);
             xmlhttp_m.send();
         }
     }
@@ -456,7 +470,7 @@ function register_new_main_form(){
             show_checklist(response_text);
             
             var xmlhttp_m = new XMLHttpRequest();
-            xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=v2.0&e_a=new_report", true);
+            xmlhttp_m.open("GET", "https://lifs-tools.org/matomo/matomo.php?idsite=15&rec=1&e_c=" + current_version + "&e_a=new_report", true);
             xmlhttp_m.send();
         }
     }
@@ -604,7 +618,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
                     <td><label for=\"radio_direct_infusion\" style=\"font-size: 20px;\">Direct Infusion</label></td></tr> \
                     <tr><td><input type=\"radio\" id=\"radio_separation\" name=\"workflow_type_field\" value=\"workflow_separation\"></td> \
                     <td><label for=\"radio_separation\" style=\"font-size: 20px;\">Separation</label></td></tr> \
-                    <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\" disabled></td> \
+                    <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\"></td> \
                     <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
                 </table> \
             </td></tr> \

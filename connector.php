@@ -92,8 +92,8 @@ if ($config["machine"] != "home"){
 }
 else {
     array_push($request, "user_uuid=" . rawurlencode("3e599f6d-476d-4d52-8e19-3ffe6ef7555d"));
-    array_push($request, "uid=2");
-    $user_id = 2;
+    array_push($request, "uid=10");
+    $user_id = 10;
 }
 
 // if the request is too big, write in file and send over the filename
