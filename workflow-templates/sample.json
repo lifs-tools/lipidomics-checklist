@@ -61,7 +61,42 @@
 
 {"label": "Embedding material", "name": "embedding_material", "type": "select", "required": 0, "choice": [{"name": "embedding_material#FFPE", "label": "FFPE", "value": 0}, {"name": "embedding_material#CMC", "label": "CMC", "value": 0}, {"name": "embedding_material#gelatin", "label": "Gelatin", "value": 0}, {"name": "embedding_material#M3", "label": "M3", "value": 0}, {"name": "embedding_material#other", "label": "other", "value": 0}], "description": "In what has been the tissue embedded?", "condition": "sample_type#tissues=1&workflowtype='img'&embedded#yes=1"},
 
-{"label": "Other embedding material", "name": "other_embedding_material", "type": "text", "required": 1, "value": "", "description": "In what other material has been the tissue embedded?", "condition": "embedding_material#other=1"}
+{"label": "Other embedding material", "name": "other_embedding_material", "type": "text", "required": 1, "value": "", "description": "In what other material has been the tissue embedded?", "condition": "embedding_material#other=1"},
+
+{"label": "Cryotome temperature [\u00b0C]", "name": "cryotome_temperature", "type": "number", "required": 1, "value": -22, "min": -273, "max": -22, "condition": "sample_type#tissues=1&workflowtype='img'"},
+
+{"label": "Cryostat mounting medium", "name": "cryostat", "type": "select", "required": 0, "choice": [{"name": "cryostat#water", "label": "Water", "value": 0}, {"name": "cryostat#OCT", "label": "OCT", "value": 0}, {"name": "cryostat#CMC", "label": "CMC", "value": 0}, {"name": "cryostat#other", "label": "other", "value": 0}], "condition": "sample_type#tissues=1&workflowtype='img'"},
+
+{"label": "Other cryostat mounting medium", "name": "other_cryostat", "type": "text", "required": 1, "value": "", "condition": "cryostat#other=1"},
+
+{"label": "Section thickness [\u00b5m]", "name": "section_thickness", "type": "number", "required": 1, "value": 1, "min": 1, "max": 50, "condition": "sample_type#tissues=1&workflowtype='img'"},
+
+{"label": "Slide mounting method", "name": "slide_mm", "type": "select", "required": 0, "choice": [{"name": "slide_mm#thaw", "label": "Thaw mounted", "value": 0}, {"name": "slide_mm#brush", "label": "Brush", "value": 0}, {"name": "slide_mm#other", "label": "other", "value": 0}], "condition": "sample_type#tissues=1&workflowtype='img'"},
+
+{"label": "Other slide mounting method", "name": "other_slide_mm", "type": "text", "required": 1, "value": "", "condition": "slide_mm#other=1"},
+
+{"label": "Slide type", "name": "slide_type", "type": "select", "required": 0, "choice": [{"name": "slide_type#ITO", "label": "ITO", "value": 0}, {"name": "slide_type#st_glass", "label": "Standard glass", "value": 0}, {"name": "slide_type#other", "label": "other", "value": 0}], "condition": "sample_type#tissues=1&workflowtype='img'"},
+
+{"label": "Other slide type", "name": "other_slide_type", "type": "text", "required": 1, "value": "", "condition": "slide_type#other=1"},
+
+{"label": "Cell media", "name": "cell_media", "type": "text", "required": 1, "value": "", "condition": "sample_type#cells=1&workflowtype='img'"},
+
+{"label": "Washed with", "name": "washed", "type": "select", "required": 0, "choice": [{"name": "washed#Aqnh4oac", "label": "Aq. NH4OAc", "value": 0}, {"name": "washed#PBS", "label": "PBS", "value": 0}, {"name": "washed#saline", "label": "Saline", "value": 0}, {"name": "washed#other", "label": "other", "value": 0}], "condition": "sample_type#cells=1&workflowtype='img'"},
+
+{"label": "Other wathed with", "name": "other_washed", "type": "text", "required": 1, "value": "", "condition": "washed#other=1"},
+
+{"label": "Fixation medium", "name": "fixation_medium", "type": "select", "required": 0, "choice": [{"name": "fixation_medium#pfa", "label": "PFA (formaldehyde)", "value": 0}, {"name": "fixation_medium#glu", "label": "Glutaraldehyde", "value": 0}, {"name": "fixation_medium#oste", "label": "Osmium tetroxide", "value": 0}, {"name": "fixation_medium#glycoxal", "label": "Glycoxal", "value": 0}, {"name": "fixation_medium#other", "label": "other", "value": 0}], "condition": "sample_type#cells=1&workflowtype='img'"},
+
+{"label": "Other fixation medium", "name": "other_fixation_medium", "type": "text", "required": 1, "value": "", "condition": "fixation_medium#other=1"},
+
+{"label": "Fixation time [min]", "name": "fixation_time", "type": "number", "required": 1, "value": 0, "min": 0, "max": 2880, "condition": "sample_type#cells=1&workflowtype='img'"},
+
+{"label": "Staining employed", "name": "staining_employed", "type": "select", "required": 0, "choice": [{"name": "staining_employed#no", "label": "No", "value": 0}, {"name": "staining_employed#Hoechst", "label": "Hoechst", "value": 0}, {"name": "staining_employed#cellbrite", "label": "Cellbrite", "value": 0}, {"name": "staining_employed#GPF", "label": "GPF", "value": 0}, {"name": "staining_employed#DAPI", "label": "DAPI", "value": 0}, {"name": "staining_employed#other", "label": "other", "value": 0}], "condition": "sample_type#cells=1&workflowtype='img'"},
+
+{"label": "Other staining employed", "name": "other_staining_employed", "type": "text", "required": 1, "value": "", "condition": "staining_employed#other=1"},
+
+{"label": "Estimated confluency of sampled area [%]", "name": "confluency", "type": "number", "required": 1, "value": 1, "min": 1, "max": 100, "condition": "sample_type#cells=1&workflowtype='img'"}
+
 
 
 ]}], "current_page": 0, "max_page": 0, "creation_date": "", "version": ""}

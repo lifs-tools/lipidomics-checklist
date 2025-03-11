@@ -538,8 +538,8 @@ function load_data(content){
                 obj_input.type = "number";
                 obj_input.value = field["value"];
                 if ("min" in field) obj_input.min = field["min"];
-                if ("max" in field) obj_input.min = field["max"];
-                if ("step" in field) obj_input.min = field["step"];
+                if ("max" in field) obj_input.max = field["max"];
+                if ("step" in field) obj_input.step = field["step"];
                 obj_input.content = field;
                 obj_input.field_name = field_name;
                 obj_input.setAttribute('onchange','update_number(this);');
