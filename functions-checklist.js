@@ -337,14 +337,18 @@ function load_data(content){
         
         
         // Status decorator
+        var obj_status_text = document.createElement("div");
+        var page_title = "X";
         if (lipidomics_forms_content["pages"].length > 1){
             var obj_status = document.createElement("div");
             obj_status.className = "lipidomics-forms-status";
             obj_page.append(obj_status);
             
-            var obj_status_text = document.createElement("div");
             obj_status_text.className = "lipidomics-forms-status-text";
-            obj_status_text.innerHTML = "<font size='+1'>" + (("title" in page) ? page["title"] : "X") + " - Page " + (page_cnt + 1) + " of " + lipidomics_forms_content["pages"].length + "</font>";
+            if ("title" in page){
+                page_title = page["title"];
+            }
+            obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - Page " + (page_cnt + 1) + " of " + lipidomics_forms_content["pages"].length + "</font>";
             obj_status.append(obj_status_text);
             
             var obj_status_bar = document.createElement("div");
@@ -768,7 +772,25 @@ function load_data(content){
             obj_next.setAttribute('onclick','submit_form();');
         }
         obj_page.append(obj_next);
-        
+
+
+        // change page name if necessary
+        if (typeof page_title === 'object' && page_title !== null && !Array.isArray(page_title) && ("workflowtype" in field_map) && ("value" in field_map["workflowtype"])) {
+            var wt = field_map["workflowtype"]["value"];
+            if (wt in page_title){
+                page_title = page_title[wt];
+            }
+            else if ("default" in page_title){
+                page_title = page_title["default"];
+            }
+            else {
+                page_title = "X";
+            }
+
+            obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - Page " + (page_cnt + 1) + " of " + lipidomics_forms_content["pages"].length + "</font>";
+        }
+
+
         form_viewer.append(obj_page);
         page_cnt++;
     }
@@ -1100,7 +1122,20 @@ function change_page(offset, obj_select){
             if (lipidomics_forms_content["pages"].length <= i) break;
             
             var obj_option = document.createElement("option");
-            obj_option.innerHTML = lipidomics_forms_content["pages"][i]["title"];
+            var page_title = lipidomics_forms_content["pages"][i]["title"];
+            if (typeof page_title === 'object' && page_title !== null && !Array.isArray(page_title) && ("workflowtype" in field_map) && ("value" in field_map["workflowtype"])) {
+                var wt = field_map["workflowtype"]["value"];
+                if (wt in page_title){
+                    page_title = page_title[wt];
+                }
+                else if ("default" in page_title){
+                    page_title = page_title["default"];
+                }
+                else {
+                    page_title = "X";
+                }
+            }
+            obj_option.innerHTML = page_title;
             goto_select.append(obj_option);
         }
         goto_select.selectedIndex = lipidomics_forms_content["current_page"];

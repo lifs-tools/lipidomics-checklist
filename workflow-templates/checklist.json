@@ -29,7 +29,7 @@
 
 
 
-{"title": "Lipid extraction", "content": [
+{"title": {"default": "Lipid extraction", "img": "Sample preparation/source conditions"}, "content": [
 
 {"label": "Extraction method", "name": "extraction_method", "type": "select", "required": 0, "choice": [{"name": "extraction_method#1-phase_system", "label": "1-phase system", "value": 1}, {"name": "extraction_method#2-phase_system", "label": "2-phase system", "value": 0}, {"name": "extraction_method#solid-phase_extraction", "label": "Solid-Phase Extraction", "value": 0}, {"name": "extraction_method#other", "label": "Other", "value": 0}], "description": "Which type of lipid extraction was applied?", "condition": "workflowtype~'img'"},
 
@@ -65,7 +65,7 @@
 
 {"title": "Analytical platform", "content": [
 
-{"label": "Ionizaton additives", "name": "ionization_add", "type": "multiple", "required": 1, "description": "Which ionizaton additives are used?", "choice": [{"name": "ionization_add#amma", "label": "Ammonium acetate", "value": 0}, {"name": "ionization_add#ammf", "label": "Ammonium formate", "value": 0}, {"name": "ionization_add#fa", "label": "Formic acid", "value": 0}, {"name": "ionization_add#aa", "label": "Acetic acid", "value": 0}, {"name": "ionization_add#m", "label": "Methylamine", "value": 0}, {"name": "ionization_add#amm", "label": "Ammonia", "value": 0}, {"name": "ionization_add#lh", "label": "Lithium hydroxide", "value": 0}, {"name": "ionization_add#other", "label": "Other", "value": 0}]},
+{"label": "Ionizaton additives", "name": "ionization_add", "type": "multiple", "required": 1, "description": "Which ionizaton additives are used?", "choice": [{"name": "ionization_add#amma", "label": "Ammonium acetate", "value": 0}, {"name": "ionization_add#ammf", "label": "Ammonium formate", "value": 0}, {"name": "ionization_add#fa", "label": "Formic acid", "value": 0}, {"name": "ionization_add#aa", "label": "Acetic acid", "value": 0}, {"name": "ionization_add#m", "label": "Methylamine", "value": 0}, {"name": "ionization_add#amm", "label": "Ammonia", "value": 0}, {"name": "ionization_add#lh", "label": "Lithium hydroxide", "value": 0}, {"name": "ionization_add#other", "label": "Other", "value": 0}], "condition": "workflowtype~'img'"},
 
 {"label": "Other ionizaton additives", "name": "other_ionization_add", "type": "text", "required": 1, "value": "", "description": "Which other ionizaton additives are used?", "condition": "ionization_add#other=1"},
 
@@ -116,10 +116,6 @@
 {"label": "Other ion source (GC)", "name": "other_ion_source_gc", "type": "text", "required": 1, "value": "", "description": "Specify another ion source.", "condition": "ion_source_gc#other=1&detector#ms=1"},
 
 {"label": "Ionization energy", "name": "separation_window_1", "type": "number", "required": 1, "value": 0, "description": "Which ionization energy was used [eV]?", "min": 0.0, "condition": "workflowtype='sep'&ion_source_gc#ei=1&detector#ms=1"},
-
-{"label": "Imaging ion source", "name": "imaging_ion_source", "type": "select", "required": 0, "choice": [{"name": "imaging_ion_source#maldi", "label": "MALDI", "value": 1}, {"name": "imaging_ion_source#desi", "label": "DESI", "value": 0}, {"name": "imaging_ion_source#other", "label": "Other", "value": 0}], "description": "Which ion source was applied?", "condition": "workflowtype='img'"},
-
-{"label": "Other imaging ion source", "name": "other_imaging_ion_source", "type": "text", "required": 1, "value": "", "description": "Specify another imaging ion source.", "condition": "imaging_ion_source#other=1"},
 
 {"label": "Direct type", "name": "direct_type", "type": "select", "required": 0, "choice": [{"name": "direct_type#syringe", "label": "Syringe", "value": 1}, {"name": "direct_type#fia", "label": "FIA", "value": 0}, {"name": "direct_type#chip", "label": "Chip", "value": 0}, {"name": "direct_type#other", "label": "Other", "value": 0}], "description": "Which inlet was used for direct MS?", "condition": "workflowtype='di'&detector#ms=1"},
 
@@ -180,9 +176,9 @@
 
 
 
-{"title": "Quality control", "content": [
+{"title": {"default": "Quality control", "img": "Visualisation settings"}, "content": [
 
-{"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?"},
+{"label": "Blanks", "name": "blanks", "type": "select", "required": 0, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?", "condition": "workflowtype~'img'"},
 
 {"label": "Type of Blanks", "name": "type_of_blanks", "type": "multiple", "required": 1, "choice": [
 {"name": "type_of_blanks#extraction_blank", "label": "Extraction blank", "value": 1, "description": "Extraction of water/sample buffer"},
@@ -191,7 +187,27 @@
 
 {"label": "Quality control", "name": "quality_control", "type": "select", "required": 0, "choice": [{"name": "quality_control#yes", "label": "Yes", "value": 0}, {"name": "quality_control#no", "label": "No", "value": 1}], "description": "Were QC samples analyzed?"},
 
-{"label": "Type of QC sample", "name": "type_of_qc_sample", "type": "multiple", "required": 1, "choice": [{"name": "type_of_qc_sample#commercial_sample", "label": "Commercial sample", "value": 0}, {"name": "type_of_qc_sample#sample_pool", "label": "Sample pool", "value": 0}, {"name": "type_of_qc_sample#reference_material", "label": "Reference material", "value": 0}], "description": "Which types of QC samples were analyzed?", "condition": "quality_control#yes=1"}
+{"label": "Type of QC sample", "name": "type_of_qc_sample", "type": "multiple", "required": 1, "choice": [{"name": "type_of_qc_sample#commercial_sample", "label": "Commercial sample", "value": 0}, {"name": "type_of_qc_sample#sample_pool", "label": "Sample pool", "value": 0}, {"name": "type_of_qc_sample#reference_material", "label": "Reference material", "value": 0}], "description": "Which types of QC samples were analyzed?", "condition": "quality_control#yes=1"},
+
+{"label": "Off-sample", "name": "off_sample", "type": "select", "required": 0, "choice": [{"name": "off_sample#yes", "label": "Yes", "value": 0}, {"name": "off_sample#no", "label": "No", "value": 1}], "description": "Were mass spectra from an area 'off-sample' (background) obtained/investigated?", "condition": "workflowtype='img'"},
+
+{"label": "Mass spectra recalibrated", "name": "recalibrated", "type": "select", "required": 0, "choice": [{"name": "recalibrated#yes", "label": "Yes", "value": 0}, {"name": "recalibrated#no", "label": "No", "value": 1}], "description": "E.g., through RecalOffline?", "condition": "workflowtype='img'"},
+
+{"label": "Visualisation", "name": "visualization", "type": "select", "required": 0, "choice": [{"name": "visualization#no", "label": "No", "value": 1}, {"name": "visualization#SCILS", "label": "SCILS", "value": 0}, {"name": "visualization#lipostar", "label": "Lipostar", "value": 0}, {"name": "visualization#HDI", "label": "HDI", "value": 0}, {"name": "visualization#ii", "label": "imageInsight", "value": 0}, {"name": "visualization#mastek", "label": "Mastek", "value": 0}, {"name": "visualization#other", "label": "other", "value": 0}], "description": "Was a visualisation/processing tool used?", "condition": "workflowtype='img'"},
+
+{"label": "Other visualisation", "name": "other_visualization", "type": "text", "required": 1, "value": "", "description": "Which other visualisation/processing tool was used?", "condition": "visualization#other=1"},
+
+{"label": "Peak selection window unit", "name": "window_unit", "type": "select", "required": 0, "choice": [{"name": "window_unit#ppm", "label": "ppm", "value": 1}, {"name": "window_unit#da", "label": "Da", "value": 0}], "condition": "workflowtype='img'"},
+
+{"label": "Peak selection window [ppm]", "name": "selection_window_ppm", "type": "number", "required": 1, "value": 1, "min": 1, "max": 20, "condition": "workflowtype='img'&window_unit#ppm=1"},
+
+{"label": "Peak selection window [Da]", "name": "selection_window_da", "type": "number", "required": 1, "value": 0.0001, "min": 0.0001, "max": 0.1, "step": 0.0001, "condition": "workflowtype='img'&window_unit#da=1"},
+
+{"label": "Peak inclusion", "name": "peak_inclusion", "type": "select", "required": 0, "choice": [{"name": "peak_inclusion#yes", "label": "Yes", "value": 0}, {"name": "peak_inclusion#no", "label": "No", "value": 1}], "description": "Were % base peak or absolute intensity thresholds used for peak inclusion?", "condition": "workflowtype='img'"},
+
+{"label": "Scale bar included", "name": "scale_bar", "type": "select", "required": 0, "choice": [{"name": "scale_bar#yes", "label": "Yes", "value": 0}, {"name": "scale_bar#no", "label": "No", "value": 1}], "description": "Was a scale bar included?", "condition": "workflowtype='img'"},
+
+{"label": "Spectral intensity bar included", "name": "intensity_bar", "type": "select", "required": 0, "choice": [{"name": "intensity_bar#yes", "label": "Yes", "value": 0}, {"name": "intensity_bar#no", "label": "No", "value": 1}], "description": "Was a spectral intensity bar (with clearly defined range metric) included?", "condition": "workflowtype='img'"}
 
 ]},
 
@@ -215,7 +231,17 @@
 
 {"label": "Guidelines followed", "name": "guidelines_followed", "type": "select", "required": 0, "choice": [{"name": "guidelines_followed#fda", "label": "FDA", "value": 0}, {"name": "guidelines_followed#ema", "label": "EMA", "value": 0}, {"name": "guidelines_followed#none", "label": "None", "value": 1}, {"name": "guidelines_followed#other", "label": "Other", "value": 0}], "description": "Was a guideline followed for method validation?", "condition": "method_validation#yes=1"},
 
-{"label": "Other guidelines followed", "name": "other_guidelines_followed", "type": "text", "required": 1, "value": "", "description": "Which other guidelines were followed?", "condition": "guidelines_followed#other=1"}
+{"label": "Other guidelines followed", "name": "other_guidelines_followed", "type": "text", "required": 1, "value": "", "description": "Which other guidelines were followed?", "condition": "guidelines_followed#other=1"},
+
+{"label": "Microscopy images", "name": "microscopy_images", "type": "select", "required": 0, "choice": [{"name": "microscopy_images#exact", "label": "Exact sample", "value": 0}, {"name": "microscopy_images#adjacent", "label": "Adjacent sample", "value": 0}, {"name": "microscopy_images#no", "label": "no", "value": 1}], "description": "Are there microscopy images of the sample obtained in conjunction with the MSI?", "condition": "workflowtype='img'"},
+
+{"label": "Staining techniques", "name": "staining_techniques", "type": "select", "required": 0, "choice": [{"name": "staining_techniques#he", "label": "H&E", "value": 0}, {"name": "staining_techniques#NISSL", "label": "NISSL", "value": 0}, {"name": "staining_techniques#LFB", "label": "LFB", "value": 0}, {"name": "staining_techniques#oil", "label": "Oil red", "value": 0}, {"name": "staining_techniques#other", "label": "other", "value": 0}, {"name": "staining_techniques#no", "label": "no", "value": 1}], "description": "Were staining techniques used to enhance micrograph contrast?", "condition": "workflowtype='img'"},
+
+{"label": "Other staining techniques", "name": "other_staining_techniques", "type": "text", "required": 1, "value": "", "description": "Which other staining techniques used to enhance micrograph contrast?", "condition": "staining_techniques#other=1"},
+
+{"label": "Agreeance in co-registration", "name": "coregistration", "type": "select", "required": 0, "choice": [{"name": "coregistration#yes", "label": "Yes", "value": 0}, {"name": "coregistration#no", "label": "No", "value": 1}], "description": "Do MSI and microscopy images display close agreeance in co-registration?", "condition": "workflowtype='img'"},
+
+{"label": "Lipid signals", "name": "lipid_signals", "type": "multiple", "required": 0, "choice": [{"name": "lipid_signals#FA", "label": "FA", "value": 0}, {"name": "lipid_signals#GPL", "label": "GPL", "value": 0}, {"name": "lipid_signals#GL", "label": "GL", "value": 0}, {"name": "lipid_signals#SP", "label": "SP", "value": 0}, {"name": "lipid_signals#ST", "label": "ST", "value": 0}, {"name": "lipid_signals#SL", "label": "SL", "value": 0}, {"name": "lipid_signals#PK", "label": "PK", "value": 0}, {"name": "lipid_signals#PR", "label": "PR", "value": 0}], "description": "In an area perceived to be off-sample, are there lipid signals present?", "condition": "workflowtype='img'"}
 
 ]}, 
 

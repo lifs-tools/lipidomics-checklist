@@ -200,6 +200,12 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields, version)
     version = version[0]
 
+    for i in range(len(titles)):
+        if type(titles[i] == dict):
+            if workflow_type in titles[i]: titles[i] = titles[i][workflow_type]
+        elif "default" in titles[i]: titles[i] = titles[i]["default"]
+        else: titles[i] = "NA"
+
     ## fill sample specific data
     sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = %i;" % (table_prefix, entry_id)
     mycursor.execute(sql)
