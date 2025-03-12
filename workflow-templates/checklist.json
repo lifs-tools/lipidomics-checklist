@@ -51,11 +51,147 @@
 
 {"label": "Other Solid-Phase Extraction", "name": "other_solid-phase_extraction", "type": "text", "required": 1, "value": "", "description": "Which other solid-phase extraction was applied?", "condition": "solid-phase_extraction#other=1"},
 
-{"label": "Were internal standards added prior extraction?", "name": "internal_standards", "type": "select", "required": 0, "choice": [{"name": "internal_standards#yes", "label": "Yes", "value": 1}, {"name": "internal_standards#no", "label": "No", "value": 0}], "description": ""},
+{"label": "Special conditions", "name": "special_conditions", "type": "text", "value": "", "description": "Were special sample extraction conditions applied, such as low/high temperature, precautions (e.g., antioxidants), intensive mixing, sonication, or other?", "condition": "workflowtype~'img'"},
 
-{"label": "Special conditions", "name": "special_conditions", "type": "text", "value": "", "description": "Were special sample extraction conditions applied, such as low/high temperature, precautions (e.g., antioxidants), intensive mixing, sonication, or other?"},
+{"label": "Derivatization", "name": "derivatization", "type": "text", "value": "", "description": "Please specify a derivatization, if applicable.", "condition": "workflowtype~'img'"},
 
-{"label": "Derivatization", "name": "derivatization", "type": "text", "value": "", "description": "Please specify a derivatization, if applicable."}
+{"label": "Desiccation time [days]", "name": "desiccation_time", "type": "number", "required": 1, "value": 0, "min": 0.0, "max": 100, "condition": "workflowtype='img'"},
+
+{"label": "Tissue/sample washing", "name": "tissue_washing", "type": "select", "required": 0, "choice": [{"name": "tissue_washing#yes", "label": "Yes", "value": 0}, {"name": "tissue_washing#no", "label": "No", "value": 1}], "description": "Was tissue/sample washing employed?", "condition": "workflowtype='img'"},
+
+{"label": "What washing", "name": "what_washing", "type": "text", "required": 1, "value": "", "description": "How was the tissue/sample wasing employed?", "condition": "tissue_washing#yes=1"},
+
+{"label": "Additional sample chemistry", "name": "additional_chemistry", "type": "select", "required": 0, "choice": [{"name": "additional_chemistry#yes", "label": "Yes", "value": 0}, {"name": "additional_chemistry#no", "label": "No", "value": 1}], "description": "Was additional sample chemistry (e.g., enzyme digestion, derivatization) employed?", "condition": "workflowtype='img'"},
+
+{"label": "What chemistry", "name": "what_chemistry", "required": 1, "type": "text", "value": "", "description": "What additional sample chemistry (e.g., enzyme digestion, derivatization) was employed?", "condition": "additional_chemistry#yes=1"},
+
+{"label": "Were internal standards added prior extraction?", "name": "internal_standards", "type": "select", "required": 0, "choice": [{"name": "internal_standards#yes", "label": "Yes", "value": 0}, {"name": "internal_standards#no", "label": "No", "value": 1}]},
+
+{"label": "Source type", "name": "source_type", "type": "select", "required": 0, "choice": [
+    {"name": "source_type#MALDI", "label": "MALDI", "value": 1},
+    {"name": "source_type#LDI", "label": "LDI", "value": 0},
+    {"name": "source_type#LAESI", "label": "LAESI", "value": 0},
+    {"name": "source_type#IRMALDESI", "label": "IR-MALDESI", "value": 0},
+    {"name": "source_type#DESI", "label": "DESI", "value": 0},
+    {"name": "source_type#nanoDESI", "label": "nano-DESI", "value": 0},
+    {"name": "source_type#LESA", "label": "LESA", "value": 0},
+    {"name": "source_type#SIMS", "label": "SIMS", "value": 0},
+    {"name": "source_type#REIMS", "label": "REIMS", "value": 0},
+    {"name": "source_type#other", "label": "other", "value": 0}
+], "condition": "workflowtype='img'"},
+
+{"label": "Other source type", "name": "other_source_type", "type": "text", "required": 1, "value": "", "description": "Which other source type was used?", "condition": "source_type#other=1"},
+
+{"label": "Imaging mode", "name": "imaging_mode", "type": "select", "required": 0, "choice": [{"name": "imaging_mode#discrete", "label": "Discrete spot", "value": 0}, {"name": "imaging_mode#raster", "label": "Raster mode", "value": 1}], "condition": "workflowtype='img'"},
+
+{"label": "Sample stage velocity [mm/s]", "name": "stage_velocity", "type": "number", "value": 0.1, "min": 0.1, "max": 10, "step": 0.1, "condition": "imaging_mode#raster=1"},
+
+{"label": "Scanning pattern", "name": "scan_pattern", "type": "select", "required": 0, "choice": [
+    {"name": "scan_pattern#hfb", "label": "Horizontal fly back", "value": 1},
+    {"name": "scan_pattern#vfb", "label": "Vertical fly back", "value": 0},
+    {"name": "scan_pattern#hm", "label": "Horizontal meandering", "value": 0},
+    {"name": "scan_pattern#vms", "label": "Vertical meandering spiral", "value": 0},
+    {"name": "scan_pattern#other", "label": "other", "value": 0}
+], "condition": "workflowtype='img'"},
+
+{"label": "Other scanning pattern", "name": "other_scan_pattern", "type": "text", "required": 1, "value": "", "description": "Which other scanning pattern was applied?", "condition": "scan_pattern#other=1"},
+
+{"label": "Scan duration [scans/s]", "name": "scan_duration", "type": "number", "value": 0, "min": 0, "condition": "imaging_mode#raster=1"},
+
+{"label": "Matrix used", "name": "matrix_used", "type": "select", "required": 0, "choice": [
+    {"name": "matrix_used#25dha", "label": "2,5-DHA", "value": 1},
+    {"name": "matrix_used#dhb", "label": "DHB", "value": 0},
+    {"name": "matrix_used#norharmane", "label": "Norharmane", "value": 0},
+    {"name": "matrix_used#da", "label": "DA", "value": 0},
+    {"name": "matrix_used#9aahaba", "label": "9-AA HABA", "value": 0},
+    {"name": "matrix_used#dan", "label": "DAN", "value": 0},
+    {"name": "matrix_used#chca", "label": "CHCA", "value": 0},
+    {"name": "matrix_used#nedc", "label": "NEDC", "value": 0},
+    {"name": "matrix_used#other", "label": "other", "value": 0}
+], "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Other matrix used", "name": "other_matrix_used", "type": "text", "required": 1, "value": "", "description": "Which other matrix was used?", "condition": "matrix_used#other=1"},
+
+{"label": "Dopants", "name": "dopants", "type": "multiple", "required": 0, "choice": [
+    {"name": "dopants#fa", "label": "Formic acid", "value": 0},
+    {"name": "dopants#nh4oac", "label": "NH4OAc", "value": 0},
+    {"name": "dopants#other", "label": "other", "value": 0}
+], "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Other dopants", "name": "other_dopants", "type": "text", "required": 1, "value": "", "description": "Which other dopants were used?", "condition": "dopants#other=1"},
+
+{"label": "Matrix deposition method and device", "name": "deposition", "type": "select", "required": 0, "choice": [
+    {"name": "deposition#sublimation", "label": "Sublimation", "value": 1},
+    {"name": "deposition#spraying", "label": "Spraying", "value": 0},
+    {"name": "deposition#other", "label": "other", "value": 0}
+], "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Other deposition", "name": "other_deposition", "type": "text", "required": 1, "value": "", "description": "What other deposition was used?", "condition": "deposition#other=1"},
+
+{"label": "Laser wavelength [nm]", "name": "wavelength", "type": "number", "value": 100, "min": 100, "max": 20000, "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Laser pulse energy [\u00b5J]", "name": "pulse_energy", "type": "number", "value": 0.1, "min": 0.1, "max": 10000, "step": 0.1, "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Frequency [Hz]", "name": "frequency", "type": "number", "value": 1, "min": 1, "max": 50000, "description": "1 Hz would be continuous laser", "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Laser shots per pixel", "name": "laser_shots", "type": "number", "value": 1, "min": 1, "max": 5000, "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Laser spot size [\u00b5m]", "name": "laser_spot_size", "type": "number", "value": 0.1, "min": 0.1, "max": 1000, "step": 0.1, "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
+
+{"label": "Spray solution", "name": "spray_solution", "type": "text", "required": 1, "value": "", "condition": "source_type#DESI=1|source_type#nanoDESI=1|source_type#LESA=1"},
+
+{"label": "Flow rate [mL/min]", "name": "flow_rate", "type": "number", "value": 0.1, "min": 0.1, "step": 0.1, "condition": "source_type#DESI=1|source_type#nanoDESI=1|source_type#LESA=1"},
+
+{"label": "Pressure [psi]", "name": "pressure", "type": "number", "value": 1, "min": 1, "max": 10, "step": 0.01, "condition": "source_type#DESI=1|source_type#nanoDESI=1|source_type#LESA=1"},
+
+{"label": "Spray voltage [V]", "name": "spray_voltage", "type": "number", "value": 0.1, "min": 0.1, "max": 10, "step": 0.1, "condition": "source_type#DESI=1|source_type#nanoDESI=1|source_type#LESA=1"},
+
+{"label": "Primary ion type", "name": "ion_type", "type": "select", "required": 0, "choice": [
+    {"name": "ion_type#argon", "label": "Argon", "value": 1},
+    {"name": "ion_type#oxygen", "label": "Oxygen", "value": 0},
+    {"name": "ion_type#sf6", "label": "SF6", "value": 0},
+    {"name": "ion_type#c60", "label": "C60", "value": 0},
+    {"name": "ion_type#cesium", "label": "Cesium", "value": 0},
+    {"name": "ion_type#liq_metal", "label": "Liquid metal", "value": 0},
+    {"name": "ion_type#cluster", "label": "Water cluster", "value": 0},
+    {"name": "ion_type#other", "label": "other", "value": 0}
+], "condition": "source_type#SIMS=1"},
+
+{"label": "Other primary ion type", "name": "other_ion_type", "type": "text", "required": 1, "value": "", "description": "Which other primary ion type was used?", "condition": "ion_type#other=1"},
+
+{"label": "Average cluster size", "name": "cluster_size", "type": "number", "value": 1, "min": 1, "condition": "ion_type#cluster=1"},
+
+{"label": "Beam type", "name": "beam_type", "type": "select", "required": 0, "choice": [
+    {"name": "beam_type#pulsed", "label": "Pulsed", "value": 1},
+    {"name": "beam_type#continuous", "label": "Continuous", "value": 0}
+], "condition": "source_type#SIMS=1"},
+
+{"label": "Ion dose [primary ions/cm\u00b2]", "name": "ion_dose", "type": "text", "value": "", "condition": "source_type#SIMS=1"},
+
+{"label": "Sputter/depth profiling?", "name": "sputter", "type": "select", "required": 0, "choice": [{"name": "sputter#yes", "label": "Yes", "value": 0}, {"name": "sputter#no", "label": "No", "value": 1}], "condition": "source_type#SIMS=1"},
+
+{"label": "Profiling type", "name": "profiling_type", "type": "text", "required": 1, "description": "Please specify profiling type", "value": "", "condition": "sputter#yes=1"},
+
+{"label": "Beam acceleration voltage [kV]", "name": "beam_voltage", "type": "number", "value": 1, "min": 1, "max": 50, "condition": "source_type#SIMS=1"},
+
+{"label": "Beam current [pA]", "name": "beam_current", "type": "number", "value": 0.01, "min": 0.01, "max": 50000, "step": 0.01, "condition": "source_type#SIMS=1"},
+
+{"label": "Beam diameter / spot size [\u00b5m]", "name": "beam_diameter", "type": "number", "value": 0.05, "min": 0.05, "max": 50, "step": 0.05, "condition": "source_type#SIMS=1"},
+
+{"label": "Beam frequency [Hz]", "name": "beam_frequency", "type": "number", "value": 1, "min": 1, "max": 100000, "condition": "source_type#SIMS=1"},
+
+{"label": "Acquisition time per pixel [s]", "name": "acquisition_time", "type": "text", "condition": "source_type#SIMS=1"},
+
+{"label": "Post-ionization employed?", "name": "post_ionization", "type": "select", "required": 0, "choice": [{"name": "post_ionization#yes", "label": "Yes", "value": 0}, {"name": "post_ionization#no", "label": "No", "value": 1}], "condition": "workflowtype='img'"},
+
+{"label": "Post-ionization type", "name": "post_ionization_type", "type": "select", "required": 0, "choice": [
+    {"name": "post_ionization_typee#MALDESI", "label": "MALDESI", "value": 1},
+    {"name": "post_ionization_type#MALDI2", "label": "MALDI2", "value": 0},
+    {"name": "post_ionization_type#Plasma", "label": "Plasma", "value": 0},
+    {"name": "post_ionization_type#other", "label": "other", "value": 0}
+], "condition": "post_ionization#yes=1"},
+
+{"label": "Other post-ionization type", "name": "other_post_ionization_type", "type": "text", "required": 1, "value": "", "description": "Which other post-ionization type was applied?", "condition": "post_ionization_type#other=1"}
 
 ]},
 

@@ -152,7 +152,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 
 def unicoding(t):
     #t = t.replace("\\", "\\backslash").replace("&", "\&").replace("%", "").replace("$", "")
-    encoded = "".join(["{\ }" if ord(c) == 32 else "\\char\"%s" % hex(ord(c))[2:].upper() for c in t])
+    encoded = "".join(["{\\ }" if ord(c) == 32 else "\\char\"%s" % hex(ord(c))[2:].upper() for c in t])
     #encoded = "".join([c for c in t if ord(c) < 256])
     #return encoded.replace("\\", "\\backslash").replace("&", "\&").replace("%", "\%")
     return encoded
