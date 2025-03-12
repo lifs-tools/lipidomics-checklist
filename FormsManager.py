@@ -1968,7 +1968,7 @@ try:
                 report_file = "completed_documents/report-%s.tex" % hash_value
                 
                 CreateReport.create_report(db_cursor, table_prefix, uid, entry_id, report_file)
-                p = subprocess.Popen("/usr/bin/lualatex -output-directory=completed_documents %s" % report_file, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, close_fds = True)
+                p = subprocess.Popen("./latexmk -pdflatex=lualatex -pdf -output-directory=completed_documents %s" % report_file, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, close_fds = True)
                 
                 output = p.stdout.read() # execution
                 
