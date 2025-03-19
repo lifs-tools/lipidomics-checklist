@@ -10,9 +10,16 @@
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 
-{"label": "Is the workflow targeted or untargeted?", "name": "workflow_targeted", "type": "select", "required": 0, "choice": [{"name": "workflow_targeted#targeted", "label": "Targeted", "value": 1}, {"name": "workflow_targeted#untargeted", "label": "Untargeted", "value": 0}], "description": "Targeted workflows are typically based on Single Ion Monitoring (SIM) or Selected Reaction Monitoring (SRM). Workflows based on scans are considered untargeted."},
+{"label": "Is the workflow targeted or untargeted?", "name": "workflow_targeted", "type": "select", "required": 1, "choice": [{"name": "workflow_targeted#targeted", "label": "Targeted", "value": 1}, {"name": "workflow_targeted#untargeted", "label": "Untargeted", "value": 0}], "description": "Targeted workflows are typically based on Single Ion Monitoring (SIM) or Selected Reaction Monitoring (SRM). Workflows based on scans are considered untargeted."},
 
-{"label": "Clinical", "name": "clinical", "type": "select", "required": 0, "choice": [{"name": "clinical#yes", "label": "Yes", "value": 1}, {"name": "clinical#no", "label": "No", "value": 0}], "description": "Clinical lipidomics refers to studies on human samples using a quantitative and validated method. It refers not only to studies using a clinical diagnostic method, but also to studies aimed at developing and validating lipids for clinical applications."}
+{"label": "Clinical", "name": "clinical", "type": "select", "required": 0, "choice": [{"name": "clinical#yes", "label": "Yes", "value": 1}, {"name": "clinical#no", "label": "No", "value": 0}], "description": "Clinical lipidomics refers to studies on human samples using a quantitative and validated method. It refers not only to studies using a clinical diagnostic method, but also to studies aimed at developing and validating lipids for clinical applications."},
+
+
+{"label": "Funny number", "name": "funny_number", "type": "number", "required": 0, "value": 0, "description": "What so ever!"},
+
+{"label": "Funny text", "name": "funny_text", "type": "text", "required": 1, "value": "", "condition": "funny_number=1"}
+
+
 
 ]},
 
@@ -114,7 +121,7 @@
 
 {"label": "Dopants", "name": "dopants", "type": "multiple", "required": 0, "choice": [
     {"name": "dopants#fa", "label": "Formic acid", "value": 0},
-    {"name": "dopants#nh4oac", "label": "NH4OAc", "value": 0},
+    {"name": "dopants#nh4oac", "label": "NH<sub>4</sub>OAc", "value": 0},
     {"name": "dopants#other", "label": "other", "value": 0}
 ], "condition": "source_type#MALDI=1|source_type#LDI=1|source_type#LAESI=1|source_type#IRMALDESI=1"},
 

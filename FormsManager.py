@@ -1983,6 +1983,8 @@ try:
                 print("/%s/%s" % (path_name, pdf_file))
 
         except Exception as e:
+            import traceback
+            ee = (''.join(traceback.format_tb(e.__traceback__)))
             print(str(ErrorCodes.ERROR_ON_CREATING_PDF) + " in %s" % content["command"], e)
 
         finally:

@@ -84,34 +84,39 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                         try:
                             value = float(value)
                         except:
-                            continue;
+                            continue
                     conjunction.append([key, operator, value])
                     
                 condition.append(conjunction)
             conditions[field_name] = condition
     
     
-    
     for page in result["pages"]:
         for field in page["content"]:
-            if "condition" not in field or len(field["condition"]) == 0: continue
             field_name = field["name"]
+            if "type" in field and field["type"] in {"number", "select"} \
+                and (("required" not in field) or (field["required"] == 0)) \
+                and (("activated" not in field) or (field["activated"] == 0)):
+                    visible[field_name] = False
+
+            if "condition" not in field or len(field["condition"]) == 0: continue
             visible[field_name] = False
             for condition_and in conditions[field_name]:
                 condition_met = True
                 for single_condition in condition_and:
                     key, operator, value = single_condition
                     conditional_field = choice_to_field[key]
-                    condition_met &= (conditional_field in visible and visible[conditional_field]) and ((operator == "=" and field_map[key]["value"] == value) or (operator == "~" and field_map[key]["value"] != value))
+                    condition_met &= (("required" not in field_map[key])) or (("activated" in field_map[key]) and (field_map[key]["activated"] == 1))
+
+                    field_value = field_map[key]["value"] if ("type" not in field_map[key] or field_map[key]["type"] != "number") else float(field_map[key]["value"])
+                    condition_met &= (conditional_field in visible and visible[conditional_field]) and ((operator == "=" and field_value == value) or (operator == "~" and field_value != value))
                 visible[field_name] |= condition_met
     
     
     for page in result["pages"]:
         titles.append(page["title"])
         report_fields.append([])
-        
         values = {}
-        
         for field in page["content"]:
             if "type" not in field or "name" not in field or "label" not in field: continue
             if field["name"] in visible and not visible[field["name"]]: continue
@@ -201,10 +206,10 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     version = version[0]
 
     for i in range(len(titles)):
-        if type(titles[i] == dict):
+        if type(titles[i]) == dict:
             if workflow_type in titles[i]: titles[i] = titles[i][workflow_type]
-        elif "default" in titles[i]: titles[i] = titles[i]["default"]
-        else: titles[i] = "NA"
+            elif "default" in titles[i]: titles[i] = titles[i]["default"]
+            else: titles[i] = "NA"
 
     ## fill sample specific data
     sql = "SELECT sample_form_entry_id FROM %sconnect_sample WHERE main_form_entry_id = %i;" % (table_prefix, entry_id)
@@ -225,6 +230,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
             
         sample_report_fields.append(tmp_report_fields[0])
            
+
         
 
     ## fill lipid class specific data

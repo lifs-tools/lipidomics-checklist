@@ -524,11 +524,28 @@ function load_data(content){
                 if (!("label" in field)) continue;
                 if (!("value" in field)) field["value"] = "";
                 if (!("description" in field)) field["description"] = "";
+
+                // Adding the optional checkbox
+                var obj_optional = document.createElement("input");
+                var optional = !("required" in field) || (field["required"] == 0);
+                var optional_activated = ("activated" in field) && (field["activated"] == 1);
+
+                if (optional){
+                    obj.append(obj_optional);
+                    obj_optional.type = "checkbox";
+                    obj_optional.field_name = field_name;
+                    obj_optional.checked = optional_activated;
+                    obj_optional.content = field;
+                    obj_optional.style.display = "inline-block";
+                    obj_optional.style.marginRight = "10px";
+                    obj_optional.setAttribute('onchange','update_optional(this);');
+                }
                 
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
                 obj_title.className = "lipidomics-forms-field-title";
                 obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                obj_title.style.display = "inline-block";
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
                 }
@@ -550,6 +567,10 @@ function load_data(content){
                 obj_content.append(obj_input);
                 obj.append(obj_content);
                 dom_text_fields[field_name] = obj_input;
+                if (optional){
+                    obj_input.disabled = !optional_activated;
+                    obj_optional.dom_object = obj_input;
+                }
                 
                 // Adding description of the field if present
                 if (field["description"].length > 0){
@@ -639,6 +660,21 @@ function load_data(content){
                 if (!("label" in field) || !("choice" in field)) continue;
                 if (!("description" in field)) field["description"] = "";
                 
+                // Adding the optional checkbox
+                var obj_optional = document.createElement("input");
+                var optional = !("required" in field) || (field["required"] == 0);
+                var optional_activated = ("activated" in field) && (field["activated"] == 1);
+
+                if (optional){
+                    obj.append(obj_optional);
+                    obj_optional.type = "checkbox";
+                    obj_optional.field_name = field_name;
+                    obj_optional.checked = optional_activated;
+                    obj_optional.content = field;
+                    obj_optional.style.display = "inline-block";
+                    obj_optional.style.marginRight = "10px";
+                    obj_optional.setAttribute('onchange','update_optional(this);');
+                }
                 
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
@@ -647,7 +683,9 @@ function load_data(content){
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
                 }
+                obj_title.style.display = "inline-block";
                 obj.append(obj_title);
+
                 
                 // Adding the checkbox fields of the field
                 var obj_content = document.createElement("div");
@@ -659,6 +697,10 @@ function load_data(content){
                 dom_select_fields[field_name] = obj_select;
                 var selectedIndex = 0;
                 var cnt = 0;
+                if (optional){
+                    obj_select.disabled = !optional_activated;
+                    obj_optional.dom_object = obj_select;
+                }
                 
                 if (field_name == "lipid_class"){
                     lipid_class_abbreviations = [];
@@ -934,6 +976,18 @@ function update_number(form){
 }
 
 
+
+function update_optional(form){
+    if (!form_enabled) return;
+
+    var field_name = form.field_name;
+    console.log(field_name);
+    form.dom_object.disabled = !form.checked;
+    form.content["activated"] = form.checked ? 1 : 0;
+    check_conditions();
+}
+
+
                 
 function update_choice(form){
     if (!form_enabled) return;
@@ -978,6 +1032,7 @@ function check_conditions(immediate){
                 var operator = single_condition[1];
                 var value = single_condition[2];
                 var conditional_field = choice_to_field[key];
+                condition_met &= (!("required" in field_map[conditional_field])) || (("activated" in field_map[conditional_field]) && (field_map[conditional_field]["activated"] == 1));
                 condition_met &= (conditional_field in field_visible && field_visible[conditional_field]) && ((operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value));
             }
             field_visible[field_name] |= condition_met;
@@ -1015,6 +1070,8 @@ function check_requirements(){
         
         if (!("required" in field) || field["required"] == 0) continue;
         if (!field_visible[form_name]) continue;
+
+        if (field["type"] == "select" || field["type"] == "number") continue;
         
         if (field["type"] == "text"){
             if (field["value"].length > 0){
