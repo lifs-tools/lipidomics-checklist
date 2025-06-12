@@ -230,6 +230,7 @@ function update_main_forms(){
 
 
 function update_published_reports(){
+    return;
     var xmlhttp_request = new XMLHttpRequest();
     
     xmlhttp_request.onreadystatechange = function() {

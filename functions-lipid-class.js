@@ -121,7 +121,7 @@ function update_class_forms() {
             }
             
             if (document.getElementById("viewtable-lipid-class") == undefined) return;
-            
+
             document.getElementById("viewtable-lipid-class").resetTable();
             has_partial_lipid_class = false;
             var response = JSON.parse(response_text);
@@ -190,8 +190,6 @@ function update_class_forms() {
                 chb_entry.id = row["entry_id"];
                 table_row.push([chb_entry]);
                 checkbox_selection_lipid_class.push(chb_entry);
-                
-                
                 
                 document.getElementById("viewtable-lipid-class").addRow(table_row);
             }

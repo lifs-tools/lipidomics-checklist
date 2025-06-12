@@ -12,6 +12,7 @@ var dom_text_fields = {};
 var dom_select_fields = {};
 var dom_input_table_fields = {};
 var form_enabled = true;
+var form_version = null;
 var entry_id = null;
 var workflow_type = null;
 var choice_to_field = {};
@@ -20,6 +21,44 @@ var ILSGreenLight = "#B2D67E";
 var ILSGreenCell = "#E5F1D4";
 var goto_select = document.createElement("select");
 goto_select.className = "lipidomics-forms-select";
+
+function isNumber(n) {
+    return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
+}
+
+function split_verison_number(text_version){
+    version_array = [1, 0, 0];
+
+    text_version = text_version.split(".");
+    if (text_version.length != 3 || text_version[0].length < 2) return version_array;
+    text_version[0] = text_version[0].substring(1);
+
+    if (!isNumber(text_version[0]) || !isNumber(text_version[1]) || !isNumber(text_version[2])) return version_array;
+
+    version_array[0] = parseInt(text_version[0]);
+    version_array[1] = parseInt(text_version[1]);
+    version_array[2] = parseInt(text_version[2]);
+
+    return version_array;
+}
+
+
+function is_first_version_higher(first_version, version_to_test){
+    if (first_version == null || version_to_test == null) return false;
+
+    first_version_array = split_verison_number(first_version);
+    version_to_test_array = split_verison_number(version_to_test);
+
+    return (
+        (version_to_test_array[0] < first_version_array[0]) ||
+        (version_to_test_array[0] == first_version_array[0]) && (
+            (version_to_test_array[1] < first_version_array[1]) ||
+            (version_to_test_array[1] == first_version_array[1]) && (
+                (version_to_test_array[2] < first_version_array[2])
+            )
+        )
+    );
+}
 
 
 
@@ -183,6 +222,7 @@ function load_data(content){
     lipid_class_abbreviations = [];
     
     form_enabled = true;
+    form_version = ("version" in content) ? content["version"] : "v1.0.0";
     
     if (workflow_type == "sample"){
         document.getElementById("back_button").innerHTML = "Back to Preanalytics / Sample material";
@@ -852,55 +892,37 @@ function load_data(content){
     
     if (workflow_type == "lipid-class"){
         if ("lipid_class" in dom_select_fields) dom_select_fields["lipid_class"].addEventListener("change", change_frag_used_suggestions);
-        if ("polarity_mode" in dom_select_fields) dom_select_fields["polarity_mode"].addEventListener("change", change_frag_used_suggestions);
-        if ("type_pos_ion" in dom_select_fields) dom_select_fields["type_pos_ion"].addEventListener("change", change_frag_used_suggestions);
-        if ("type_neg_ion" in dom_select_fields) dom_select_fields["type_neg_ion"].addEventListener("change", change_frag_used_suggestions);
-        if ("other_pos_ion" in dom_text_fields) dom_text_fields["other_pos_ion"].addEventListener("change", change_frag_used_suggestions);
-        if ("other_neg_ion" in dom_text_fields) dom_text_fields["other_neg_ion"].addEventListener("change", change_frag_used_suggestions);
+        if ("adduct_ms2" in dom_select_fields) dom_select_fields["adduct_ms2"].addEventListener("change", change_frag_used_suggestions);
+        if ("other_adduct_ms2" in dom_text_fields) dom_text_fields["other_adduct_ms2"].addEventListener("change", change_frag_used_suggestions);
+
         if (("frag_used" in dom_input_table_fields) && ("internal_standard_ms2" in dom_input_table_fields)){
             dom_input_table_fields["frag_used"].addEventListener("change", change_internal_standard_ms2_suggestions);
         }
     }
-    
     change_frag_used_suggestions();
     change_internal_standard_ms2_suggestions();
 }
 
 
 function change_frag_used_suggestions(){
-    if (!("lipid_class" in dom_select_fields) || !("polarity_mode" in dom_select_fields) || !("frag_used" in dom_input_table_fields)) return;
+    if (!("lipid_class" in dom_select_fields) ||
+        !("adduct_ms2" in dom_select_fields) ||
+        !("other_adduct_ms2" in dom_text_fields) ||
+        !("frag_used" in dom_input_table_fields)
+    ) return;
+
     
     var lipid_class_select = dom_select_fields["lipid_class"];
-    var polarity_select = dom_select_fields["polarity_mode"];
     dom_input_table_fields["frag_used"].addSuggestions(0, []);
     
     if (lipid_class_abbreviations.length == 0 || lipid_class_abbreviations.length < lipid_class_select.selectedIndex) return;
     
     var lipid_class_name = lipid_class_abbreviations[lipid_class_select.selectedIndex];
-    var polarity = polarity_select[polarity_select.selectedIndex].value;
     var adduct = "";
-    if (polarity == "Positive" && ("type_pos_ion" in dom_select_fields)){
-        adduct = dom_select_fields["type_pos_ion"][dom_select_fields["type_pos_ion"].selectedIndex].value;
-        if (adduct == "Other"){
-            if ("other_pos_ion" in dom_text_fields){
-                adduct = dom_text_fields["other_pos_ion"].value;
-            }
-            else {
-                adduct = "";
-            }
-        }
-    }
-    else if (polarity == "Negative" && ("type_neg_ion" in dom_select_fields)){
-        adduct = dom_select_fields["type_neg_ion"][dom_select_fields["type_neg_ion"].selectedIndex].value;
-        if (adduct == "Other"){
-            if ("other_neg_ion" in dom_text_fields){
-                adduct = dom_text_fields["other_neg_ion"].value;
-            }
-            else {
-                adduct = "";
-            }
-        }
-    }
+    if (dom_select_fields["adduct_ms2"].value != "Other") adduct = dom_select_fields["adduct_ms2"].value;
+    else if (dom_text_fields["other_adduct_ms2"].value.length > 0) adduct = dom_text_fields["other_adduct_ms2"].value;
+
+    if (adduct.length == 0) return;
     
     var xmlhttp_request = new XMLHttpRequest();
     xmlhttp_request.onreadystatechange = function() {
@@ -914,7 +936,7 @@ function change_frag_used_suggestions(){
             dom_input_table_fields["frag_used"].addSuggestions(0, JSON.parse(xmlhttp_request.responseText));
         }
     }
-    var request_url = connector_path + "/connector.php?command=get_fragment_suggestions&lipid_class_name=" + encodeURIComponent(lipid_class_name) + "&polarity=" + encodeURIComponent(polarity) + (adduct.length > 0 ? ("&adduct=" + encodeURIComponent(adduct)): "");
+    var request_url = connector_path + "/connector.php?command=get_fragment_suggestions&lipid_class_name=" + encodeURIComponent(lipid_class_name) + "&adduct=" + encodeURIComponent(adduct);
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
@@ -981,7 +1003,6 @@ function update_optional(form){
     if (!form_enabled) return;
 
     var field_name = form.field_name;
-    console.log(field_name);
     form.dom_object.disabled = !form.checked;
     form.content["activated"] = form.checked ? 1 : 0;
     check_conditions();
@@ -1022,18 +1043,25 @@ function update_tableview(field){
 
 function check_conditions(immediate){
     if (!form_enabled) return;
+    aaa = "table_lipid_class";
 
     for (field_name in field_conditions){
         field_visible[field_name] = false;
+
         for (condition_and of field_conditions[field_name]){
             var condition_met = true;
             for (single_condition of condition_and){
                 var key = single_condition[0];
                 var operator = single_condition[1];
                 var value = single_condition[2];
-                var conditional_field = choice_to_field[key];
-                condition_met &= (!("required" in field_map[conditional_field])) || (("activated" in field_map[conditional_field]) && (field_map[conditional_field]["activated"] == 1));
-                condition_met &= (conditional_field in field_visible && field_visible[conditional_field]) && ((operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value));
+                var conditional_field_key = choice_to_field[key];
+                var conditional_field = field_map[conditional_field_key];
+
+                if (is_first_version_higher(form_version, "v2.4.0") && (conditional_field["type"] == "number" || conditional_field["type"] == "select")){
+                    condition_met &= (!("required" in conditional_field)) || (conditional_field["required"] == 1) || (("activated" in conditional_field) && (conditional_field["activated"] == 1));
+                }
+
+                condition_met &= (conditional_field_key in field_visible && field_visible[conditional_field_key]) && ((operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value));
             }
             field_visible[field_name] |= condition_met;
         }
@@ -1067,6 +1095,7 @@ function check_requirements(){
     var first_required = null;
     for (form_name of form_pages[current_page]){
         var field = field_map[form_name];
+
         
         if (!("required" in field) || field["required"] == 0) continue;
         if (!field_visible[form_name]) continue;
@@ -1350,8 +1379,13 @@ function create_preview(result, titles, report_fields){
     
     for (var page of result["pages"]){
         for (var field of page["content"]){
-            if (!("condition" in field) || field["condition"].length == 0) continue;
             field_name = field["name"];
+            if (("type" in field) && ((field["type"] === "number") || (field["type"] === "select")) && (!("required" in field) || (field["required"] == 0)) && (!("activated" in field) || (field["activated"] == 0))){
+                visible[field_name] = false;
+                continue;
+            }
+
+            if (!("condition" in field) || field["condition"].length == 0) continue;
             visible[field_name] = false;
             for (var condition_and of conditions[field_name]){
                 condition_met = true;
@@ -1360,6 +1394,12 @@ function create_preview(result, titles, report_fields){
                     operator = single_condition[1];
                     value = single_condition[2];
                     conditional_field = choice_to_field_preview[key];
+
+                    if (conditional_field["type"] === "number" || conditional_field["type"] === "select"){
+                        condition_met &= (!("required" in conditional_field)) || (conditional_field["required"] == 1) || (("activated" in conditional_field) && (conditional_field["activated"] == 1));
+
+                    }
+
                     condition_met &= (conditional_field in visible && visible[conditional_field]) && ((operator == "=" && field_map_preview[key]["value"] == value) || (operator == "~" && field_map_preview[key]["value"] != value));
                 }
                 visible[field_name] |= condition_met;

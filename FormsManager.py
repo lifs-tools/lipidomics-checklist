@@ -1,3 +1,6 @@
+import traceback
+import sys
+import os
 
 try:    
     import sys
@@ -12,7 +15,6 @@ try:
     import db.ChecklistConfig as cfg
     from FormsEnum import *
     from datetime import datetime
-    import traceback
         
     def dict_factory(cursor, row):
         return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
@@ -1706,7 +1708,7 @@ try:
             
             # check if entry in reports exist and delete entry and pdf file
             if hash_value != None:
-                for extension in {"aux", "log", "out", "tex", "pdf"}:
+                for extension in {"aux", "log", "out", "tex", "pdf", "fls", "fdb_latexmk"}:
                     file_to_del = "completed_documents/report-%s.%s" % (hash_value, extension)
                     if os.path.exists(file_to_del): os.remove(file_to_del)
             
@@ -1848,8 +1850,6 @@ try:
         except:
             print(str(ErrorCodes.INVALID_SAMPLE_ENTRY_ID) + " in %s" % content["command"])
             exit()
-        
-        
         
         
         try:
@@ -2303,8 +2303,14 @@ try:
             if db_cursor.fetchone()["count_entries"] > 0:
                 sql = "SELECT hash FROM %sreports AS r JOIN %sentries AS e ON r.entry_id = e.id WHERE e.id = ? AND e.user_id = ?;" % (table_prefix, table_prefix)
                 db_cursor.execute(sql, (entry_id, uid))
-                pdf_file = "completed_documents/report-%s.pdf" % db_cursor.fetchone()["hash"]
-                if os.path.isfile(pdf_file): os.remove(pdf_file)
+
+                hash_value = db_cursor.fetchone()["hash"]
+                for extension in {"aux", "log", "out", "tex", "pdf", "fls", "fdb_latexmk"}:
+                    file_to_del = "completed_documents/report-%s.%s" % (hash_value, extension)
+                    if os.path.exists(file_to_del): os.remove(file_to_del)
+
+
+
                     
         except Exception as e:
             print(str(ErrorCodes.ERROR_ON_EXECUTING_FUNCTION) + " in %s" % content["command"], e)
@@ -2737,14 +2743,13 @@ try:
             
     elif content["command"] == "get_fragment_suggestions":
         
-        if "lipid_class_name" not in content or "polarity" not in content:
+        if "lipid_class_name" not in content:
             print(str(ErrorCodes.NO_CONTENT) + " in %s" % content["command"])
             exit()
             
-    
         lipid_class_name = content["lipid_class_name"]
-        polarity_positive = content["polarity"] == "Positive"
-        adduct = None if "adduct" not in content else content["adduct"]
+        adduct = content["adduct"]
+        polarity_positive = adduct[-1] == "+"
         
         from pandas import read_csv
         df = read_csv("db/ms2fragments.csv")

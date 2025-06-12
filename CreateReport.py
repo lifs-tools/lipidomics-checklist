@@ -3,9 +3,48 @@ import sqlite3
 from datetime import datetime
 import time
 from urllib.parse import unquote
+import re
 
 
 workflow_types = {"gen": "General Lipidomics", "di": "Direct Infusion", "sep": "Separation", "img": "Imaging"}
+
+
+
+def split_verison_number(text_version):
+    version_array = [1, 0, 0];
+
+    text_version = text_version.split(".")
+    if len(text_version) != 3 or len(text_version[0]) < 2:
+        return version_array
+
+    text_version[0] = text_version[0][1:]
+
+    if not text_version[0].isdigit() or not text_version[1].isdigit() or not text_version[2].isdigit():
+        return version_array
+
+        version_array[0] = int(text_version[0])
+        version_array[1] = int(text_version[1])
+        version_array[2] = int(text_version[2])
+
+
+    return version_array
+
+
+def is_first_version_higher(first_version, version_to_test):
+    if first_version == None or version_to_test == None: return False
+
+    first_version_array = split_verison_number(first_version)
+    version_to_test_array = split_verison_number(version_to_test)
+
+    return (
+        (version_to_test_array[0] < first_version_array[0]) or
+        (version_to_test_array[0] == first_version_array[0]) and (
+            (version_to_test_array[1] < first_version_array[1]) or
+            (version_to_test_array[1] == first_version_array[1]) and (
+                (version_to_test_array[2] < first_version_array[2])
+            )
+        )
+    )
 
 
 
@@ -33,8 +72,9 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
     conditions = {}
     choice_to_field = {}
     field_map = {}
+    form_version = result["version"] if "version" in result else "v0.9.9"
     
-    version.append(result["version"] if "version" in result else "v0.9.9")
+    version.append(form_version)
     
     for field in result["pages"][0]["content"]:
         if field["name"] == "workflowtype":
@@ -98,6 +138,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 and (("required" not in field) or (field["required"] == 0)) \
                 and (("activated" not in field) or (field["activated"] == 0)):
                     visible[field_name] = False
+                    continue
 
             if "condition" not in field or len(field["condition"]) == 0: continue
             visible[field_name] = False
@@ -105,11 +146,14 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 condition_met = True
                 for single_condition in condition_and:
                     key, operator, value = single_condition
-                    conditional_field = choice_to_field[key]
-                    condition_met &= (("required" not in field_map[key])) or (("activated" in field_map[key]) and (field_map[key]["activated"] == 1))
+                    conditional_field_key = choice_to_field[key]
+
+                    conditional_field = field_map[conditional_field_key]
+                    if is_first_version_higher(form_version, "v.2.4.0") and conditional_field["type"] in {"number", "select"}:
+                        condition_met &= ("required" not in conditional_field) or (conditional_field["required"] == 1) or (("activated" in conditional_field) and (conditional_field["activated"] == 1))
 
                     field_value = field_map[key]["value"] if ("type" not in field_map[key] or field_map[key]["type"] != "number") else float(field_map[key]["value"])
-                    condition_met &= (conditional_field in visible and visible[conditional_field]) and ((operator == "=" and field_value == value) or (operator == "~" and field_value != value))
+                    condition_met &= (conditional_field_key in visible and visible[conditional_field_key]) and ((operator == "=" and field_value == value) or (operator == "~" and field_value != value))
                 visible[field_name] |= condition_met
     
     
@@ -126,8 +170,9 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                     if field["label"][6:].lower() in values:
                         values[field["label"][6:].lower()][-1] = field["value"]
                 else:
-                    values[field["label"].lower()] = [field["value"]]
-                    report_fields[-1].append([field["label"], ""])
+                    if len(field["value"]) > 0:
+                        values[field["label"].lower()] = [field["value"]]
+                        report_fields[-1].append([field["label"], ""])
                 
             elif field["type"] == "number":
                 values[field["label"].lower()] = [str(field["value"])]
@@ -139,27 +184,74 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                     if choice["value"] == 1:
                         choice_values.append(choice["label"])
                 values[field["label"].lower()] = choice_values
-                report_fields[-1].append([field["label"], ""])
+                if len(choice_values) > 0:
+                    report_fields[-1].append([field["label"], ""])
                 
             elif field["type"] == "table":
                 values[field["label"].lower()] = ["!!!TABLE!!!%s!!!CONTENT!!!%s" % (field["columns"], field["value"])]
                 #values[field["label"].lower()] = [field["value"]]
                 report_fields[-1].append([field["label"], ""])
-    
-    
-        
+
         for i in range(len(report_fields[-1])):
             key = report_fields[-1][i][0].lower()
             if key in values:
                 report_fields[-1][i][1] = ", ".join(values[key])
+
+
+def has_matching_xml_tags(s):
+    # Regex to find all tags (both opening and closing)
+    tag_pattern = re.finditer(r"</?([a-zA-Z0-9]+)[^>]*>", s)
+    stack = []
+
+    for tag in tag_pattern:
+        full_tag = tag.group(0)  # Full matched tag (e.g., "<sup>" or "</sup>")
+        tag_name = tag.group(1)  # Extracted tag name (e.g., "sup")
+
+        if full_tag.startswith("</"):  # Closing tag
+            if not stack or stack[-1] != tag_name:
+                return False  # Mismatched closing tag
+            stack.pop()  # Match found → Pop from stack
+        elif not full_tag.endswith("/>"):  # Opening tag (excluding self-closing)
+            stack.append(tag_name)  # Push opening tag to stack
+
+    return len(stack) == 0  # True if all tags are matched
+
+
+
+def contains_xml_tags(s):
+    return bool(re.search(r"<[^<>]+>", s))
     
 
                 
 def unicoding(t):
-    #t = t.replace("\\", "\\backslash").replace("&", "\&").replace("%", "").replace("$", "")
-    encoded = "".join(["{\\ }" if ord(c) == 32 else "\\char\"%s" % hex(ord(c))[2:].upper() for c in t])
-    #encoded = "".join([c for c in t if ord(c) < 256])
-    #return encoded.replace("\\", "\\backslash").replace("&", "\&").replace("%", "\%")
+    def encode(text):
+        return "".join(["{\\ }" if ord(c) == 32 else "\\char\"%s" % hex(ord(c))[2:].upper() for c in text])
+
+    encoded = ""
+    if contains_xml_tags(t):
+        if not has_matching_xml_tags(t):
+            encoded = "".join(t)
+
+        else:
+            tokens = [t]
+            for pattern in ["<sup>", "</sup>", "<sub>", "</sub>"]:
+                test_tokens = tokens
+                tokens = []
+                for token in test_tokens:
+                    split_tokens = token.split(pattern)
+                    for i, token in enumerate(split_tokens):
+                        if i > 0: tokens.append(pattern)
+                        if len(token) > 0: tokens.append(token)
+            for i in range(len(tokens)):
+                if tokens[i] == "<sup>": tokens[i] = "\\textsuperscript{"
+                elif tokens[i] == "<sub>": tokens[i] = "\\textsubscript{"
+                elif tokens[i] in {"</sub>", "</sup>"}: tokens[i] = "}"
+                else: tokens[i] = encode(tokens[i])
+                encoded = "".join(tokens)
+
+    else:
+        encoded = encode(t)
+
     return encoded
     
     
@@ -250,15 +342,20 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
         lipid_class_prefix = "Lipid class %i" % (i + 1)
         
         for tmp_report_field, tmp_title in zip(tmp_report_fields, tmp_titles):
-            lipid_class, polarity, adduct_pos, adduct_neg = "", "negative", "", ""
+            lipid_class, adduct_ms1, adduct_ms2, other_adduct_ms1, other_adduct_ms2 = "", "", "", "", ""
             for tmp_rep_field in tmp_report_field:
                 if tmp_rep_field[0] == "Lipid class": lipid_class = tmp_rep_field[1]
-                elif tmp_rep_field[0] == "Polarity mode": polarity = tmp_rep_field[1].lower()
-                elif tmp_rep_field[0] == "Type of positive (precursor)ion": adduct_pos = tmp_rep_field[1]
-                elif tmp_rep_field[0] == "Type of negative (precursor)ion": adduct_neg = tmp_rep_field[1]
+                elif tmp_rep_field[0] == "MS<sup>1</sup> adduct": adduct_ms1 = tmp_rep_field[1]
+                elif tmp_rep_field[0] == "MS<sup>2</sup> adduct": adduct_ms2 = tmp_rep_field[1]
+                elif tmp_rep_field[0] == "Other MS<sup>1</sup> adduct": other_adduct_ms1 = tmp_rep_field[1]
+                elif tmp_rep_field[0] == "Other MS<sup>2</sup> adduct": other_adduct_ms2 = tmp_rep_field[1]
             
-            if len(lipid_class) > 0 and (len(adduct_pos) > 0 or len(adduct_neg) > 0):
-                lipid_class_prefix = "%s%s" % (lipid_class, adduct_pos if polarity == "positive" else adduct_neg)
+            if len(lipid_class) > 0:
+                lipid_class_prefix = lipid_class
+                if len(adduct_ms1) > 0: lipid_class_prefix += adduct_ms1
+                elif len(other_adduct_ms1) > 0: lipid_class_prefix += other_adduct_ms1
+                elif len(adduct_ms2) > 0: lipid_class_prefix += adduct_ms2
+                elif len(other_adduct_ms2) > 0: lipid_class_prefix += other_adduct_ms2
             
             lipid_class_title = "%i) %s / %s" % (i + 1, lipid_class_prefix, tmp_title)
             lipid_classes_titles.append(lipid_class_title)
