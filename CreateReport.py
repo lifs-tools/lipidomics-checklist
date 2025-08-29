@@ -257,6 +257,42 @@ def unicoding(t):
     
     
 def make_table(title, text):
+
+
+    column_labels, content = text[11:].split("!!!CONTENT!!!")
+    column_labels = column_labels.split("|")
+    content = content.split("|")
+    num_cols = len(column_labels)
+
+    result_text = ["%s \\\\ \\multicolumn{7}{P{0.99\\textwidth}}{" % title]
+    result_text.append("\\centering \\begin{tabular}{%s}\\rowcolor{ILSgreen!60}" % (("P{%0.3f\\hsize}" % (0.93 / num_cols)) * num_cols))
+    result_text.append(" & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \\end{tabular} \n")
+    result_text.append("}\\\\ \n")
+
+
+    row_cnt, col_cnt = 0, 0
+    for cell in content:
+        if col_cnt == 0:
+            if row_cnt > 0: result_text.append(" \\end{tabular} }\\\\ \n")
+
+            result_text.append("\\multicolumn{7}{P{0.99\\textwidth}}{")
+            result_text.append("\\centering \\begin{tabular}{%s}\\rowcolor{%s}" % ((("P{%0.3f\\hsize}" % (0.93 / num_cols)) * num_cols), ("ILSgreen!20" if row_cnt % 2 == 1 else "white")))
+        else:
+            result_text.append(" & ")
+
+        result_text.append(unicoding(unquote(cell)))
+
+        col_cnt += 1
+        if col_cnt == num_cols:
+            result_text.append("\\\\")
+            col_cnt = 0
+            row_cnt += 1
+
+    result_text.append(" \\hline \\end{tabular} \\\\[1pt] }\\\\ \n")
+
+    return "".join(result_text)
+
+
     result_text = ["\\multicolumn{3}{P{0.49\\textwidth}}{%s\\newline \\vskip-7px \n" % title]
                     
     column_labels, content = text[11:].split("!!!CONTENT!!!")
@@ -374,9 +410,41 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\usepackage{tocloft}
 \\usepackage{array}
 \\usepackage{colortbl}
+\\usepackage{longtable}
+\\setlength{\\LTpre}{1pt}
+\\setlength{\\LTpost}{2pt}
 \\usepackage{textcomp}
 \\usepackage[hidelinks]{hyperref}
-%%\\usepackage{tgheros}
+\\usepackage{titlesec}
+\\usepackage{needspace}
+
+% japanese / chinese etc.
+\\usepackage{fontspec}
+% Define fallback chain
+\\directlua{
+  luaotfload.add_fallback("myfallback", {
+    "HaranoAjiMincho:mode=node;",
+    "DejaVu Serif:mode=node;",     % provides subscripts
+    "Noto Sans Symbols:mode=node;" % provides playing cards, emoji, etc.
+  })
+}
+% Set main font with fallback chain
+\\setmainfont{Latin Modern Sans}[RawFeature={fallback=myfallback}]
+
+\\makeatletter
+\\renewcommand{\\section}{\\@startsection{section}{1}{0pt}%
+  {0ex} % negative space before
+  {0pt}    % space after
+  {\\normalfont\\Large\\bfseries}}
+\\renewcommand{\\subsection}{\\@startsection{subsection}{2}{0pt}%
+  {0ex} % negative space before
+  {1ex}    % space after
+  {\\normalfont\\large\\bfseries}}
+\\makeatother
+
+\\setlength{\\parskip}{0pt}  % remove paragraph skips if any
+\\setlength{\\parindent}{0pt} % optional, keep indentation
+\\newcommand{\\Sec}[1]{\\Needspace{5\\baselineskip}\\section{#1}}
 
 % define variables
 \\renewcommand{\\arraystretch}{1.3}
@@ -387,17 +455,12 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\definecolor{TitleGray}{HTML}{999999}
 \\newcolumntype{P}[1]{>{\\raggedright\\arraybackslash}p{#1}}
 \\newcolumntype{C}[1]{>{\\raggedleft\\arraybackslash}p{#1}}
-\\newcommand{\\mainbox}[1]{\\section{#1}}
-%%\\colorbox{ILSgreen}{\\section{#1}}}
-%%\\textsf{\\textbf{\\color{white}\\LARGE \\adjustbox{margin=3px}{#1}}}}
-%%\\vskip-2.6pt
-%%\\par\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\\vskip+1em}
-\\setlength{\\parindent}{0px}
-\\renewcommand{\\familydefault}{\\sfdefault}
+\\newcommand{\\mainbox}[1]{\\Sec{#1}}
 \\newcommand*{\\tabindent}{0px}
 \\setcounter{secnumdepth}{0}
 \\newcommand{\\grayline}{\\arrayrulecolor{TitleGray}\\hline\\arrayrulecolor{black}}
-\\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\vtop\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
+% \\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\vtop\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
+%\\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
 
 
 \\begin{document}
@@ -409,6 +472,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     tex_preamble += """}\\end{flushright}
 \\vskip-45pt
 \\tableofcontents
+~\\\\~\\\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% General Workflow
@@ -436,15 +500,13 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
             for i, mc in enumerate(titles):
                 if len(report_fields[i]) == 0: continue
             
-                
-                tex.write("\\begin{pageblock}\n")
+                #tex.write("\\begin{pageblock}\n")
                 if i == 0: tex.write("\\mainbox{%s}~\\\\\n" % mainbox)
                 tex.write("\\subsection{\\textcolor{TitleGray}{%s}}\n" % mc)
                 #tex.write("\\textbf{\\large \\textcolor{TitleGray}{%s}}\n" % mc)
                 tex.write("\\vskip-1.2em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
                 tex.write("\\newline{\\vskip-10px\\noindent\\textcolor{gray!20}{\\rule{\\textwidth}{10pt}}}\n")
-                tex.write("\\setlength\\tabcolsep{0pt}\\begin{tabular}{@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}P{0.01\\textwidth}@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}}\n")
-                
+                tex.write("\\setlength\\tabcolsep{0pt}\\begin{longtable}{@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}P{0.01\\textwidth}@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}}\n")
                 
                 if i == 0 and main_section:
                     tex.write("%s & \\multicolumn{6}{@{}P{0.70\\textwidth}}{%s} \\\\\n" % (report_fields[0][0][0], report_fields[0][0][1]))
@@ -455,41 +517,33 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                     str_date_time = date_time.strftime("%m/%d/%Y")
                     report_fields[i][0] = ["Document creation date", str_date_time]
                     
+
+                left = True
                 n = len(report_fields[i])
-                h = (n + 1) // 2
-                for ci in range(h):
-                    
-                    if ci + h < n:
-                        
-                        if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
-                            first_col = make_table(report_fields[i][ci][0], report_fields[i][ci][1])
-                        else:
-                            first_col = "%s & & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
-                            
-                        if report_fields[i][ci + h][1][:11] == "!!!TABLE!!!":
-                            second_col = make_table(report_fields[i][ci + h][0], report_fields[i][ci + h][1])
-                        else:
-                            second_col = "%s & & %s" % (report_fields[i][ci + h][0], report_fields[i][ci + h][1])
-                        
-                        tex.write("%s & & %s \\\\\n" % (first_col, second_col))
+                for ci in range(n):
+                    # prevent that a table will be put on the right column
+                    if left and ci + 1 < n and report_fields[i][ci + 1][1][:11] == "!!!TABLE!!!":
+                        report_fields[i][ci], report_fields[i][ci + 1] = report_fields[i][ci + 1], report_fields[i][ci]
+
+                    if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
+                        tex.write(make_table(report_fields[i][ci][0], report_fields[i][ci][1]))
+
                     else:
-                        if report_fields[i][ci][1][:11] == "!!!TABLE!!!":
-                            first_col = make_table(report_fields[i][ci][0], report_fields[i][ci][1])
+                        if left:
+                            tex.write("%s & & %s" % (report_fields[i][ci][0], report_fields[i][ci][1]))
+                            left = False
+                            if ci + 1 == n: tex.write(" & & & & \\\\\n")
                         else:
-                            first_col = "%s & & %s" % (report_fields[i][ci][0], report_fields[i][ci][1])
-                            
-                        tex.write("%s \\\\\n" % (first_col))
-                        
-                    if ci < h - 1:
-                        tex.write("\\cline{1-3}\\cline{5-7}\n")
-                        
-                    
+                            tex.write(" & & %s & & %s\\\\\n" % (report_fields[i][ci][0], report_fields[i][ci][1]))
+                            if ci + 1 < n: tex.write("\\cline{1-3}\\cline{5-7}\n")
+                            left = True
                 
-                tex.write("\\end{tabular}\n")
-                tex.write("\\newline\\vskip-1.3em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
-                tex.write("\\end{pageblock}\\par~\\\\\n\n\n")
+                tex.write("\\end{longtable}\n")
+                tex.write("\\vskip-1.3em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
+                #tex.write("\\end{pageblock}\\par~\\\\[20pt]\n\n\n")
+                tex.write("\\par~\\\\\n\n\n")
                 
-                if lipid_classes and ii % 2 == 1: tex.write("~\\\\\n\n\n")
+                if lipid_classes and ii % 2 == 1: tex.write("~\\\\[20pt] \n\n\n")
                 ii += 1
                 
         write_data("%s Workflow" % workflow_types[workflow_type], titles, report_fields, main_section = True)
