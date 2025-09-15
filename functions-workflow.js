@@ -65,8 +65,17 @@ function update_main_forms(){
                     font_obj.innerHTML = "*";
                     table_row[table_row.length - 1].push(font_obj);
                 }
+
+                var type_array = [row["type"]];
+                if (("language" in row) && (row["language"] != "en")){
+                    var img_lang = document.createElement("img");
+                    type_array.push(" ");
+                    type_array.push(img_lang);
+                    img_lang.src = connector_path + "/images/" + row["language"] + ".png";
+                    img_lang.style = "height: 15px; border: 1px solid #cccccc; box-sizing: border-box;";
+                }
                 
-                table_row.push([row["type"]]);
+                table_row.push(type_array);
                 table_row.push([row["date"]]);
                 
                 var trb = [];

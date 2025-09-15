@@ -293,11 +293,13 @@ try:
                 title = ""
                 entry["type"] = ""
                 entry["version"] = ""
+                entry["language"] = "en"
                 if len(entry["fields"]) > 0:
                     field_data = json_loads(entry["fields"])
                     del entry["fields"]
                     
                     if "version" in field_data: entry["version"] = field_data["version"]
+                    if "language" in field_data: entry["language"] = field_data["language"]
                     
                     if len(field_data) > 0:
                         for field in field_data["pages"][0]["content"]:
