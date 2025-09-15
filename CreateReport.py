@@ -49,7 +49,7 @@ def is_first_version_higher(first_version, version_to_test):
 
 
 def get_workflow_type(mycursor, table_prefix, uid, entry_id):
-    
+
     sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
     result = json.loads(mycursor.fetchone()["fields"])
@@ -60,32 +60,32 @@ def get_workflow_type(mycursor, table_prefix, uid, entry_id):
 
 
 
-
+logging = open("log.txt", "wt")
 def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields, version):
-    
+
     sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
     result = json.loads(mycursor.fetchone()["fields"])
     workflow_type = "gen"
-    
+
     visible = {}
     conditions = {}
     choice_to_field = {}
     field_map = {}
     form_version = result["version"] if "version" in result else "v0.9.9"
-    
+
     version.append(form_version)
-    
+
     for field in result["pages"][0]["content"]:
         if field["name"] == "workflowtype":
             workflow_type = field["value"] if field["value"] in workflow_types else "gen"
-    
-    
+
+
     for page in result["pages"]:
         for field in page["content"]:
             field_name = field["name"]
             visible[field_name] = True
-            
+
             field_map[field_name] = field
             if field["type"] in {"select", "multiple"} and "choice" in field:
                 for choice in field["choice"]:
@@ -94,11 +94,11 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                         choice_to_field[choice["name"]] = field_name
             else:
                 choice_to_field[field_name] = field_name
-            
-            
+
+
             # check for any logical conditions
             if "condition" not in field or len(field["condition"]) == 0: continue
-            
+
             condition = []
             for condition_and in field["condition"].split("|"):
                 conjunction = []
@@ -108,35 +108,36 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                     if con.find("~") != -1:
                         single_condition = con.split("~")
                         operator = "~"
-                    
+
                     else:
                         single_condition = con.split("=")
-                    
+
                     if len(single_condition) != 2: continue;
-                        
+
                     key, value = single_condition
                     l = len(value)
-                    
+
                     if value[0] == "'" and value[-1] == "'":
                         value = value[1 : -1]
-                    
+
                     else:
                         try:
                             value = float(value)
                         except:
                             continue
                     conjunction.append([key, operator, value])
-                    
+
                 condition.append(conjunction)
             conditions[field_name] = condition
-    
-    
+
+
     for page in result["pages"]:
         for field in page["content"]:
             field_name = field["name"]
             if "type" in field and field["type"] in {"number", "select"} \
                 and (("required" not in field) or (field["required"] == 0)) \
                 and (("activated" not in field) or (field["activated"] == 0)):
+                #and (is_first_version_higher(form_version, "v.2.4.0") and (("activated" not in field) or (field["activated"] == 0))):
                     visible[field_name] = False
                     continue
 
@@ -147,16 +148,19 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 for single_condition in condition_and:
                     key, operator, value = single_condition
                     conditional_field_key = choice_to_field[key]
-
                     conditional_field = field_map[conditional_field_key]
-                    if is_first_version_higher(form_version, "v.2.4.0") and conditional_field["type"] in {"number", "select"}:
+
+                    if conditional_field["type"] in {"number", "select"}:
+                    #if is_first_version_higher(form_version, "v.2.4.0") and conditional_field["type"] in {"number", "select"}:
                         condition_met &= ("required" not in conditional_field) or (conditional_field["required"] == 1) or (("activated" in conditional_field) and (conditional_field["activated"] == 1))
 
                     field_value = field_map[key]["value"] if ("type" not in field_map[key] or field_map[key]["type"] != "number") else float(field_map[key]["value"])
                     condition_met &= (conditional_field_key in visible and visible[conditional_field_key]) and ((operator == "=" and field_value == value) or (operator == "~" and field_value != value))
+                    if field_name == "type_of_blanks": logging.write(f"{field_name} {field_value} {key} {operator} {value} {field_value == value} {conditional_field_key} {conditional_field_key in visible} {visible[conditional_field_key]}\n")
                 visible[field_name] |= condition_met
-    
-    
+            logging.write(f"{field_name} {visible[field_name]}\n")
+
+
     for page in result["pages"]:
         titles.append(page["title"])
         report_fields.append([])
@@ -164,7 +168,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
         for field in page["content"]:
             if "type" not in field or "name" not in field or "label" not in field: continue
             if field["name"] in visible and not visible[field["name"]]: continue
-        
+
             if field["type"] == "text":
                 if field["label"][:5].lower() == "other":
                     if field["label"][6:].lower() in values:
@@ -173,11 +177,11 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                     if len(field["value"]) > 0:
                         values[field["label"].lower()] = [field["value"]]
                         report_fields[-1].append([field["label"], ""])
-                
+
             elif field["type"] == "number":
                 values[field["label"].lower()] = [str(field["value"])]
                 report_fields[-1].append([field["label"], ""])
-                
+
             elif field["type"] in {"select", "multiple"}:
                 choice_values = []
                 for choice in field["choice"]:
@@ -186,7 +190,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
                 values[field["label"].lower()] = choice_values
                 if len(choice_values) > 0:
                     report_fields[-1].append([field["label"], ""])
-                
+
             elif field["type"] == "table":
                 values[field["label"].lower()] = ["!!!TABLE!!!%s!!!CONTENT!!!%s" % (field["columns"], field["value"])]
                 #values[field["label"].lower()] = [field["value"]]
@@ -220,9 +224,9 @@ def has_matching_xml_tags(s):
 
 def contains_xml_tags(s):
     return bool(re.search(r"<[^<>]+>", s))
-    
 
-                
+
+
 def unicoding(t):
     def encode(text):
         return "".join(["{\\ }" if ord(c) == 32 else "\\char\"%s" % hex(ord(c))[2:].upper() for c in text])
@@ -253,9 +257,9 @@ def unicoding(t):
         encoded = encode(t)
 
     return encoded
-    
-    
-    
+
+
+
 def make_table(title, text):
 
 
@@ -294,33 +298,33 @@ def make_table(title, text):
 
 
     result_text = ["\\multicolumn{3}{P{0.49\\textwidth}}{%s\\newline \\vskip-7px \n" % title]
-                    
+
     column_labels, content = text[11:].split("!!!CONTENT!!!")
     column_labels = column_labels.split("|")
     content = content.split("|")
     num_cols = len(column_labels)
 
     result_text.append("\\centering \\begin{tabular}{%s}\\rowcolor{ILSgreen!60}" % (("P{%0.3f\\hsize}" % (0.93 / num_cols)) * num_cols))
-    
+
     result_text.append(" & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \n")
-    
-    
+
+
     row_cnt = 0
     for i, cell in enumerate(content):
         if i % num_cols == 0:
             result_text.append("\\rowcolor{%s}" % ("ILSgreen!20" if row_cnt % 2 == 1 else "white"))
         else:
             result_text.append(" & ")
-            
+
         result_text.append(unicoding(unquote(cell)))
-        
+
         if i % num_cols == num_cols - 1:
             result_text.append("\\\\")
             row_cnt += 1
-            
+
     if i % num_cols < num_cols - 1: result_text.append("\\\\")
     result_text.append("\\hline  \\end{tabular} \\vskip-7px}")
-    
+
     return "".join(result_text)
 
 
@@ -350,16 +354,16 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
         tmp_titles = []
         tmp_report_fields = []
         fill_report_fields(mycursor, table_prefix, uid, sample_entry_id, tmp_titles, tmp_report_fields, [])
-        
+
         sample_ids = {k: v for k, v in tmp_report_fields[0][:3]}
         if "Sample set name" in sample_ids and "Sample origin" in sample_ids and "Sample type" in sample_ids:
             sample_titles[i] = "%s / %s / %s" % (sample_ids["Sample set name"], sample_ids["Sample origin"], sample_ids["Sample type"])
             tmp_report_fields[0] = tmp_report_fields[0][3:]
-            
-        sample_report_fields.append(tmp_report_fields[0])
-           
 
-        
+        sample_report_fields.append(tmp_report_fields[0])
+
+
+
 
     ## fill lipid class specific data
     sql = "SELECT class_form_entry_id FROM %sconnect_lipid_class WHERE main_form_entry_id = %i;" % (table_prefix, entry_id)
@@ -371,12 +375,12 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     for i, class_entry_id in enumerate(class_entry_ids):
         tmp_titles = []
         tmp_report_fields = []
-        
+
         fill_report_fields(mycursor, table_prefix, uid, class_entry_id, tmp_titles, tmp_report_fields, [])
         lipid_classes_report_fields += tmp_report_fields
-        
+
         lipid_class_prefix = "Lipid class %i" % (i + 1)
-        
+
         for tmp_report_field, tmp_title in zip(tmp_report_fields, tmp_titles):
             lipid_class, adduct_ms1, adduct_ms2, other_adduct_ms1, other_adduct_ms2 = "", "", "", "", ""
             for tmp_rep_field in tmp_report_field:
@@ -385,17 +389,17 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                 elif tmp_rep_field[0] == "MS<sup>2</sup> adduct": adduct_ms2 = tmp_rep_field[1]
                 elif tmp_rep_field[0] == "Other MS<sup>1</sup> adduct": other_adduct_ms1 = tmp_rep_field[1]
                 elif tmp_rep_field[0] == "Other MS<sup>2</sup> adduct": other_adduct_ms2 = tmp_rep_field[1]
-            
+
             if len(lipid_class) > 0:
                 lipid_class_prefix = lipid_class
                 if len(adduct_ms1) > 0: lipid_class_prefix += adduct_ms1
                 elif len(other_adduct_ms1) > 0: lipid_class_prefix += other_adduct_ms1
                 elif len(adduct_ms2) > 0: lipid_class_prefix += adduct_ms2
                 elif len(other_adduct_ms2) > 0: lipid_class_prefix += other_adduct_ms2
-            
+
             lipid_class_title = "%i) %s / %s" % (i + 1, lipid_class_prefix, tmp_title)
             lipid_classes_titles.append(lipid_class_title)
-    
+
 
 
     tex_preamble = """\\documentclass{article}
@@ -417,19 +421,26 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\usepackage[hidelinks]{hyperref}
 \\usepackage{titlesec}
 \\usepackage{needspace}
-
-% japanese / chinese etc.
 \\usepackage{fontspec}
-% Define fallback chain
+
+\\newfontfamily\\mySans[
+  Path = ./fonts/,      % path to folder containing font files
+  UprightFont = lmsans10-regular.otf,
+  BoldFont    = lmsans10-bold.otf,
+  ItalicFont  = lmsans10-oblique.otf,
+  BoldItalicFont = lmsans10-boldoblique.otf
+]{Latin Modern Sans}
+
+% Define fallback chain with names
 \\directlua{
   luaotfload.add_fallback("myfallback", {
-    "HaranoAjiMincho:mode=node;",
-    "DejaVu Serif:mode=node;",     % provides subscripts
-    "Noto Sans Symbols:mode=node;" % provides playing cards, emoji, etc.
+    %"IPAexMincho:mode=node",
+    "DejaVu Sans:mode=node"
   })
 }
+
 % Set main font with fallback chain
-\\setmainfont{Latin Modern Sans}[RawFeature={fallback=myfallback}]
+\\setmainfont{Latin Modern Sans}[RawFeature={Fallback=myfallback}]
 
 \\makeatletter
 \\renewcommand{\\section}{\\@startsection{section}{1}{0pt}%
@@ -467,7 +478,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\begingroup\\fontsize{8pt}{10pt}\\selectfont
 
 \\hfill\\includegraphics[width=50pt]{images/ILS_standalone_logo.pdf}\\\\
-\\begin{flushright}\\vskip-15pt{\\tiny Created by \\href{https://lipidomicstandards.org}{https://lipidomicstandards.org}, version """ 
+\\begin{flushright}\\vskip-15pt{\\tiny Created by \\href{https://lipidomicstandards.org}{https://lipidomicstandards.org}, version """
     tex_preamble += version
     tex_preamble += """}\\end{flushright}
 \\vskip-45pt
@@ -482,24 +493,24 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     tex_suffix = """\\endgroup
 \\end{document}
     """
-    
-    
+
+
     with open(report_file, "wt", encoding = "utf-8") as tex:
         tex.write("%s\n\n" % tex_preamble)
-        
-        
+
+
         def write_data(mainbox, titles, report_fields, main_section = False, lipid_classes = False):
-            
+
             for i in range(len(titles)): titles[i] = unicoding(titles[i])
             for section in report_fields:
                 for row in section:
                     row[0] = unicoding(row[0])
                     if row[1][:11] != "!!!TABLE!!!": row[1] = unicoding(row[1]) if len(row[1]) > 0 else unicoding("-")
-            
+
             ii = 0
             for i, mc in enumerate(titles):
                 if len(report_fields[i]) == 0: continue
-            
+
                 #tex.write("\\begin{pageblock}\n")
                 if i == 0: tex.write("\\mainbox{%s}~\\\\\n" % mainbox)
                 tex.write("\\subsection{\\textcolor{TitleGray}{%s}}\n" % mc)
@@ -507,16 +518,16 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                 tex.write("\\vskip-1.2em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
                 tex.write("\\newline{\\vskip-10px\\noindent\\textcolor{gray!20}{\\rule{\\textwidth}{10pt}}}\n")
                 tex.write("\\setlength\\tabcolsep{0pt}\\begin{longtable}{@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}P{0.01\\textwidth}@{}P{0.26\\textwidth}P{0.005\\textwidth}P{0.23\\textwidth}}\n")
-                
+
                 if i == 0 and main_section:
                     tex.write("%s & \\multicolumn{6}{@{}P{0.70\\textwidth}}{%s} \\\\\n" % (report_fields[0][0][0], report_fields[0][0][1]))
                     tex.write("\\hline\n")
-                    
+
                     # create time stamp of now
                     date_time = datetime.fromtimestamp(time.time())
                     str_date_time = date_time.strftime("%m/%d/%Y")
                     report_fields[i][0] = ["Document creation date", str_date_time]
-                    
+
 
                 left = True
                 n = len(report_fields[i])
@@ -537,19 +548,19 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                             tex.write(" & & %s & & %s\\\\\n" % (report_fields[i][ci][0], report_fields[i][ci][1]))
                             if ci + 1 < n: tex.write("\\cline{1-3}\\cline{5-7}\n")
                             left = True
-                
+
                 tex.write("\\end{longtable}\n")
                 tex.write("\\vskip-1.3em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
                 #tex.write("\\end{pageblock}\\par~\\\\[20pt]\n\n\n")
                 tex.write("\\par~\\\\\n\n\n")
-                
+
                 if lipid_classes and ii % 2 == 1: tex.write("~\\\\[20pt] \n\n\n")
                 ii += 1
-                
+
         write_data("%s Workflow" % workflow_types[workflow_type], titles, report_fields, main_section = True)
         tex.write("~\\\\~\\\\\n")
         write_data("Sample Descriptions", sample_titles, sample_report_fields)
         tex.write("~\\\\~\\\\\n")
         write_data("Lipid Class Descriptions", lipid_classes_titles, lipid_classes_report_fields, lipid_classes = True)
-        
+
         tex.write("%s\n\n" % tex_suffix)

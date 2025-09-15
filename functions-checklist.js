@@ -7,6 +7,8 @@ var field_visible = {};
 var form_pages = [];
 var dom_form_pages = [];
 var current_page = 0;
+var current_language = "en";
+var current_language_dictionary = null;
 var required_messages = {};
 var dom_text_fields = {};
 var dom_select_fields = {};
@@ -58,6 +60,30 @@ function is_first_version_higher(first_version, version_to_test){
             )
         )
     );
+}
+
+
+
+function translate(field){
+    if (
+        (current_language_dictionary == null) ||
+        (!("name" in field)) ||
+        (!(field["name"] in current_language_dictionary))
+    ){
+        var label = ("label" in field) ? field["label"] : "";
+        var description = ("description" in field) ? field["description"] : "";
+        return [label, description];
+    }
+
+
+    var label = ("label" in field) ? field["label"] : "";
+    var description = ("description" in field) ? field["description"] : "";
+
+    var field_name = field["name"];
+    label = (current_language_dictionary[field_name][0] == NaN) ? label : current_language_dictionary[field_name][0];
+    description = (current_language_dictionary[field_name][1] == NaN) ? description : current_language_dictionary[field_name][1];
+
+    return [label, description];
 }
 
 
@@ -236,6 +262,40 @@ function load_data(content){
     
     check_fields = {};
     label_set = new Set();
+    current_language = ("language" in content) ? content["language"] : "en";
+
+
+    // get language dictionary
+    var xmlhttp_request = new XMLHttpRequest();
+    if (current_language != "en"){
+        xmlhttp_request.onreadystatechange = function() {
+            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+                response_text = xmlhttp_request.responseText;
+                if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                    if (response_text.startsWith("ErrorCodes.REPORT_NOT_CREATED")){
+                        alert("Before publishing, please download and review the report.");
+                    }
+                    else if (response_text.startsWith("ErrorCodes.PUBLISHING_FAILED")){
+                        msg = "Unfortunately, the publishing process failed. We apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + response_text;
+                        alert(msg);
+                    }
+                    else {
+                        print_error(response_text);
+                    }
+                    return;
+                }
+                current_language_dictionary = JSON.parse(response_text, (key, value) => {
+                    if (value === "NaN") return NaN;
+                    return value;
+                });
+                console.log(current_language_dictionary);
+            }
+        }
+        var request_url = connector_path + "/connector.php?command=get_lang_dict&language=" + current_language;
+        xmlhttp_request.open("GET", request_url, false);
+        xmlhttp_request.send(false);
+    }
+
     
     for (page of lipidomics_forms_content["pages"]){
         for (field of page["content"]){
@@ -420,7 +480,7 @@ function load_data(content){
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
                 obj_title.className = "lipidomics-forms-field-title";
-                obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                obj_title.innerHTML = "<b>" + translate(field)[0] + "</b>";
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
                 }
@@ -468,7 +528,7 @@ function load_data(content){
                 if (field["description"].length > 0){
                     var obj_description = document.createElement("div");
                     obj_description.className = "lipidomics-forms-field-description";
-                    obj_description.innerHTML = field["description"];
+                    obj_description.innerHTML = translate(field)[1];
                     obj.append(obj_description);
                 }
                 
@@ -498,7 +558,7 @@ function load_data(content){
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
                 obj_title.className = "lipidomics-forms-field-title";
-                obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                obj_title.innerHTML = "<b>" + translate(field)[0] + "</b>";
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
                 }
@@ -523,7 +583,7 @@ function load_data(content){
                 if (field["description"].length > 0){
                     var obj_description = document.createElement("div");
                     obj_description.className = "lipidomics-forms-field-description";
-                    obj_description.innerHTML = field["description"];
+                    obj_description.innerHTML = translate(field)[1];
                     obj.append(obj_description);
                 }
                 
@@ -584,7 +644,7 @@ function load_data(content){
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
                 obj_title.className = "lipidomics-forms-field-title";
-                obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                obj_title.innerHTML = "<b>" + translate(field)[0] + "</b>";
                 obj_title.style.display = "inline-block";
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
@@ -616,7 +676,7 @@ function load_data(content){
                 if (field["description"].length > 0){
                     var obj_description = document.createElement("div");
                     obj_description.className = "lipidomics-forms-field-description";
-                    obj_description.innerHTML = field["description"];
+                    obj_description.innerHTML = translate(field)[1];
                     obj.append(obj_description);
                 }
                 
@@ -636,7 +696,7 @@ function load_data(content){
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
                 obj_title.className = "lipidomics-forms-field-title";
-                obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                obj_title.innerHTML = "<b>" + translate(field)[0] + "</b>";
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
                 }
@@ -649,7 +709,7 @@ function load_data(content){
                 obj_ul.className = "lipidomics-forms-multiple";
                 for (choice of field["choice"]){
                     if (!("name" in choice)) continue;
-                    if (!("label" in choice)) choice["label"] = "Null";
+                    if (!("label" in choice)) translate(choice)[0] = "Null";
                     if (!("value" in choice)) choice["value"] = 0;
                     
                     var obj_li = document.createElement("ul");
@@ -667,13 +727,13 @@ function load_data(content){
                     
                     var obj_label = document.createElement("label");
                     obj_li.append(obj_label);
-                    obj_label.innerHTML = choice["label"];
+                    obj_label.innerHTML = translate(choice)[0];
                     if ("description" in choice){
                         var obj_description = document.createElement("div");
                         obj_li.append(obj_description);
                         obj_description.className = "lipidomics-forms-field-description";
                         obj_description.style.display = "inline";
-                        obj_description.innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;(" + choice["description"] + ")";
+                        obj_description.innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;(" + translate(choice)[0] + ")";
                     }
                     
                 }
@@ -684,7 +744,7 @@ function load_data(content){
                 if (field["description"].length > 0){
                     var obj_description = document.createElement("div");
                     obj_description.className = "lipidomics-forms-field-description";
-                    obj_description.innerHTML = field["description"];
+                    obj_description.innerHTML = translate(field)[1];
                     obj.append(obj_description);
                 }
                 
@@ -719,7 +779,7 @@ function load_data(content){
                 // Adding the title of the field
                 var obj_title = document.createElement("div");
                 obj_title.className = "lipidomics-forms-field-title";
-                obj_title.innerHTML = "<b>" + field["label"] + "</b>";
+                obj_title.innerHTML = "<b>" + translate(field)[0] + "</b>";
                 if (("required" in field) && field["required"] == 1){
                     obj_title.innerHTML += " <font color='red'>*</font>";
                 }
@@ -751,7 +811,7 @@ function load_data(content){
                 var remaining_label = "Remaining";
                 for (choice of field["choice"]){
                     if (!("name" in choice)) continue;
-                    if (!("label" in choice)) choice["label"] = "Null";
+                    if (!("label" in choice)) translate(choice)[0] = "Null";
                     if (!("value" in choice)) choice["value"] = 0;
                     group_name = ("group" in choice) ? choice["group"] : remaining_label;
                     if (!(group_name in groups)) {
@@ -767,8 +827,8 @@ function load_data(content){
                             var obj_option = document.createElement("option");
                             obj_select.append(obj_option);
                             if (choice["value"] == 1) selectedIndex = cnt;
-                            obj_option.innerHTML = choice["label"] + ("description" in choice ? " - " + choice["description"]: "");
-                            if (field_name == "lipid_class") lipid_class_abbreviations.push(choice["label"]);
+                            obj_option.innerHTML = translate(choice)[0] + ("description" in choice ? " - " + translate(choice)[1]: "");
+                            if (field_name == "lipid_class") lipid_class_abbreviations.push(translate(choice)[0]);
                             cnt++;
                         }
                     }
@@ -783,8 +843,8 @@ function load_data(content){
                             obj_optgroup.append(obj_option);
                             if (choice["value"] == 1) selectedIndex = cnt;
                             
-                            obj_option.innerHTML = choice["label"] + ("description" in choice ? " - " + choice["description"]: "");
-                            if (field_name == "lipid_class") lipid_class_abbreviations.push(choice["label"]);
+                            obj_option.innerHTML = translate(choice)[0] + ("description" in choice ? " - " + translate(choice)[1]: "");
+                            if (field_name == "lipid_class") lipid_class_abbreviations.push(translate(choice)[0]);
                             cnt++;
                         }
                     }
@@ -814,7 +874,7 @@ function load_data(content){
                 if (field["description"].length > 0){
                     var obj_description = document.createElement("div");
                     obj_description.className = "lipidomics-forms-field-description";
-                    obj_description.innerHTML = field["description"];
+                    obj_description.innerHTML = translate(field)[1];
                     obj.append(obj_description);
                 }
                 
@@ -1043,7 +1103,6 @@ function update_tableview(field){
 
 function check_conditions(immediate){
     if (!form_enabled) return;
-    aaa = "table_lipid_class";
 
     for (field_name in field_conditions){
         field_visible[field_name] = false;
@@ -1057,11 +1116,14 @@ function check_conditions(immediate){
                 var conditional_field_key = choice_to_field[key];
                 var conditional_field = field_map[conditional_field_key];
 
-                if (is_first_version_higher(form_version, "v2.4.0") && (conditional_field["type"] == "number" || conditional_field["type"] == "select")){
-                    condition_met &= (!("required" in conditional_field)) || (conditional_field["required"] == 1) || (("activated" in conditional_field) && (conditional_field["activated"] == 1));
+                if (conditional_field["type"] == "number" || conditional_field["type"] == "select"){
+                    //if (is_first_version_higher(form_version, "v2.4.0")){
+                        condition_met &= (!("required" in conditional_field)) || (conditional_field["required"] == 1) || (("activated" in conditional_field) && (conditional_field["activated"] == 1));
+                    //}
                 }
 
-                condition_met &= (conditional_field_key in field_visible && field_visible[conditional_field_key]) && ((operator == "=" && field_map[key]["value"] == value) || (operator == "~" && field_map[key]["value"] != value));
+                field_value = (!("type" in field_map[key]) || (field_map[key]["type"] != "number")) ? field_map[key]["value"] : parseFloat(field_map[key]["value"]);
+                condition_met &= (conditional_field_key in field_visible && field_visible[conditional_field_key]) && ((operator == "=" && field_value == value) || (operator == "~" && field_value != value));
             }
             field_visible[field_name] |= condition_met;
         }

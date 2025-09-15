@@ -1,6 +1,7 @@
 import traceback
 import sys
 import os
+import pandas as pd
 
 try:    
     import sys
@@ -27,13 +28,15 @@ try:
                     "delete_selected_class_forms", "delete_selected_sample_forms",
                     "get_all_class_forms", "get_all_sample_forms",
                     "import_class_forms", "import_sample_forms",
-                    "complete_partial_form",
+                    "complete_partial_form", "get_lang_dict",
                     "export_report", "import_report",
                     "get_pdf", "publish", "get_public_link",
                     "get_form_content", "update_form_content",
                     "export_samples", "export_selected_samples", "import_samples",
                     "export_lipid_class", "export_selected_lipid_classes", "import_lipid_class",
                     "get_fragment_suggestions", "get_published_forms", "get_current_version"}
+
+    accepted_languages = {"en", "jp"}
     
     conn = None
     table_prefix = "TCrpQ_"
@@ -206,7 +209,6 @@ try:
     if len(content) == 0:
         print(str(ErrorCodes.NO_CONTENT) + " in main")
         exit()
-        
 
         
     # check if manager command is present and valid
@@ -228,6 +230,32 @@ try:
                 if "label" in choice and "value" in choice and choice["value"] == 1:
                     return choice["label"]
         return current_label
+
+
+
+
+    if content["command"] == "get_lang_dict":
+
+
+        if "language" not in content or content["language"] not in accepted_languages:
+            print(str(ErrorCodes.INVALID_COMMAND_ARGUMENT) + ": language")
+            exit()
+
+        try:
+            df_checklist = pd.read_excel(f"languages/{content["language"]}/checklist.xlsx")
+            df_lipid_class = pd.read_excel(f"languages/{content["language"]}/lipid-class.xlsx")
+            df_sample = pd.read_excel(f"languages/{content["language"]}/sample.xlsx")
+
+            language_dict = {row["name"]: [row["label"], row["description"]] for i, row in df_checklist.iterrows()}
+            language_dict = {**{row["name"]: [row["label"], row["description"]] for i, row in df_lipid_class.iterrows()}, **language_dict}
+            language_dict = {**{row["name"]: [row["label"], row["description"]] for i, row in df_sample.iterrows()}, **language_dict}
+
+            language_dict = {k: [v1 if pd.notna(v1) else "NaN", v2 if pd.notna(v2) else "NaN"] for k, (v1, v2) in language_dict.items()}
+
+            print(json_dumps(language_dict))
+
+        except Exception as e:
+            print(str(ErrorCodes.INVALID_COMMAND_ARGUMENT) + " in %s" % content["command"], e)
         
         
         
@@ -691,6 +719,7 @@ try:
                         field["value"] = workflow_type
                         break
                 field_template["version"] = version
+                field_template["language"] = content["language"] if "language" in content and content["language"] in accepted_languages else "en"
             field_template = json_dumps(field_template)
             
             
@@ -1051,6 +1080,7 @@ try:
             
             fields["current_page"] = 0
             fields["creation_date"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if "language" in fields_orig: fields["language"] = fields_orig["language"]
             fields = json_dumps(fields)
             
             
@@ -1952,9 +1982,7 @@ try:
                 print("ErrorCodes.NO_DOCUMENT: It seems that this report is published but no document is created.")
                 exit()
             
-            
             pdf_file = "completed_documents/report-%s.pdf" % hash_value
-            
             if not os.path.exists(pdf_file):
                 
                 if status == published_label:
@@ -1969,13 +1997,13 @@ try:
                 
                 CreateReport.create_report(db_cursor, table_prefix, uid, entry_id, report_file)
                 p = subprocess.Popen("./latexmk -pdflatex=lualatex -pdf -output-directory=completed_documents %s" % report_file, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, close_fds = True)
-                
+
                 output = p.stdout.read() # execution
-                
-                
+                #with open("log_latex.txt", "wt") as log_file: log_file.write(str(output))
+
                 if os.path.exists(pdf_file):
                     print("/%s/%s" % (path_name, pdf_file))
-                
+
                 else:
                     print(str(output))
                 

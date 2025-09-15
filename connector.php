@@ -87,17 +87,17 @@ $user_id = 0;
 if ($config["machine"] != "home"){
     $user_id = get_current_user_id();
     $user_uuid = !empty( $_COOKIE['_wpfuuid'] ) ? $_COOKIE['_wpfuuid'] : "";
-    if ($user_id == 2){
+    /*if ($user_id == 2){
         $user_id = 1544;
         $user_uuid = rawurlencode("bd6c04a6-147e-405f-8598-afec542b3cdb");
-    }
+    }*/
     array_push($request, "user_uuid=" . $user_uuid);
     array_push($request, "uid=" . $user_id);
 }
 else {
-    array_push($request, "user_uuid=" . rawurlencode("bd6c04a6-147e-405f-8598-afec542b3cdb"));
-    array_push($request, "uid=1544");
-    $user_id = 1544;
+    array_push($request, "user_uuid=" . rawurlencode("34b4bc10-a046-4f48-8ba0-b39381beb7b5"));
+    array_push($request, "uid=2");
+    $user_id = 2;
 }
 
 // if the request is too big, write in file and send over the filename

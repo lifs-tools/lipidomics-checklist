@@ -481,7 +481,11 @@ function register_new_main_form(){
     if (document.getElementById("radio_direct_infusion").checked) workflow_type = "di";
     else if (document.getElementById("radio_separation").checked) workflow_type = "sep";
     else if (document.getElementById("radio_imaging").checked) workflow_type = "img";
-    var request_url = connector_path + "/connector.php?command=add_main_form&workflow_type=" + workflow_type;
+
+    var si = document.getElementById("select_language").selectedIndex;
+    var lang = document.getElementById("select_language")[si].value;
+
+    var request_url = connector_path + "/connector.php?command=add_main_form&language=" + lang + "&workflow_type=" + workflow_type;
     xmlhttp_request.open("GET", request_url);
     xmlhttp_request.send();
 }
@@ -622,7 +626,16 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
                     <td><label for=\"radio_separation\" style=\"font-size: 20px;\">Separation</label></td></tr> \
                     <tr><td><input type=\"radio\" id=\"radio_imaging\" name=\"workflow_type_field\" value=\"workflow_imaging\"></td> \
                     <td><label for=\"radio_imaging\" style=\"font-size: 20px;\">Imaging</label></td></tr> \
-                </table> \
+                </table><p /> \
+                <table cellpadding=\"10px\"> \
+                    <tr><td colspan=\"2\"><b style=\"font-size: 20px;\">Select your language</b></td></tr> \
+                    <tr><td colspan=\"2\"> \
+                        <select id=\"select_language\" style=\"width: 200px;\"> \
+                            <option value=\"en\">English</option> \
+                            <option value=\"jp\">Japanese</option> \
+                        </select> \
+                    </td></tr> \
+                </table><p /> \
             </td></tr> \
             <tr><td align=\"left\" valign=\"bottom\" style=\"padding: 10px; border-top: 0px;\"> \
                     <div style=\"padding: 10px 15px; user-select: none; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"document.getElementById('workflow_selector').close(); document.getElementById('report_file_upload').value = null; document.getElementById('report_importer_form').showModal();\">Import report</div> \
