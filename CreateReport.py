@@ -3,11 +3,71 @@ import sqlite3
 from datetime import datetime
 import time
 from urllib.parse import unquote
+from fontTools.ttLib import TTFont
 import re
 
+DEFAULT_FONT = "LMSans"
+MISSING_CHAR = '▯'
+MISSING_CHAR_FONT = "Symbola"
 
 workflow_types = {"gen": "General Lipidomics", "di": "Direct Infusion", "sep": "Separation", "img": "Imaging"}
 
+font_sets = {
+    "LMSans": [
+        ["LMSansR", "lmsans10-regular.otf"],
+        ["LMSansB", "lmsans10-bold.otf"],
+        ["LMSansI", "lmsans10-oblique.otf"],
+        ["LMSansBI", "lmsans10-boldoblique.otf"],
+    ],
+    "HaranoAjiMincho": [
+        ["HaranoAjiMinchoR", "HaranoAjiMincho-regular.otf"],
+        ["HaranoAjiMinchoB", "HaranoAjiMincho-bold.otf"],
+        ["HaranoAjiMinchoI", "HaranoAjiMincho-regular.otf"],
+        ["HaranoAjiMinchoBI", "HaranoAjiMincho-bold.otf"],
+    ],
+    "NotoSansDevanagari": [
+        ["NotoSansDevanagariR", "NotoSansDevanagari-Regular.ttf"],
+        ["NotoSansDevanagariB", "NotoSansDevanagari-Bold.ttf"],
+        ["NotoSansDevanagariI", "NotoSansDevanagari-Regular.ttf"],
+        ["NotoSansDevanagariBI", "NotoSansDevanagari-Bold.ttf"],
+    ],
+    "DejaVuSans": [
+        ["DejaVuSansR", "DejaVuSans.ttf"],
+        ["DejaVuSansB", "DejaVuSans-Bold.ttf"],
+        ["DejaVuSansI", "DejaVuSans-Oblique.ttf"],
+        ["DejaVuSansBI", "DejaVuSans-BoldOblique.ttf"],
+    ],
+    "Symbola": [
+        ["SymbolaR", "Symbola.ttf"],
+        ["SymbolaB", "Symbola.ttf"],
+        ["SymbolaI", "Symbola.ttf"],
+        ["SymbolaBI", "Symbola.ttf"],
+    ],
+}
+
+fallback_fonts = ["LMSans", "HaranoAjiMincho", "NotoSansDevanagari", "DejaVuSans", "Symbola"]
+font_types = {"R", "B", "I", "BI"}
+
+font_preamble = []
+FONT_COVERAGE = {}
+for font_set_name, font_set in font_sets.items():
+    font_preamble.append(f"""
+\\newfontfamily\\{font_set_name}[
+  Path = ./fonts/,
+  UprightFont = {font_set[0][1]},
+  BoldFont    = {font_set[1][1]},
+  ItalicFont  = {font_set[2][1]},
+  BoldItalicFont = {font_set[3][1]}
+]{{{font_set_name}}}\n\n
+""")
+
+    for name, path in font_set:
+        ttf = TTFont("./fonts/" + path)
+        cmap = ttf["cmap"].getBestCmap()
+        FONT_COVERAGE[name] = set(cmap.keys())
+        ttf.close()
+#font_preamble += [f"\\setmainfont{{{DEFAULT_FONT}}}"]
+font_preamble = "".join(font_preamble)
 
 
 def split_verison_number(text_version):
@@ -260,6 +320,48 @@ def unicoding(t):
 
 
 
+
+def font_encoding(text, font_type = "R", size = 8, to_string = True):
+    if font_type not in font_types:
+        raise Exception(f"Font type '{font_type}' not in {font_types}.")
+
+    latex = []
+    last_font = None
+    last_position = 0
+
+    def add_encoding(txt, st, en, font, lst, s, ft):
+        if en - st > 0:
+            if ft in {"B", "BI"}: lst.append(r"{\textbf{")
+            if ft in {"I", "BI"}: lst.append(r"{\textit{")
+
+            if font != None:
+                lst.append(f"{{\\fontsize{{{s}}}{{{int(s + 2)}}}\\selectfont {{\\{font} {unicoding(txt[st : en])}}}}}")
+            else:
+                lst.append(f"{{\\fontsize{{{s}}}{{{int(s * 1.2)}}}\\selectfont {{\\{MISSING_CHAR_FONT} {MISSING_CHAR * (en - st)}}} }}")
+
+            if ft in {"I", "BI"}: lst.append(r"}}")
+            if ft in {"B", "BI"}: lst.append(r"}}")
+
+    for i, c in enumerate(text):
+        # pick font
+        current_font = None
+        for font in fallback_fonts:
+            if ord(c) in FONT_COVERAGE[font + font_type]:
+                current_font = font
+                break
+
+        if last_font != current_font:
+            add_encoding(text, last_position, i, last_font, latex, size, font_type)
+            last_position = i
+            last_font = current_font
+
+    add_encoding(text, last_position, len(text), last_font, latex, size, font_type)
+    return "".join(latex) if to_string else latex
+
+
+
+
+
 def make_table(title, text):
 
 
@@ -284,7 +386,7 @@ def make_table(title, text):
         else:
             result_text.append(" & ")
 
-        result_text.append(unicoding(unquote(cell)))
+        result_text.append(font_encoding(unquote(cell)))
 
         col_cnt += 1
         if col_cnt == num_cols:
@@ -316,7 +418,7 @@ def make_table(title, text):
         else:
             result_text.append(" & ")
 
-        result_text.append(unicoding(unquote(cell)))
+        result_text.append(font_encoding(unquote(cell)))
 
         if i % num_cols == num_cols - 1:
             result_text.append("\\\\")
@@ -400,8 +502,6 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
             lipid_class_title = "%i) %s / %s" % (i + 1, lipid_class_prefix, tmp_title)
             lipid_classes_titles.append(lipid_class_title)
 
-
-
     tex_preamble = """\\documentclass{article}
 
 % add packages
@@ -422,25 +522,9 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\usepackage{titlesec}
 \\usepackage{needspace}
 \\usepackage{fontspec}
-
-\\newfontfamily\\mySans[
-  Path = ./fonts/,      % path to folder containing font files
-  UprightFont = lmsans10-regular.otf,
-  BoldFont    = lmsans10-bold.otf,
-  ItalicFont  = lmsans10-oblique.otf,
-  BoldItalicFont = lmsans10-boldoblique.otf
-]{Latin Modern Sans}
-
-% Define fallback chain with names
-\\directlua{
-  luaotfload.add_fallback("myfallback", {
-    %"IPAexMincho:mode=node",
-    "DejaVu Sans:mode=node"
-  })
-}
-
-% Set main font with fallback chain
-\\setmainfont{Latin Modern Sans}[RawFeature={Fallback=myfallback}]
+"""
+    tex_preamble += font_preamble + "\n"
+    tex_preamble += """
 
 \\makeatletter
 \\renewcommand{\\section}{\\@startsection{section}{1}{0pt}%
@@ -501,11 +585,11 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 
         def write_data(mainbox, titles, report_fields, main_section = False, lipid_classes = False):
 
-            for i in range(len(titles)): titles[i] = unicoding(titles[i])
+            for i in range(len(titles)): titles[i] = font_encoding(titles[i])
             for section in report_fields:
                 for row in section:
-                    row[0] = unicoding(row[0])
-                    if row[1][:11] != "!!!TABLE!!!": row[1] = unicoding(row[1]) if len(row[1]) > 0 else unicoding("-")
+                    row[0] = font_encoding(row[0])
+                    if row[1][:11] != "!!!TABLE!!!": row[1] = font_encoding(row[1]) if len(row[1]) > 0 else font_encoding("-")
 
             ii = 0
             for i, mc in enumerate(titles):
