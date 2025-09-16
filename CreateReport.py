@@ -5,12 +5,15 @@ import time
 from urllib.parse import unquote
 from fontTools.ttLib import TTFont
 import re
+import pandas as pd
 
 DEFAULT_FONT = "LMSans"
 MISSING_CHAR = '▯'
 MISSING_CHAR_FONT = "Symbola"
 
 workflow_types = {"gen": "General Lipidomics", "di": "Direct Infusion", "sep": "Separation", "img": "Imaging"}
+accepted_languages = {"en", "jp"}
+current_language_dictionary = None
 
 font_sets = {
     "LMSans": [
@@ -120,8 +123,8 @@ def get_workflow_type(mycursor, table_prefix, uid, entry_id):
 
 
 
-logging = open("log.txt", "wt")
 def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields, version):
+    global current_language_dictionary
 
     sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
@@ -140,16 +143,31 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
         if field["name"] == "workflowtype":
             workflow_type = field["value"] if field["value"] in workflow_types else "gen"
 
+    language = result["language"] if "language" in result and result["language"] in accepted_languages else "en"
+    if current_language_dictionary == None and language != "en":
+        df_checklist = pd.read_excel(f"languages/{language}/checklist.xlsx")
+        df_lipid_class = pd.read_excel(f"languages/{language}/lipid-class.xlsx")
+        df_sample = pd.read_excel(f"languages/{language}/sample.xlsx")
+
+        current_language_dictionary = {row["name"]: [row["label"], row["description"]] for i, row in df_checklist.iterrows()}
+        current_language_dictionary = {**{row["name"]: [row["label"], row["description"]] for i, row in df_lipid_class.iterrows()}, **current_language_dictionary}
+        current_language_dictionary = {**{row["name"]: [row["label"], row["description"]] for i, row in df_sample.iterrows()}, **current_language_dictionary}
+
+        current_language_dictionary = {k: [v1 if pd.notna(v1) else None, v2 if pd.notna(v2) else None] for k, (v1, v2) in current_language_dictionary.items()}
 
     for page in result["pages"]:
         for field in page["content"]:
             field_name = field["name"]
             visible[field_name] = True
 
+            if current_language_dictionary != None and language != "en":
+                field["label"], field["description"] = translate(field)
+
             field_map[field_name] = field
             if field["type"] in {"select", "multiple"} and "choice" in field:
                 for choice in field["choice"]:
                     if "name" in choice:
+                        choice["label"], choice["description"] = translate(choice)
                         field_map[choice["name"]] = choice
                         choice_to_field[choice["name"]] = field_name
             else:
@@ -216,9 +234,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
                     field_value = field_map[key]["value"] if ("type" not in field_map[key] or field_map[key]["type"] != "number") else float(field_map[key]["value"])
                     condition_met &= (conditional_field_key in visible and visible[conditional_field_key]) and ((operator == "=" and field_value == value) or (operator == "~" and field_value != value))
-                    if field_name == "type_of_blanks": logging.write(f"{field_name} {field_value} {key} {operator} {value} {field_value == value} {conditional_field_key} {conditional_field_key in visible} {visible[conditional_field_key]}\n")
                 visible[field_name] |= condition_met
-            logging.write(f"{field_name} {visible[field_name]}\n")
 
 
     for page in result["pages"]:
@@ -358,6 +374,23 @@ def font_encoding(text, font_type = "R", size = 8, to_string = True):
     add_encoding(text, last_position, len(text), last_font, latex, size, font_type)
     return "".join(latex) if to_string else latex
 
+
+
+
+
+
+def translate(field):
+    label = field["label"] if "label" in field else ""
+    description = field["description"] if "description" in field else ""
+
+    if (current_language_dictionary == None) or ("name" not in field) or (field["name"] not in current_language_dictionary):
+        return [label, description]
+
+    field_name = field["name"]
+    label = label if current_language_dictionary[field_name][0] == None else current_language_dictionary[field_name][0]
+    description = description if current_language_dictionary[field_name][1] == None else current_language_dictionary[field_name][1]
+
+    return [label, description]
 
 
 
