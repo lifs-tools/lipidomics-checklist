@@ -481,94 +481,122 @@ customElements.define("view-table", TableView);
 
 
 
-var sample_table_view = "<dialog id=\"sample_selector_wrapper\" style=\"width: 70%; height: 70%; border-radius: 5px;\"> \
-    <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
-        <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
-            <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select sample types from other reports for import</b></td></tr> \
-            <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='sample_selector_inner' valign=\"top\" align=\"center\"> \
-                <view-table id='viewtable-import-sample' columns='Sample|Selection' size='95|5' sort='1|0' align='l|c' fixedHeight ></view-table> \
-            </td></tr> \
-            <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
-                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">Select</div>&nbsp;&nbsp; \
-                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_sample_selector();\">Cancel</div> \
-            </td></tr> \
-        </table> \
-    </div> \
-</dialog> \
-<dialog id='preview_sample' style=\"width: 70%; height: 700px; border-radius: 5px;\"> \
-    <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").close();'></div> \
-    <div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
-</dialog> \
-<dialog id='import_samples_from_file_form' style=\"background: white; border-radius: 5px;\"> \
-<table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
-Select a spreadsheet file for upload: <p /> \
-<input type='file' id='sample_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
-<button onclick='upload_samples(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_samples_importer();'>Cancel</button> \
-</td></tr></table></dialog> \
-&nbsp;<p /><div style=\"display: inline-block;\"> \
-    <button class='submit-button' title=\"You can create a completely new sample entry\" onclick=\"register_new_sample_form();\">Add sample type</button> \
-    <button class='submit-button' title=\"You can import sample entries from your other reports\" onclick=\"show_sample_selector();\">Import registered samples</button> \
-    <button class='submit-button' title=\"You can export sample entries into a spreadsheet file\" onclick=\"export_samples(entry_id);\">Export samples to file</button> \
-    <button class='submit-button' title=\"You can import sample entries from a spreadsheet file\" onclick=\"show_samples_importer();\">Import samples from file</button> \
-</div><p /> \
-<div style='width: 100%; text-align: right;'>\
-    <font size='-1'>\
-        Select mass action: <select id='mass_action_samples'>\
-            <option>Please select</option> \
-            <option>Export to file</option> \
-            <option>Delete</option> \
-        </select> <button onclick='sample_mass_action();'>Go</button><br />\
-        \
-        <div style='cursor: pointer; display: inline;' onclick='select_all_samples(true);'>select all</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_samples(false);'>deselect all</div>\
-    </font>\
-</div>\
-<view-table id='viewtable-sample' columns='Sample set name / Sample type|Status|Actions|Samples' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
+function sample_table_view(){
+
+    var select_all = translate_meta("select_all", "select all");
+    var deselect_all = translate_meta("deselect_all", "deselect all");
+    var select_mass_action = translate_meta("select_mass_action", "Select mass action");
+    var add_sample_type = translate_meta("add_sample_type", "Add sample type");
+    var import_registered_samples = translate_meta("import_registered_samples", "Import registered samples");
+    var export_sample_to_file = translate_meta("export_samples", "Export samples to file");
+    var import_samples_from_file = translate_meta("import_samples", "Import samples from file");
+    var apply_mass_action = translate_meta("apply_mass_action", "Go");
+    var please_select = translate_meta("please_select", "Please select");
+    var export_to_file_action = translate_meta("export_to_file_action", "Export to file");
+    var delete_action = translate_meta("delete_action", "Delete");
+    var select_action = translate_meta("select_action", "Select");
+    var cancel_action = translate_meta("cancel_action", "Cancel");
+    var sample_sample_header = translate_meta("sample_sample_header", "Sample");
+    var select_sample_other = translate_meta("select_sample_other", "Select sample types from other reports for import");
+    var select_spreadsheet = translate_meta("select_spreadsheet", "Select a spreadsheet file for upload");
+    var upload_file = translate_meta("upload_file", "Upload file");
+
+    var sample_type_header = translate_meta("sample_type_header", "Sample set name / Sample type");
+    var sample_status = translate_meta("sample_status", "Status");
+    var sample_actions = translate_meta("sample_actions", "Actions");
 
 
 
+    return "<dialog id=\"sample_selector_wrapper\" style=\"width: 70%; height: 70%; border-radius: 5px;\"> \
+        <div id=\"control-buttons-sample\" style=\"width: 100%; height: 100%; position: relative;\"> \
+            <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
+                <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">" + select_sample_other + "</b></td></tr> \
+                <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='sample_selector_inner' valign=\"top\" align=\"center\"> \
+                    <view-table id='viewtable-import-sample' columns='" + sample_sample_header + "|" + select_action + "' size='95|5' sort='1|0' align='l|c' fixedHeight ></view-table> \
+                </td></tr> \
+                <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
+                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_sample_selector();\">" + select_action + "</div>&nbsp;&nbsp; \
+                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_sample_selector();\">" + cancel_action + "</div> \
+                </td></tr> \
+            </table> \
+        </div> \
+    </dialog> \
+    <dialog id='preview_sample' style=\"width: 70%; height: 700px; border-radius: 5px;\"> \
+        <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_sample\").close();'></div> \
+        <div id='preview_sample_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
+    </dialog> \
+    <dialog id='import_samples_from_file_form' style=\"background: white; border-radius: 5px;\"> \
+    <table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
+    " + select_spreadsheet + ": <p /> \
+    <input type='file' id='sample_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
+    <button onclick='upload_samples(entry_id);'>" + upload_file + "</button>&nbsp;&nbsp;<button onclick='hide_samples_importer();'>" + cancel_action + "</button> \
+    </td></tr></table></dialog> \
+    &nbsp;<p /><div style=\"display: inline-block;\"> \
+        <button class='submit-button' title=\"You can create a completely new sample entry\" onclick=\"register_new_sample_form();\">" + add_sample_type + "</button> \
+        <button class='submit-button' title=\"You can import sample entries from your other reports\" onclick=\"show_sample_selector();\">" + import_registered_samples + "</button> \
+        <button class='submit-button' title=\"You can export sample entries into a spreadsheet file\" onclick=\"export_samples(entry_id);\">" + export_sample_to_file + "</button> \
+        <button class='submit-button' title=\"You can import sample entries from a spreadsheet file\" onclick=\"show_samples_importer();\">" + import_samples_from_file + "</button> \
+    </div><p /> \
+    <div style='width: 100%; text-align: right;'>\
+        <font size='-1'>\
+            " + select_mass_action + ": <select id='mass_action_samples'>\
+                <option>" + please_select + "</option> \
+                <option>" + export_to_file_action + "</option> \
+                <option>" + delete_action + "</option> \
+            </select> <button onclick='sample_mass_action();'>" + apply_mass_action + "</button><br />\
+            \
+            <div style='cursor: pointer; display: inline;' onclick='select_all_samples(true);'>" + select_all + "</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_samples(false);'>" + deselect_all + "</div>\
+        </font>\
+    </div>\
+    <view-table id='viewtable-sample' columns='" + sample_type_header + "|" + sample_status + "|" + sample_actions + "|" + select_action + "' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
+}
 
-var lipid_class_table_view = "<dialog id=\"class_selector_wrapper\" style=\"width: 70%; height: 70%; border-radius: 5px;\"> \
-    <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
-        <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
-            <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
-            <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
-                <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Selection' size='35|30|30|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
-            </td></tr> \
-            <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
-                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
-                <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_class_selector();\">Cancel</div> \
-            </td></tr> \
-        </table> \
-    </div> \
-</dialog> \
-<dialog id='preview_lipid_class' style='width: 70%; height: 700px; background: white; border-radius: 5px;'> \
-    <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").close();'></div> \
-    <div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
-</dialog> \
-<dialog id='import_lipid_class_from_file_form' style=\"background: white; border-radius: 5px;\"> \
-<table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
-Select a spreadsheet file for upload: <p /> \
-<input type='file' id='lipid_class_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
-<button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
-</td></tr></table></dialog> \
-&nbsp;<p /><div style=\"display: inline-block;\"> \
-    <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_class_form();\">Add lipid class</button> \
-    <button class='submit-button' title=\"You can import lipid class entries from your other reports\" onclick=\"show_class_selector();\">Import registered lipid classes</button> \
-    <button class='submit-button' title=\"You can export lipid class entries into a spreadsheet file\" onclick=\"export_lipid_class(entry_id)\">Export lipid classes to file</button> \
-    <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</button> \
-</div><p /> \
-<div id=\"result_box\"></div>\
-<div style='width: 100%; text-align: right;'>\
-    <font size='-1'>\
-        Select mass action: <select id='mass_action_lipid_class'>\
-            <option>Please select</option> \
-            <option>Export to file</option> \
-            <option>Delete</option> \
-        </select> <button onclick='lipid_class_mass_action();'>Go</button><br />\
-        \
-        <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(true);'>select all</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(false);'>deselect all</div>\
-    </font>\
-</div>\
-<view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions|Select' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
+
+
+function lipid_class_table_view(){
+    return "<dialog id=\"class_selector_wrapper\" style=\"width: 70%; height: 70%; border-radius: 5px;\"> \
+        <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
+            <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
+                <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
+                <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
+                    <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Select' size='35|30|30|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
+                </td></tr> \
+                <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
+                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
+                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_class_selector();\">Cancel</div> \
+                </td></tr> \
+            </table> \
+        </div> \
+    </dialog> \
+    <dialog id='preview_lipid_class' style='width: 70%; height: 700px; background: white; border-radius: 5px;'> \
+        <div style='width: 100%; text-align: right;'><img src='" + connector_path + "/images/close-x.png' style='cursor: pointer; padding: 3px;' onclick='document.getElementById(\"preview_lipid_class\").close();'></div> \
+        <div id='preview_lipid_class_content' style='width: 100%; height: calc(100% - 50px); box-sizing: border-box; padding: 50px; overflow-y: auto;'></div> \
+    </dialog> \
+    <dialog id='import_lipid_class_from_file_form' style=\"background: white; border-radius: 5px;\"> \
+    <table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
+    Select a spreadsheet file for upload: <p /> \
+    <input type='file' id='lipid_class_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
+    <button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
+    </td></tr></table></dialog> \
+    &nbsp;<p /><div style=\"display: inline-block;\"> \
+        <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_class_form();\">Add lipid class</button> \
+        <button class='submit-button' title=\"You can import lipid class entries from your other reports\" onclick=\"show_class_selector();\">Import registered lipid classes</button> \
+        <button class='submit-button' title=\"You can export lipid class entries into a spreadsheet file\" onclick=\"export_lipid_class(entry_id)\">Export lipid classes to file</button> \
+        <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</button> \
+    </div><p /> \
+    <div id=\"result_box\"></div>\
+    <div style='width: 100%; text-align: right;'>\
+        <font size='-1'>\
+            Select mass action: <select id='mass_action_lipid_class'>\
+                <option>Please select</option> \
+                <option>Export to file</option> \
+                <option>Delete</option> \
+            </select> <button onclick='lipid_class_mass_action();'>Go</button><br />\
+            \
+            <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(true);'>select all</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(false);'>deselect all</div>\
+        </font>\
+    </div>\
+    <view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions|Select' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
+}
 
 var registered_tables = {"sample": sample_table_view, "lipid-class": lipid_class_table_view};

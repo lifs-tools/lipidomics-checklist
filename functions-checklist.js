@@ -45,6 +45,7 @@ function split_verison_number(text_version){
 }
 
 
+
 function is_first_version_higher(first_version, version_to_test){
     if (first_version == null || version_to_test == null) return false;
 
@@ -65,19 +66,16 @@ function is_first_version_higher(first_version, version_to_test){
 
 
 function translate(field){
+    var label = ("label" in field) ? field["label"] : "";
+    var description = ("description" in field) ? field["description"] : "";
+
     if (
         (current_language_dictionary == null) ||
         (!("name" in field)) ||
         (!(field["name"] in current_language_dictionary))
     ){
-        var label = ("label" in field) ? field["label"] : "";
-        var description = ("description" in field) ? field["description"] : "";
         return [label, description];
     }
-
-
-    var label = ("label" in field) ? field["label"] : "";
-    var description = ("description" in field) ? field["description"] : "";
 
     var field_name = field["name"];
     label = (current_language_dictionary[field_name][0] == NaN) ? label : current_language_dictionary[field_name][0];
@@ -85,6 +83,25 @@ function translate(field){
 
     return [label, description];
 }
+
+
+
+function translate_meta(field, default_text){
+    if (current_language_dictionary == null) return default_text;
+
+    var field_name = "";
+    if (typeof field === "string"){
+        field_name = field;
+    }
+    else {
+        if (!("name" in field)) return default_text;
+        field_name = field["name"];
+    }
+
+    if (!(field_name in current_language_dictionary)) return default_text;
+    return (current_language_dictionary[field_name][0] == NaN) ? default_text : current_language_dictionary[field_name][0];
+}
+
 
 
 
@@ -232,6 +249,8 @@ function format_field(el, final_valid_mode, cursors = 0){
 }
 
 function load_data(content){
+    current_language = "en";
+    current_language_dictionary = null;
     lipidomics_forms_content = content;
     field_map = {};
     dom_field_map = {};
@@ -249,16 +268,6 @@ function load_data(content){
     
     form_enabled = true;
     form_version = ("version" in content) ? content["version"] : "v1.0.0";
-    
-    if (workflow_type == "sample"){
-        document.getElementById("back_button").innerHTML = "Back to Preanalytics / Sample material";
-    }
-    else if (workflow_type == "lipid-class"){
-        document.getElementById("back_button").innerHTML = "Back to Lipid identification / Additional separation method(s)";
-    }
-    else {
-        document.getElementById("back_button").innerHTML = "Back to Report Overview";
-    }
     
     check_fields = {};
     label_set = new Set();
@@ -288,12 +297,21 @@ function load_data(content){
                     if (value === "NaN") return NaN;
                     return value;
                 });
-                console.log(current_language_dictionary);
             }
         }
         var request_url = connector_path + "/connector.php?command=get_lang_dict&language=" + current_language;
         xmlhttp_request.open("GET", request_url, false);
         xmlhttp_request.send(false);
+    }
+
+    if (workflow_type == "sample"){
+        document.getElementById("back_button").innerHTML = "Back to Preanalytics / Sample material";
+    }
+    else if (workflow_type == "lipid-class"){
+        document.getElementById("back_button").innerHTML = "Back to Lipid identification / Additional separation method(s)";
+    }
+    else {
+        document.getElementById("back_button").innerHTML = translate_meta("back_to_overview", "Back to Report Overview");
     }
 
     
@@ -446,9 +464,9 @@ function load_data(content){
             
             obj_status_text.className = "lipidomics-forms-status-text";
             if ("title" in page){
-                page_title = page["title"];
+                page_title = translate_meta(page, ("title" in page) ? page["title"] : "");
             }
-            obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - Page " + (page_cnt + 1) + " of " + lipidomics_forms_content["pages"].length + "</font>";
+            obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - " + translate_meta("page_header", "Page") + " " + (page_cnt + 1) + " / " + lipidomics_forms_content["pages"].length + "</font>";
             obj_status.append(obj_status_text);
             
             var obj_status_bar = document.createElement("div");
@@ -534,7 +552,7 @@ function load_data(content){
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
-                obj_required.innerHTML = "This field is required.";
+                obj_required.innerHTML = translate_meta("field_required", "This field is required.");
                 obj_required.style.display = "none";
                 obj.append(obj_required);
                 required_messages[field_name] = obj_required;
@@ -601,7 +619,7 @@ function load_data(content){
                 
                 var obj_html = document.createElement("div");
                 obj.append(obj_html);
-                obj_html.innerHTML = registered_tables[field["view"]];
+                obj_html.innerHTML = registered_tables[field["view"]]();
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
@@ -897,7 +915,7 @@ function load_data(content){
             var obj_prev = document.createElement("button");
             obj_prev.className = "submit-button";
             obj_prev.disabled = !form_enabled;
-            obj_prev.innerHTML = "Save & Previous";
+            obj_prev.innerHTML = translate_meta("save_previous", "Save & Previous");
             obj_prev.setAttribute('onclick','change_page(-1);');
             obj_page.append(obj_prev);
         }
@@ -906,11 +924,12 @@ function load_data(content){
         obj_next.className = "submit-button";
         obj_next.disabled = !form_enabled;
         if (page_cnt < lipidomics_forms_content["pages"].length - 1){
-            obj_next.innerHTML = "Save & Next";
+            obj_next.innerHTML = translate_meta("save_next" , "Save & Next");
             obj_next.setAttribute('onclick','change_page(1);');
         }
         else {
             obj_next.innerHTML = "Save";
+            obj_next.innerHTML = translate_meta("save_action" , "Save");
             obj_next.setAttribute('onclick','submit_form();');
         }
         obj_page.append(obj_next);
@@ -940,7 +959,7 @@ function load_data(content){
     if (lipidomics_forms_content["pages"].length > 1){
         var obj_p = document.createElement("p");
         var obj_text_goto = document.createElement("div");
-        obj_text_goto.innerHTML = "Or go to:";
+        obj_text_goto.innerHTML = translate_meta("goto", "Or go to:");
         obj_p.append(obj_text_goto);
         obj_p.append(goto_select);
         form_viewer.append(obj_p);
@@ -1270,7 +1289,7 @@ function change_page(offset, obj_select){
             if (lipidomics_forms_content["pages"].length <= i) break;
             
             var obj_option = document.createElement("option");
-            var page_title = lipidomics_forms_content["pages"][i]["title"];
+            var page_title = translate_meta(lipidomics_forms_content["pages"][i], lipidomics_forms_content["pages"][i]["title"]);
             if (typeof page_title === 'object' && page_title !== null && !Array.isArray(page_title) && ("workflowtype" in field_map) && ("value" in field_map["workflowtype"])) {
                 var wt = field_map["workflowtype"]["value"];
                 if (wt in page_title){

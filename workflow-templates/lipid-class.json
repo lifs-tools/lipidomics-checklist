@@ -1,4 +1,4 @@
-{"pages": [{"title": "Lipid identification", "content": [
+{"pages": [{"name": "lipid_identification_form", "title": "Lipid identification", "content": [
 
 {"label": "Lipid class", "name": "lipid_class", "type": "select", "required": 1, "choice": [
 
@@ -202,7 +202,7 @@
 
 
 
-{"title": "Lipid quantification", "content": [
+{"name": "lipid_quantification_form", "title": "Lipid quantification", "content": [
 
 {"label": "Quantitative", "name": "quantitative", "type": "select", "required": 1, "choice": [{"name": "quantitative#yes", "label": "Yes", "value": 0}, {"name": "quantitative#no", "label": "No", "value": 1}], "description": "Is the lipid quantitatively identified, i.e. concentrations are reported?"},
 

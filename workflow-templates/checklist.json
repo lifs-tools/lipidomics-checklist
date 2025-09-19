@@ -1,4 +1,4 @@
-{"pages": [{"title": "Overall study design", "content": [
+{"pages": [{"name": "study_design", "title": "Overall study design", "content": [
 
 {"label": "Title of the study", "name": "title_study", "type": "text", "required": 1, "value": "", "description": ""},
 
@@ -19,7 +19,7 @@
 
 
 
-{"title": "Preanalytics / Sample Material", "content": [
+{"name": "preanalytics", "title": "Preanalytics / Sample Material", "content": [
 
 {"name": "table_sample", "type": "tableview", "value": 0, "required": 1, "view": "sample"}
 
@@ -28,7 +28,7 @@
 
 
 
-{"title": {"default": "Lipid extraction", "img": "Sample preparation/source conditions"}, "content": [
+{"name": "lipid_extraction", "title": {"default": "Lipid extraction", "img": "Sample preparation/source conditions"}, "content": [
 
 {"label": "Extraction method", "name": "extraction_method", "type": "select", "required": 1, "choice": [{"name": "extraction_method#1-phase_system", "label": "1-phase system", "value": 1}, {"name": "extraction_method#2-phase_system", "label": "2-phase system", "value": 0}, {"name": "extraction_method#solid-phase_extraction", "label": "Solid-Phase Extraction", "value": 0}, {"name": "extraction_method#other", "label": "Other", "value": 0}], "description": "Which type of lipid extraction was applied?", "condition": "workflowtype~'img'"},
 
@@ -191,7 +191,7 @@
 
 
 
-{"title": "Analytical platform", "content": [
+{"name": "analytical_platform", "title": "Analytical platform", "content": [
 
 {"label": "Ionizaton additives", "name": "ionization_add", "type": "multiple", "required": 1, "description": "Which ionizaton additives are used?", "choice": [{"name": "ionization_add#amma", "label": "Ammonium acetate", "value": 0}, {"name": "ionization_add#ammf", "label": "Ammonium formate", "value": 0}, {"name": "ionization_add#fa", "label": "Formic acid", "value": 0}, {"name": "ionization_add#aa", "label": "Acetic acid", "value": 0}, {"name": "ionization_add#m", "label": "Methylamine", "value": 0}, {"name": "ionization_add#amm", "label": "Ammonia", "value": 0}, {"name": "ionization_add#lh", "label": "Lithium hydroxide", "value": 0}, {"name": "ionization_add#other", "label": "Other", "value": 0}], "condition": "workflowtype~'img'"},
 
@@ -291,7 +291,7 @@
 
 
 
-{"title": "Lipid identification / Additional separation method(s) / Additional analytical dimension / Lipid Quantification", "content": [
+{"name": "lipid_ident", "title": "Lipid identification / Additional separation method(s) / Additional analytical dimension / Lipid Quantification", "content": [
 
 {"name": "table_lipid_class", "type": "tableview", "value": 0, "required": 1, "view": "lipid-class", "condition": "detector#ms=1"},
 
@@ -304,7 +304,7 @@
 
 
 
-{"title": {"default": "Quality control", "img": "Visualization settings"}, "content": [
+{"name": "qc_vs", "title": {"default": "Quality control", "img": "Visualization settings"}, "content": [
 
 {"label": "Blanks", "name": "blanks", "type": "select", "required": 1, "choice": [{"name": "blanks#yes", "label": "Yes", "value": 0}, {"name": "blanks#no", "label": "No", "value": 1}], "description": "Where blank samples analyzed?", "condition": "workflowtype~'img'"},
 
@@ -343,7 +343,7 @@
 
 
 
-{"title": "Method qualification and validation", "content": [
+{"name": "method_quantification", "title": "Method qualification and validation", "content": [
 
 {"label": "Method validation", "name": "method_validation", "type": "select", "required": 1, "choice": [{"name": "method_validation#yes", "label": "Yes", "value": 0}, {"name": "method_validation#no", "label": "No", "value": 1}], "description": "Was any method validation performed?"},
 
@@ -377,7 +377,7 @@
 
 
 
-{"title": "Reporting", "content": [
+{"name": "reporting", "title": "Reporting", "content": [
 
 {"label": "Are reported raw data uploaded into repository?", "name": "reported_raw_data", "type": "select", "required": 1, "choice": [{"name": "reported_raw_data#yes", "label": "Yes", "value": 0}, {"name": "reported_raw_data#no", "label": "No", "value": 1}, {"name": "reported_raw_data#available_on_request", "label": "Available on request", "value": 0}], "description": "Were reported data uploaded into repository or included as supplementary data?"},
 
@@ -391,4 +391,4 @@
 
 {"label": "Additional comments", "name": "additional_comments", "type": "text", "required": 0, "value": "", "description": "Please write any additional comment (if present)"}
 
-]}], "current_page": 0, "max_page": 0, "creation_date": "", "version": ""}
+]}], "current_page": 0, "max_page": 0, "creation_date": "", "version": "", "language": "en"}

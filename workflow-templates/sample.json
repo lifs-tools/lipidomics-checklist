@@ -1,4 +1,4 @@
-{"pages": [{"title": "-", "content": [{"label": "Sample set name", "name": "sample_set_name", "type": "text", "required": 1, "value": "", "description": "Name of the sample set."},
+{"pages": [{"name": "sample_form", "title": "-", "content": [{"label": "Sample set name", "name": "sample_set_name", "type": "text", "required": 1, "value": "", "description": "Name of the sample set."},
 
 {"name": "workflowtype", "type": "hidden", "value": "di"},
 

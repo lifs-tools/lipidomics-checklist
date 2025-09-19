@@ -245,10 +245,12 @@ try:
             df_checklist = pd.read_excel(f"languages/{content["language"]}/checklist.xlsx")
             df_lipid_class = pd.read_excel(f"languages/{content["language"]}/lipid-class.xlsx")
             df_sample = pd.read_excel(f"languages/{content["language"]}/sample.xlsx")
+            df_meta = pd.read_excel(f"languages/{content["language"]}/meta.xlsx")
 
             language_dict = {row["name"]: [row["label"], row["description"]] for i, row in df_checklist.iterrows()}
             language_dict = {**{row["name"]: [row["label"], row["description"]] for i, row in df_lipid_class.iterrows()}, **language_dict}
             language_dict = {**{row["name"]: [row["label"], row["description"]] for i, row in df_sample.iterrows()}, **language_dict}
+            language_dict = {**{row["name"]: [row["label"], "NaN"] for i, row in df_meta.iterrows()}, **language_dict}
 
             language_dict = {k: [v1 if pd.notna(v1) else "NaN", v2 if pd.notna(v2) else "NaN"] for k, (v1, v2) in language_dict.items()}
 
