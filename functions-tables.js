@@ -554,16 +554,41 @@ function sample_table_view(){
 
 
 function lipid_class_table_view(){
+
+    var select_all = translate_meta("select_all", "select all");
+    var deselect_all = translate_meta("deselect_all", "deselect all");
+    var select_mass_action = translate_meta("select_mass_action", "Select mass action");
+    var add_lipid_class = translate_meta("add_lipid_class", "Add lipid class");
+    var import_registered_lipid_classes = translate_meta("import_registered_lipid_classes", "Import registered lipid classes");
+    var export_lipid_classes_to_file = translate_meta("export_lipid_classes", "Export lipid classes to file");
+    var import_lipid_classes_from_file = translate_meta("import_lipid_classes", "Import lipid classes from file");
+    var apply_mass_action = translate_meta("apply_mass_action", "Go");
+    var please_select = translate_meta("please_select", "Please select");
+    var export_to_file_action = translate_meta("export_to_file_action", "Export to file");
+    var delete_action = translate_meta("delete_action", "Delete");
+    var select_action = translate_meta("select_action", "Select");
+    var cancel_action = translate_meta("cancel_action", "Cancel");
+    var lipid_class_header = translate_meta("lipid_class_header", "Lipid class");
+    var select_lipid_class_other = translate_meta("select_lipid_class_other", "Select lipid classes from other reports for import");
+    var select_spreadsheet = translate_meta("select_spreadsheet", "Select a spreadsheet file for upload");
+    var upload_file = translate_meta("upload_file", "Upload file");
+
+    var report_title = translate_meta("report_title", "Report title");
+    var modification_date_header = translate_meta("modification_date_header", "Modification date");
+    var sample_status = translate_meta("sample_status", "Status");
+    var sample_actions = translate_meta("sample_actions", "Actions");
+
+
     return "<dialog id=\"class_selector_wrapper\" style=\"width: 70%; height: 70%; border-radius: 5px;\"> \
         <div id=\"control-buttons\" style=\"width: 100%; height: 100%; position: relative;\"> \
             <table style=\"width: 100%; margin: 0px; height: 100%; border: inherit;\" cellpadding=\"10px\"> \
-                <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">Select lipid classes from other reports for import</b></td></tr> \
+                <tr style='background-color: rgba(0, 0, 0, 0) !important;'><td style=\"width: 100%; border: 0px;\"><b style=\"font-size: 20px;\">" + select_lipid_class_other + "</b></td></tr> \
                 <tr><td style=\"width: 100%; border: 0px; height: 80%;\" id='class_selector_inner' valign=\"top\" align=\"center\"> \
-                    <view-table id='viewtable-import-lipid-class' columns='Report Title|Lipid class|Modification date|Select' size='35|30|30|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
+                    <view-table id='viewtable-import-lipid-class' columns='" + report_title + "|" + lipid_class_header + "|" + modification_date_header + "|" + select_action + "' size='35|30|30|5' sort='1|1|1|0' style=\"overflow-y: auto;\" align='l|l|l|c' fixedHeight ></view-table> \
                 </td></tr> \
                 <tr><td style='border: 0px;' align=\"right\" valign=\"bottom\"> \
-                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">Select</div>&nbsp;&nbsp; \
-                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_class_selector();\">Cancel</div> \
+                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"select_class_selector();\">" + select_action + "</div>&nbsp;&nbsp; \
+                    <div style=\"padding: 10px 15px; font-size: 1em; color: #333; font-family: Arial; background-color: #eee; cursor: pointer; display: inline; border: 1px solid #ddd; border-radius: 3px;\" onmouseover=\"this.style.backgroundColor = '#ddd';\" onmouseleave=\"this.style.backgroundColor = '#eee';\" onclick=\"close_class_selector();\">" + cancel_action + "</div> \
                 </td></tr> \
             </table> \
         </div> \
@@ -574,29 +599,29 @@ function lipid_class_table_view(){
     </dialog> \
     <dialog id='import_lipid_class_from_file_form' style=\"background: white; border-radius: 5px;\"> \
     <table style='width: 400px; height: 100px; border: 0px; margin: 0px;'><tr style='vertical-align: middle; background-color: rgba(0,0,0,0) !important;'><td width='100%' height='100%' style='border: 0px; vertical-align: middle;' align='center' valign='middle'> \
-    Select a spreadsheet file for upload: <p /> \
+    " + select_spreadsheet + ": <p /> \
     <input type='file' id='lipid_class_file_upload' accept='.xlsx' style='border: 0px;'></input><p /> \
-    <button onclick='upload_lipid_class(entry_id);'>Upload file</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
+    <button onclick='upload_lipid_class(entry_id);'>" + upload_file + "</button>&nbsp;&nbsp;<button onclick='hide_lipid_class_importer();'>Cancel</button> \
     </td></tr></table></dialog> \
     &nbsp;<p /><div style=\"display: inline-block;\"> \
-        <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_class_form();\">Add lipid class</button> \
-        <button class='submit-button' title=\"You can import lipid class entries from your other reports\" onclick=\"show_class_selector();\">Import registered lipid classes</button> \
-        <button class='submit-button' title=\"You can export lipid class entries into a spreadsheet file\" onclick=\"export_lipid_class(entry_id)\">Export lipid classes to file</button> \
-        <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">Import lipid classes from file</button> \
+        <button class='submit-button' title=\"You can create a completely new lipid class entry\" onclick=\"register_new_class_form();\">" + add_lipid_class + "</button> \
+        <button class='submit-button' title=\"You can import lipid class entries from your other reports\" onclick=\"show_class_selector();\">" + import_registered_lipid_classes + "</button> \
+        <button class='submit-button' title=\"You can export lipid class entries into a spreadsheet file\" onclick=\"export_lipid_class(entry_id)\">" + export_lipid_classes_to_file + "</button> \
+        <button class='submit-button' title=\"You can import lipid_class entries from a spreadsheet file\" onclick=\"show_lipid_class_importer();\">" + import_lipid_classes_from_file + "</button> \
     </div><p /> \
     <div id=\"result_box\"></div>\
     <div style='width: 100%; text-align: right;'>\
         <font size='-1'>\
-            Select mass action: <select id='mass_action_lipid_class'>\
-                <option>Please select</option> \
-                <option>Export to file</option> \
-                <option>Delete</option> \
-            </select> <button onclick='lipid_class_mass_action();'>Go</button><br />\
+            " + select_mass_action + ": <select id='mass_action_lipid_class'>\
+                <option>" + please_select + "</option> \
+                <option>" + export_to_file_action + "</option> \
+                <option>" + delete_action + "</option> \
+            </select> <button onclick='lipid_class_mass_action();'>" + apply_mass_action + "</button><br />\
             \
-            <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(true);'>select all</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(false);'>deselect all</div>\
+            <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(true);'>" + select_all + "</div> / <div style='cursor: pointer; display: inline;' onclick='select_all_lipid_classes(false);'>" + deselect_all + "</div>\
         </font>\
     </div>\
-    <view-table id='viewtable-lipid-class' columns='Lipid class|Status|Actions|Select' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
+    <view-table id='viewtable-lipid-class' columns='" + lipid_class_header + "|" + sample_status + "|" + sample_actions + "|" + select_action + "' size='65|10|10|5' sort='1|1|0|0' align='l|l|c|c' ></view-table>";
 }
 
 var registered_tables = {"sample": sample_table_view, "lipid-class": lipid_class_table_view};

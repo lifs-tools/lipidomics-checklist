@@ -14,6 +14,7 @@ MISSING_CHAR_FONT = "Symbola"
 workflow_types = {"gen": "General Lipidomics", "di": "Direct Infusion", "sep": "Separation", "img": "Imaging"}
 accepted_languages = {"en", "jp"}
 current_language_dictionary = None
+current_language = "en"
 
 font_sets = {
     "LMSans": [
@@ -73,6 +74,7 @@ for font_set_name, font_set in font_sets.items():
 font_preamble = "".join(font_preamble)
 
 
+
 def split_verison_number(text_version):
     version_array = [1, 0, 0];
 
@@ -88,7 +90,6 @@ def split_verison_number(text_version):
         version_array[0] = int(text_version[0])
         version_array[1] = int(text_version[1])
         version_array[2] = int(text_version[2])
-
 
     return version_array
 
@@ -112,7 +113,6 @@ def is_first_version_higher(first_version, version_to_test):
 
 
 def get_workflow_type(mycursor, table_prefix, uid, entry_id):
-
     sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
     result = json.loads(mycursor.fetchone()["fields"])
@@ -124,7 +124,7 @@ def get_workflow_type(mycursor, table_prefix, uid, entry_id):
 
 
 def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fields, version):
-    global current_language_dictionary
+    global current_language_dictionary, current_language
 
     sql = "SELECT form, fields FROM %sentries WHERE user_id = ? AND id = ?;" % table_prefix
     mycursor.execute(sql, (uid, entry_id))
@@ -143,24 +143,27 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
         if field["name"] == "workflowtype":
             workflow_type = field["value"] if field["value"] in workflow_types else "gen"
 
-    language = result["language"] if "language" in result and result["language"] in accepted_languages else "en"
-    if current_language_dictionary == None and language != "en":
-        df_checklist = pd.read_excel(f"languages/{language}/checklist.xlsx")
-        df_lipid_class = pd.read_excel(f"languages/{language}/lipid-class.xlsx")
-        df_sample = pd.read_excel(f"languages/{language}/sample.xlsx")
+    if "language" in result and result["language"] in accepted_languages:
+        current_language = result["language"]
+        if current_language_dictionary == None and current_language != "en":
+            df_checklist = pd.read_excel(f"languages/{current_language}/checklist.xlsx")
+            df_lipid_class = pd.read_excel(f"languages/{current_language}/lipid-class.xlsx")
+            df_sample = pd.read_excel(f"languages/{current_language}/sample.xlsx")
+            df_meta = pd.read_excel(f"languages/{current_language}/meta.xlsx")
 
-        current_language_dictionary = {row["name"]: [row["label"], row["description"]] for i, row in df_checklist.iterrows()}
-        current_language_dictionary = {**{row["name"]: [row["label"], row["description"]] for i, row in df_lipid_class.iterrows()}, **current_language_dictionary}
-        current_language_dictionary = {**{row["name"]: [row["label"], row["description"]] for i, row in df_sample.iterrows()}, **current_language_dictionary}
+            current_language_dictionary = {row["name"]: [row["label"], row["description"]] for i, row in df_checklist.iterrows()}
+            current_language_dictionary = {**{row["name"]: [row["label"], row["description"]] for i, row in df_lipid_class.iterrows()}, **current_language_dictionary}
+            current_language_dictionary = {**{row["name"]: [row["label"], row["description"]] for i, row in df_sample.iterrows()}, **current_language_dictionary}
+            current_language_dictionary = {**{row["name"]: [row["label"], "NaN"] for i, row in df_meta.iterrows()}, **current_language_dictionary}
 
-        current_language_dictionary = {k: [v1 if pd.notna(v1) else None, v2 if pd.notna(v2) else None] for k, (v1, v2) in current_language_dictionary.items()}
+            current_language_dictionary = {k: [v1 if pd.notna(v1) else None, v2 if pd.notna(v2) else None] for k, (v1, v2) in current_language_dictionary.items()}
 
     for page in result["pages"]:
         for field in page["content"]:
             field_name = field["name"]
             visible[field_name] = True
 
-            if current_language_dictionary != None and language != "en":
+            if current_language_dictionary != None and current_language != "en":
                 field["label"], field["description"] = translate(field)
 
             field_map[field_name] = field
@@ -238,7 +241,24 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
 
     for page in result["pages"]:
-        titles.append(page["title"])
+        page_title = translate_meta(page, page["title"])
+        title_name = page["name"]
+
+        if type(page_title) == dict and page_title != None and "workflowtype" in field_map and "value" in field_map["workflowtype"]:
+            wt = field_map["workflowtype"]["value"]
+            if wt in page_title:
+                page_title = page_title[wt]
+                title_name += "#" + wt
+
+            elif "default" in page_title:
+                page_title = page_title["default"]
+                title_name += "#default"
+
+            else:
+                page_title = "X"
+        page_title = font_encoding(translate_meta(title_name, page_title))
+
+        titles.append(page_title)
         report_fields.append([])
         values = {}
         for field in page["content"]:
@@ -337,7 +357,7 @@ def unicoding(t):
 
 
 
-def font_encoding(text, font_type = "R", size = 8, to_string = True):
+def font_encoding(text, font_type = "R", size = None, to_string = True):
     if font_type not in font_types:
         raise Exception(f"Font type '{font_type}' not in {font_types}.")
 
@@ -350,10 +370,12 @@ def font_encoding(text, font_type = "R", size = 8, to_string = True):
             if ft in {"B", "BI"}: lst.append(r"{\textbf{")
             if ft in {"I", "BI"}: lst.append(r"{\textit{")
 
+            font_code = f"\\fontsize{{{s}}}{{{int(s + 2)}}}" if s != None else ""
+
             if font != None:
-                lst.append(f"{{\\fontsize{{{s}}}{{{int(s + 2)}}}\\selectfont {{\\{font} {unicoding(txt[st : en])}}}}}")
+                lst.append(f"{{{font_code}\\selectfont {{\\{font} {unicoding(txt[st : en])}}}}}")
             else:
-                lst.append(f"{{\\fontsize{{{s}}}{{{int(s * 1.2)}}}\\selectfont {{\\{MISSING_CHAR_FONT} {MISSING_CHAR * (en - st)}}} }}")
+                lst.append(f"{{{{font_code}}\\selectfont {{\\{MISSING_CHAR_FONT} {MISSING_CHAR * (en - st)}}} }}")
 
             if ft in {"I", "BI"}: lst.append(r"}}")
             if ft in {"B", "BI"}: lst.append(r"}}")
@@ -376,9 +398,6 @@ def font_encoding(text, font_type = "R", size = 8, to_string = True):
 
 
 
-
-
-
 def translate(field):
     label = field["label"] if "label" in field else ""
     description = field["description"] if "description" in field else ""
@@ -394,10 +413,23 @@ def translate(field):
 
 
 
+def translate_meta(field, default_text):
+    global current_language_dictionary
+
+    if current_language_dictionary == None: return default_text
+    field_name = ""
+    if type(field) == str:
+        field_name = field
+    else:
+        if "name" not in field: return default_text
+        field_name = field["name"]
+
+    if field_name not in current_language_dictionary: return default_text
+    return default_text if current_language_dictionary[field_name][0] == None else current_language_dictionary[field_name][0]
+
+
 
 def make_table(title, text):
-
-
     column_labels, content = text[11:].split("!!!CONTENT!!!")
     column_labels = column_labels.split("|")
     content = content.split("|")
@@ -443,7 +475,6 @@ def make_table(title, text):
 
     result_text.append(" & ".join("\\textbf{\\color{white}%s}" % column_label for column_label in column_labels) + "\\\\ \\hline \n")
 
-
     row_cnt = 0
     for i, cell in enumerate(content):
         if i % num_cols == 0:
@@ -484,7 +515,8 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     sample_entry_ids = [row["sample_form_entry_id"] for row in mycursor.fetchall()]
 
     sample_report_fields = []
-    sample_titles = ["Sample %i" % (i + 1) for i in range(len(sample_entry_ids))]
+    sample_prefix = font_encoding(translate_meta("single_sample", "Sample"))
+    sample_titles = ["%s %i" % (sample_prefix, i + 1) for i in range(len(sample_entry_ids))]
     for i, sample_entry_id in enumerate(sample_entry_ids):
         tmp_titles = []
         tmp_report_fields = []
@@ -514,7 +546,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
         fill_report_fields(mycursor, table_prefix, uid, class_entry_id, tmp_titles, tmp_report_fields, [])
         lipid_classes_report_fields += tmp_report_fields
 
-        lipid_class_prefix = "Lipid class %i" % (i + 1)
+        lipid_class_prefix = "%s %i" % (font_encoding(translate_meta("lipid_class_header", "Lipid class")), i + 1)
 
         for tmp_report_field, tmp_title in zip(tmp_report_fields, tmp_titles):
             lipid_class, adduct_ms1, adduct_ms2, other_adduct_ms1, other_adduct_ms2 = "", "", "", "", ""
@@ -560,23 +592,23 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     tex_preamble += """
 
 \\makeatletter
-\\renewcommand{\\section}{\\@startsection{section}{1}{0pt}%
-  {0ex} % negative space before
-  {0pt}    % space after
+\\renewcommand{\\section}{\\@startsection{section}{1}{0pt}
+  {0ex} %% negative space before
+  {0pt}    %% space after
   {\\normalfont\\Large\\bfseries}}
-\\renewcommand{\\subsection}{\\@startsection{subsection}{2}{0pt}%
-  {0ex} % negative space before
-  {1ex}    % space after
+\\renewcommand{\\subsection}{\\@startsection{subsection}{2}{0pt}
+  {0ex} %% negative space before
+  {1ex}    %% space after
   {\\normalfont\\large\\bfseries}}
 \\makeatother
 
-\\setlength{\\parskip}{0pt}  % remove paragraph skips if any
-\\setlength{\\parindent}{0pt} % optional, keep indentation
+\\setlength{\\parskip}{0pt}  %% remove paragraph skips if any
+\\setlength{\\parindent}{0pt} %% optional, keep indentation
 \\newcommand{\\Sec}[1]{\\Needspace{5\\baselineskip}\\section{#1}}
 
-% define variables
+%% define variables
 \\renewcommand{\\arraystretch}{1.3}
-\\renewcommand{\\contentsname}{Contents of Report}
+\\renewcommand{\\contentsname}{%s}
 \\renewcommand*{\\cftsecindent}{2.5em}
 \\renewcommand*{\\cftsubsecindent}{4.5em}
 \\definecolor{ILSgreen}{HTML}{7EBA28}
@@ -587,15 +619,19 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 \\newcommand*{\\tabindent}{0px}
 \\setcounter{secnumdepth}{0}
 \\newcommand{\\grayline}{\\arrayrulecolor{TitleGray}\\hline\\arrayrulecolor{black}}
-% \\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\vtop\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
-%\\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
+%% \\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\vtop\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
+%% \\newenvironment{pageblock}{\\par\\nobreak\\vfil\\penalty0\\vfilneg\\bgroup}{\\par\\xdef\\tpd{\\the\\prevdepth}\\egroup\\prevdepth=\\tpd}
 
 
 \\begin{document}
 \\begingroup\\fontsize{8pt}{10pt}\\selectfont
 
 \\hfill\\includegraphics[width=50pt]{images/ILS_standalone_logo.pdf}\\\\
-\\begin{flushright}\\vskip-15pt{\\tiny Created by \\href{https://lipidomicstandards.org}{https://lipidomicstandards.org}, version """
+\\begin{flushright}\\vskip-15pt{\\tiny %s \\href{https://lipidomicstandards.org}{https://lipidomicstandards.org}, %s """ % (
+    font_encoding(translate_meta("created_by", "Created by")),
+    font_encoding(translate_meta("contents_report", "Contents of Report")),
+    font_encoding(translate_meta("version", "version")),
+)
     tex_preamble += version
     tex_preamble += """}\\end{flushright}
 \\vskip-45pt
@@ -615,10 +651,8 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     with open(report_file, "wt", encoding = "utf-8") as tex:
         tex.write("%s\n\n" % tex_preamble)
 
-
         def write_data(mainbox, titles, report_fields, main_section = False, lipid_classes = False):
-
-            for i in range(len(titles)): titles[i] = font_encoding(titles[i])
+            #for i in range(len(titles)): titles[i] = font_encoding(titles[i])
             for section in report_fields:
                 for row in section:
                     row[0] = font_encoding(row[0])
@@ -629,7 +663,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                 if len(report_fields[i]) == 0: continue
 
                 #tex.write("\\begin{pageblock}\n")
-                if i == 0: tex.write("\\mainbox{%s}~\\\\\n" % mainbox)
+                if i == 0: tex.write("\\mainbox{%s}~\\\\\n" % font_encoding(mainbox))
                 tex.write("\\subsection{\\textcolor{TitleGray}{%s}}\n" % mc)
                 #tex.write("\\textbf{\\large \\textcolor{TitleGray}{%s}}\n" % mc)
                 tex.write("\\vskip-1.2em\\noindent\\textcolor{ILSgreen}{\\rule{\\textwidth}{1.5pt}}\n")
@@ -643,7 +677,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                     # create time stamp of now
                     date_time = datetime.fromtimestamp(time.time())
                     str_date_time = date_time.strftime("%m/%d/%Y")
-                    report_fields[i][0] = ["Document creation date", str_date_time]
+                    report_fields[i][0] = [font_encoding(translate_meta("document_creation_date", "Document creation date")), str_date_time]
 
 
                 left = True
@@ -674,10 +708,10 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
                 if lipid_classes and ii % 2 == 1: tex.write("~\\\\[20pt] \n\n\n")
                 ii += 1
 
-        write_data("%s Workflow" % workflow_types[workflow_type], titles, report_fields, main_section = True)
+        write_data(translate_meta(workflow_type, "%s Workflow" % workflow_types[workflow_type]), titles, report_fields, main_section = True)
         tex.write("~\\\\~\\\\\n")
-        write_data("Sample Descriptions", sample_titles, sample_report_fields)
+        write_data(translate_meta("sample_descriptions", "Sample Descriptions"), sample_titles, sample_report_fields)
         tex.write("~\\\\~\\\\\n")
-        write_data("Lipid Class Descriptions", lipid_classes_titles, lipid_classes_report_fields, lipid_classes = True)
+        write_data(translate_meta("lipid_class_descriptions", "Lipid Class Descriptions"), lipid_classes_titles, lipid_classes_report_fields, lipid_classes = True)
 
         tex.write("%s\n\n" % tex_suffix)

@@ -27,6 +27,8 @@ function get_current_version(){
 
 
 function show_checklist(eid){
+    current_language = "en";
+    current_language_dictionary = null;
     workflow_type = 'checklist';
     entry_id = eid;
     document.getElementById("checklist-form").innerHTML = checklist_content;

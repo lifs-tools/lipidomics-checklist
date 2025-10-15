@@ -249,8 +249,6 @@ function format_field(el, final_valid_mode, cursors = 0){
 }
 
 function load_data(content){
-    current_language = "en";
-    current_language_dictionary = null;
     lipidomics_forms_content = content;
     field_map = {};
     dom_field_map = {};
@@ -268,47 +266,52 @@ function load_data(content){
     
     form_enabled = true;
     form_version = ("version" in content) ? content["version"] : "v1.0.0";
-    
     check_fields = {};
     label_set = new Set();
-    current_language = ("language" in content) ? content["language"] : "en";
 
+    if ("language" in content){
+        current_language = content["language"];
 
-    // get language dictionary
-    var xmlhttp_request = new XMLHttpRequest();
-    if (current_language != "en"){
-        xmlhttp_request.onreadystatechange = function() {
-            if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
-                response_text = xmlhttp_request.responseText;
-                if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
-                    if (response_text.startsWith("ErrorCodes.REPORT_NOT_CREATED")){
-                        alert("Before publishing, please download and review the report.");
+        // get language dictionary
+        var xmlhttp_request = new XMLHttpRequest();
+        if (current_language != "en"){
+            xmlhttp_request.onreadystatechange = function() {
+                if (xmlhttp_request.readyState == 4 && xmlhttp_request.status == 200) {
+                    response_text = xmlhttp_request.responseText;
+                    if (response_text.length == 0 || response_text.startsWith("ErrorCodes")){
+                        if (response_text.startsWith("ErrorCodes.REPORT_NOT_CREATED")){
+                            alert("Before publishing, please download and review the report.");
+                        }
+                        else if (response_text.startsWith("ErrorCodes.PUBLISHING_FAILED")){
+                            msg = "Unfortunately, the publishing process failed. We apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + response_text;
+                            alert(msg);
+                        }
+                        else {
+                            print_error(response_text);
+                        }
+                        return;
                     }
-                    else if (response_text.startsWith("ErrorCodes.PUBLISHING_FAILED")){
-                        msg = "Unfortunately, the publishing process failed. We apologize for inconvenience. Please get in contact with the administrators and provide the following message: \n\n" + response_text;
-                        alert(msg);
-                    }
-                    else {
-                        print_error(response_text);
-                    }
-                    return;
+                    current_language_dictionary = JSON.parse(response_text, (key, value) => {
+                        if (value === "NaN") return NaN;
+                        return value;
+                    });
                 }
-                current_language_dictionary = JSON.parse(response_text, (key, value) => {
-                    if (value === "NaN") return NaN;
-                    return value;
-                });
             }
+            var request_url = connector_path + "/connector.php?command=get_lang_dict&language=" + current_language;
+            xmlhttp_request.open("GET", request_url, false);
+            xmlhttp_request.send(false);
         }
-        var request_url = connector_path + "/connector.php?command=get_lang_dict&language=" + current_language;
-        xmlhttp_request.open("GET", request_url, false);
-        xmlhttp_request.send(false);
     }
+
+
+
+
 
     if (workflow_type == "sample"){
-        document.getElementById("back_button").innerHTML = "Back to Preanalytics / Sample material";
+        document.getElementById("back_button").innerHTML = translate_meta("back_to_preanalytics", "Back to Preanalytics / Sample material");
     }
     else if (workflow_type == "lipid-class"){
-        document.getElementById("back_button").innerHTML = "Back to Lipid identification / Additional separation method(s)";
+        document.getElementById("back_button").innerHTML = translate_meta("back_to_lipid_ident", "Back to Lipid identification / Additional separation method(s)");
     }
     else {
         document.getElementById("back_button").innerHTML = translate_meta("back_to_overview", "Back to Report Overview");
@@ -464,7 +467,7 @@ function load_data(content){
             
             obj_status_text.className = "lipidomics-forms-status-text";
             if ("title" in page){
-                page_title = translate_meta(page, ("title" in page) ? page["title"] : "");
+                page_title = translate_meta(page, page["title"]);
             }
             obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - " + translate_meta("page_header", "Page") + " " + (page_cnt + 1) + " / " + lipidomics_forms_content["pages"].length + "</font>";
             obj_status.append(obj_status_text);
@@ -700,7 +703,7 @@ function load_data(content){
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
-                obj_required.innerHTML = "This field is required.";
+                obj_required.innerHTML = translate_meta("field_required", "This field is required.");
                 obj_required.style.display = "none";
                 obj.append(obj_required);
                 required_messages[field_name] = obj_required;
@@ -768,7 +771,7 @@ function load_data(content){
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
-                obj_required.innerHTML = "This field is required.";
+                obj_required.innerHTML = translate_meta("field_required", "This field is required.");
                 obj_required.style.display = "none";
                 obj.append(obj_required);
                 required_messages[field_name] = obj_required;
@@ -898,7 +901,7 @@ function load_data(content){
                 
                 var obj_required = document.createElement("div");
                 obj_required.className = "lipidomics-forms-required-message";
-                obj_required.innerHTML = "This field is required.";
+                obj_required.innerHTML = translate_meta("field_required", "This field is required.");
                 obj_required.style.display = "none";
                 obj.append(obj_required);
                 required_messages[field_name] = obj_required;
@@ -948,7 +951,7 @@ function load_data(content){
                 page_title = "X";
             }
 
-            obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - Page " + (page_cnt + 1) + " of " + lipidomics_forms_content["pages"].length + "</font>";
+            obj_status_text.innerHTML = "<font size='+1'>" + page_title + " - Page " + (page_cnt + 1) + " / " + lipidomics_forms_content["pages"].length + "</font>";
         }
 
 
@@ -1048,7 +1051,7 @@ function update_text(form){
     var field_name = form.content["name"];
     form.content["value"] = form.value;
     required_messages[field_name].style.display = "none";
-    required_messages[field_name].innerHTML = "This field is required.";
+    required_messages[field_name].innerHTML = translate_meta("field_required", "This field is required.");
     form.style.border = "1px solid #ccc";
     check_conditions();
 }
@@ -1071,7 +1074,7 @@ function update_number(form){
     var field_name = form.content["name"];
     form.content["value"] = form.value;
     required_messages[field_name].style.display = "none";
-    required_messages[field_name].innerHTML = "This field is required.";
+    required_messages[field_name].innerHTML = translate_meta("field_required", "This field is required.");
     form.style.border = "1px solid #ccc";
     check_conditions();
 }

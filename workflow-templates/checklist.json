@@ -64,11 +64,11 @@
 
 {"label": "What chemistry", "name": "what_chemistry", "required": 1, "type": "text", "value": "", "description": "What additional sample chemistry (e.g., enzyme digestion, derivatization) was employed?", "condition": "additional_chemistry#yes=1"},
 
-{"label": "Were internal standards used?", "name": "internal_standards", "type": "select", "required": 1, "description": "If so, what and how?", "choice": [{"name": "internal_standards#yes", "label": "Yes", "value": 0}, {"name": "internal_standards#no", "label": "No", "value": 1}]},
+{"label": "Were internal standards added prior extraction?", "name": "internal_standards_prior", "type": "select", "required": 1, "description": "Details can be provided in the 'Lipid identification/quantification' section", "choice": [{"name": "internal_standards_prior#yes", "label": "Yes", "value": 0}, {"name": "internal_standards_prior#no", "label": "No", "value": 1}], "condition": "workflowtype~'img'"},
+
+{"label": "Were internal standards used?", "name": "internal_standards", "type": "select", "description": "Details can be provided in the 'Lipid identification/quantification' section", "required": 1, "choice": [{"name": "internal_standards#yes", "label": "Yes", "value": 0}, {"name": "internal_standards#no", "label": "No", "value": 1}], "condition": "workflowtype='img'"},
 
 {"label": "Deposition method", "name": "deposition_method", "required": 1, "type": "text", "value": "", "description": "What deposition method was used?", "condition": "internal_standards#yes=1"},
-
-{"label": "Internal standards used", "name": "int_standards_used", "required": 1, "type": "text", "value": "", "description": "Which internal standards were used?", "condition": "internal_standards#yes=1"},
 
 {"label": "Approximate number [\u00b5mol/mm<sup>2</sup>]", "name": "approx_number", "type": "number", "value": 0.0, "min": 0.0, "step": 0.01, "condition": "internal_standards#yes=1"},
 

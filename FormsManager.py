@@ -1959,7 +1959,6 @@ try:
             print(str(ErrorCodes.INVALID_MAIN_ENTRY_ID) + " in %s" % content["command"])
             exit()
             
-        
         try:
             # connect with the database
             conn, db_cursor = dbconnect()
@@ -1998,7 +1997,6 @@ try:
                 
                 # creating the tex and pdf file
                 report_file = "completed_documents/report-%s.tex" % hash_value
-                
                 CreateReport.create_report(db_cursor, table_prefix, uid, entry_id, report_file)
                 p = subprocess.Popen("./latexmk -pdflatex=lualatex -pdf -output-directory=completed_documents %s" % report_file, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, close_fds = True)
 
