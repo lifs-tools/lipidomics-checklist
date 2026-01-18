@@ -1,7 +1,10 @@
 <?php
 
+$dev_user_id = 2;
+$dev_user_uuid = "34b4bc10-a046-4f48-8ba0-b39381beb7b5";
 
-
+$foreign_user_id = 1197;
+$foreign_user_uuid = "4b857977-9570-4152-8cc7-d3cd1c969944";
 
 ////////////////////////////////////////////////////////////////////////////
 // read in config file
@@ -87,17 +90,17 @@ $user_id = 0;
 if ($config["machine"] != "home"){
     $user_id = get_current_user_id();
     $user_uuid = !empty( $_COOKIE['_wpfuuid'] ) ? $_COOKIE['_wpfuuid'] : "";
-    /*if ($user_id == 2){
-        $user_id = 1544;
-        $user_uuid = rawurlencode("bd6c04a6-147e-405f-8598-afec542b3cdb");
-    }*/
+    if ($user_id == $dev_user_id){
+        $user_id = $foreign_user_id;
+        $user_uuid = rawurlencode($foreign_user_uuid);
+    }
     array_push($request, "user_uuid=" . $user_uuid);
     array_push($request, "uid=" . $user_id);
 }
 else {
-    array_push($request, "user_uuid=" . rawurlencode("34b4bc10-a046-4f48-8ba0-b39381beb7b5"));
-    array_push($request, "uid=2");
-    $user_id = 2;
+    array_push($request, "user_uuid=" . rawurlencode($dev_user_uuid));
+    array_push($request, "uid=" . $dev_user_id);
+    $user_id = $dev_user_id;
 }
 
 // if the request is too big, write in file and send over the filename

@@ -9,7 +9,7 @@
 
 
 .lipidomics-forms-field {
-    margin: 0 0 25px 0;
+    margin: 0px 0px 25px 0px;
     width: 100%;
 }
 
@@ -84,7 +84,7 @@
 
 
 .lipidomics-forms-field-title {
-    margin: 1px 0 1px 0;
+    margin: 1px 0px 1px 0px;
 }
 
 
@@ -138,7 +138,7 @@
 
 .lipidomics-forms-input-table-field {
     border-radius: 2px;
-    padding: 0 0 0 0;
+    padding: 0px 0px 0px 0px;
     border: 1px solid #ccc;
     width: 98%;
 }
@@ -165,7 +165,7 @@ ul.lipidomics-forms-publishing-ul {
 }
 
 li.lipidomics-forms-publishing-li {
-    margin: 5px 0;
+    margin: 5px 0px;
 }
 
 .lipidomics-forms-number {
@@ -195,21 +195,21 @@ li.lipidomics-forms-publishing-li {
 
 .lipidomics-forms-multiple {
     list-style: none;
-    padding-left: 0;
-    margin: 0px 0 0px 0;
+    padding-left: 0px;
+    margin: 0px 0px 0px 0px;
 }
 
 .lipidomics-forms-field-description {
     font-size: 13px;
-    margin: 1px 0 1px 0;
+    margin: 1px 0px 1px 0px;
 }
 
 
 .suggestion-div:hover .suggestion-field {
     display: inline-block;
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
 }
 
 .suggestion-div .suggestion-field {
@@ -234,7 +234,7 @@ li.lipidomics-forms-publishing-li {
     cursor: pointer;
     font-size: 0.9em;
     font-weight: 400;
-    margin: 0 5px;
+    margin: 0px 5px;
     min-width: 90px;
     text-align: center;
     padding: 10px 15px;
@@ -249,7 +249,7 @@ li.lipidomics-forms-publishing-li {
 }
 
 .lipidomics-forms-status {
-    margin: 0 0 30px 0;
+    margin: 0px 0px 30px 0px;
 }
 
 .lipidomics-forms-status-bar {
@@ -258,8 +258,8 @@ li.lipidomics-forms-publishing-li {
     border-radius: 10px;
     overflow: hidden;
     width: 100%;
-    margin: 5px 0 0;
-    padding: 0 0 0 0;
+    margin: 5px 0px 0px;
+    padding: 0px 0px 0px 0px;
 }
 
 .lipidomics-forms-status-bar-progress {

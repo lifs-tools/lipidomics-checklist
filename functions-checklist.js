@@ -269,6 +269,27 @@ function load_data(content){
     check_fields = {};
     label_set = new Set();
 
+
+    try {
+        for (page of lipidomics_forms_content["pages"]){
+            for (field of page["content"]){
+                if (field["type"] === "select"){
+                    var s = 0;
+                    for (var e of field["choice"]){
+                        s += e["value"];
+                    }
+                    if (s != 1) {
+                        for (var e of field["choice"]){
+                            e["value"] = 0;
+                        }
+                        field["choice"][0]["value"] = 1;
+                    }
+                }
+            }
+        }
+    }
+    catch(err){}
+
     if ("language" in content){
         current_language = content["language"];
 

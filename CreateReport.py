@@ -158,6 +158,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
             current_language_dictionary = {k: [v1 if pd.notna(v1) else None, v2 if pd.notna(v2) else None] for k, (v1, v2) in current_language_dictionary.items()}
 
+
     for page in result["pages"]:
         for field in page["content"]:
             field_name = field["name"]
@@ -168,6 +169,12 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
             field_map[field_name] = field
             if field["type"] in {"select", "multiple"} and "choice" in field:
+
+                if field["type"] == "select":
+                    if sum(e["value"] for e in field["choice"]) != 1:
+                        for e in field["choice"]: e["value"] = 0
+                        field["choice"][0]["value"] = 1
+
                 for choice in field["choice"]:
                     if "name" in choice:
                         choice["label"], choice["description"] = translate(choice)
@@ -242,7 +249,7 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
     for page in result["pages"]:
         page_title = translate_meta(page, page["title"])
-        title_name = page["name"]
+        title_name = page["name"] if "name" in page else ""
 
         if type(page_title) == dict and page_title != None and "workflowtype" in field_map and "value" in field_map["workflowtype"]:
             wt = field_map["workflowtype"]["value"]
@@ -256,8 +263,8 @@ def fill_report_fields(mycursor, table_prefix, uid, entry_id, titles, report_fie
 
             else:
                 page_title = "X"
-        page_title = font_encoding(translate_meta(title_name, page_title))
 
+        page_title = font_encoding(translate_meta(title_name, page_title))
         titles.append(page_title)
         report_fields.append([])
         values = {}
@@ -537,6 +544,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
     mycursor.execute(sql)
     class_entry_ids = [row["class_form_entry_id"] for row in mycursor.fetchall()]
 
+
     lipid_classes_report_fields = []
     lipid_classes_titles = []
     for i, class_entry_id in enumerate(class_entry_ids):
@@ -566,7 +574,6 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
 
             lipid_class_title = "%i) %s / %s" % (i + 1, lipid_class_prefix, tmp_title)
             lipid_classes_titles.append(lipid_class_title)
-
     tex_preamble = """\\documentclass{article}
 
 % add packages
