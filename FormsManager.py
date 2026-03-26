@@ -1,9 +1,5 @@
-import traceback
-import sys
-import os
-
-
-try:    
+try:
+    import traceback
     import sys
     import os
     from json import loads as json_loads
@@ -16,6 +12,7 @@ try:
     import db.ChecklistConfig as cfg
     from FormsEnum import *
     from datetime import datetime
+    import time
 
     def dict_factory(cursor, row):
         return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
@@ -23,7 +20,7 @@ try:
 
     def print_error(error_code, e):
         ee = (''.join(traceback.format_tb(e.__traceback__)).replace("\n", "  "))
-        print(error_code, ee)
+        print(error_code, ee, e)
 
 
 
@@ -61,10 +58,11 @@ try:
 
     workflow_types = {"di", "sep", "img"}
 
-    form_types = {"main": main_form_id,
-                "class": class_form_id,
-                "sample": sample_form_id
-                }
+    form_types = {
+        "main": main_form_id,
+        "class": class_form_id,
+        "sample": sample_form_id,
+    }
 
 
     def copy_form(original_form, new_form):
@@ -360,7 +358,7 @@ try:
             conn, db_cursor = dbconnect()
 
             # getting all main forms
-            sql = "SELECT id, date, fields FROM %sentries WHERE status = 'published';" % table_prefix
+            sql = "SELECT id, date, fields FROM %sentries WHERE form = 'checklist' AND status = 'published';" % table_prefix
             db_cursor.execute(sql)
             request = db_cursor.fetchall()
             for entry in request:
@@ -1751,7 +1749,9 @@ try:
             if hash_value != None:
                 for extension in {"aux", "log", "out", "tex", "pdf", "fls", "fdb_latexmk"}:
                     file_to_del = "completed_documents/report-%s.%s" % (hash_value, extension)
-                    if os.path.exists(file_to_del): os.remove(file_to_del)
+                    if os.path.exists(file_to_del):
+                        os.remove(file_to_del)
+                        logger.info(f"Deleting '{file_to_del}'.")
 
         except Exception as e:
             print_error(str(ErrorCodes.ERROR_ON_GETTING_MAIN_FORMS) + " in %s" % content["command"], e)
@@ -2278,6 +2278,7 @@ try:
 
     elif content["command"] == "update_form_content":
 
+
         if "user_uuid" not in content or "uid" not in content:
             print(str(ErrorCodes.NO_USER_UUID) + " in %s" % content["command"])
             exit()
@@ -2343,8 +2344,6 @@ try:
                 for extension in {"aux", "log", "out", "tex", "pdf", "fls", "fdb_latexmk"}:
                     file_to_del = "completed_documents/report-%s.%s" % (hash_value, extension)
                     if os.path.exists(file_to_del): os.remove(file_to_del)
-
-
 
 
         except Exception as e:

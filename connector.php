@@ -3,8 +3,21 @@
 $dev_user_id = 2;
 $dev_user_uuid = "34b4bc10-a046-4f48-8ba0-b39381beb7b5";
 
-$foreign_user_id = 1197;
-$foreign_user_uuid = "4b857977-9570-4152-8cc7-d3cd1c969944";
+$foreign_user_id = 1686;
+//$foreign_user_uuid = "0bc9b41e-5a05-4495-8014-94c64c2bdcaa";
+
+if (isset($foreign_user_id)){
+    $test_user_id = $foreign_user_id;
+    $test_user_uuid = $foreign_user_uuid;
+}
+else {
+    $foreign_user_id = $dev_user_id;
+    $foreign_user_uuid = $dev_user_uuid;
+    $test_user_id = $dev_user_id;
+    $test_user_uuid = $dev_user_uuid;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 // read in config file
@@ -98,9 +111,9 @@ if ($config["machine"] != "home"){
     array_push($request, "uid=" . $user_id);
 }
 else {
-    array_push($request, "user_uuid=" . rawurlencode($dev_user_uuid));
-    array_push($request, "uid=" . $dev_user_id);
-    $user_id = $dev_user_id;
+    array_push($request, "user_uuid=" . rawurlencode($test_user_uuid));
+    array_push($request, "uid=" . $test_user_id);
+    $user_id = $test_user_id;
 }
 
 // if the request is too big, write in file and send over the filename

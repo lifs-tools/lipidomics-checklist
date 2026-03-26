@@ -81,21 +81,6 @@ function update_main_forms(){
                 var trb = [];
                 table_row.push(trb);
                 
-                /*
-                if (("owner" in row) && row["owner"] == 1){
-                    var img_share = document.createElement("img");
-                    trb.push(img_share);
-                    //img_share.setAttribute("onclick", "show_checklist('" + row["entry_id"] + "');");
-                    img_share.src = connector_path + "/images/share.png";
-                    img_share.title = "Share report";
-                    img_share.style = "cursor: pointer; height: 20px; padding-right: 5px; box-sizing: border-box;";
-                }
-                else {
-                    var img_fill = document.createElement("img");
-                    trb.push(img_fill);
-                    img_fill.style = "min-width: 25px; padding-right: 5px; box-sizing: border-box;";
-                }*/
-                
                 if (row["status"] == "partial"){
                     var img_fill1 = document.createElement("img");
                     trb.push(img_fill1);
@@ -239,7 +224,7 @@ function update_main_forms(){
 
 
 function update_published_reports(){
-    return;
+    //return;
     var xmlhttp_request = new XMLHttpRequest();
     
     xmlhttp_request.onreadystatechange = function() {
@@ -598,7 +583,7 @@ var workflow_content = "<div style=\"display: inline-block;\"> \
         <h3>Own Report List</h3> \
         <view-table id=\"viewtable\" columns=\"Report&nbsp;title|Report&nbsp;type|Creation&nbsp;date|Actions\" size='40|20|20|20' sort='1|1|1|0' align='l|l|l|c' ></view-table><br /> \
         <font color='red'><b>*</b></font> Status: partial \
-        <div style='display: none;'> \
+        <div style='display: block;'> \
             <p />&nbsp;<p />&nbsp;<p />&nbsp;<p /> \
             <h3>General List of Published Reports</h3> \
             <view-table id=\"publishtable\" columns=\"Title|Principle&nbsp;investigator|Report&nbsp;type|Creation&nbsp;date|Actions\" size='30|30|20|15|5' sort='1|1|1|1|0' align='l|l|l|l|c' ></view-table><br /> \

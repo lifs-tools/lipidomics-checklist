@@ -382,7 +382,7 @@ def font_encoding(text, font_type = "R", size = None, to_string = True):
             if font != None:
                 lst.append(f"{{{font_code}\\selectfont {{\\{font} {unicoding(txt[st : en])}}}}}")
             else:
-                lst.append(f"{{{{font_code}}\\selectfont {{\\{MISSING_CHAR_FONT} {MISSING_CHAR * (en - st)}}} }}")
+                lst.append(f"{{{font_code}\\selectfont {{\\{MISSING_CHAR_FONT} {MISSING_CHAR * (en - st)}}} }}")
 
             if ft in {"I", "BI"}: lst.append(r"}}")
             if ft in {"B", "BI"}: lst.append(r"}}")
@@ -534,6 +534,7 @@ def create_report(mycursor, table_prefix, uid, entry_id, report_file):
             sample_titles[i] = "%s / %s / %s" % (sample_ids["Sample set name"], sample_ids["Sample origin"], sample_ids["Sample type"])
             tmp_report_fields[0] = tmp_report_fields[0][3:]
 
+        sample_titles[i] = font_encoding(sample_titles[i])
         sample_report_fields.append(tmp_report_fields[0])
 
 
